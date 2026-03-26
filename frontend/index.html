@@ -531,7 +531,7 @@ details[open] summary::before { content:'▼ '; font-size:8px; }
           <option value="5" selected>5회</option>
           <option value="10">10회</option>
         </select>
-        <button class="btn btn-go" id="btnLoop" onclick="startLoop()">▶ Loop 시작 (200명)</button>
+        <button class="btn btn-go" id="btnLoop" onclick="startLoop()">▶ Loop 시작 (100명/회)</button>
         <button class="btn btn-ghost" id="btnStopLoop" onclick="stopLoop()" style="display:none;">■ 중단</button>
       </div>
     </div>
@@ -572,11 +572,11 @@ details[open] summary::before { content:'▼ '; font-size:8px; }
 
     <div class="chart-section">
       <div class="chart-card">
-        <div class="chart-title">구매율 추이</div>
+        <div class="chart-title">구매 전환 (명수 / 구매율)</div>
         <div class="bar-chart" id="purchaseChart"></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">매출 추이 (₩)</div>
+        <div class="chart-title">누적 매출 추이 (₩)</div>
         <div class="bar-chart" id="revenueChart"></div>
       </div>
     </div>
@@ -1257,19 +1257,41 @@ function updateLoopStats(data) {
 }
 
 function updateLoopCharts() {
-  // 구매율 차트
-  const maxRate = Math.max(...loopResults.map(r=>r.purchase_rate), 0.01);
+  // 구매 전환 차트 — 명수 + 비율 표시
+  const maxCount = Math.max(...loopResults.map(r=>r.conversation_count), 1);
   document.getElementById('purchaseChart').innerHTML = loopResults.map(r => {
-    const h = (r.purchase_rate / Math.max(maxRate * 1.2, 0.5)) * 100;
-    const hue = r.purchase_rate * 120;
-    return `<div class="bar-col"><div class="bar-val">${(r.purchase_rate*100).toFixed(0)}%</div><div class="bar-fill" style="height:${h}%;background:hsl(${hue},65%,45%)"></div><div class="bar-label">#${r.iteration}</div></div>`;
-  }).join('');
+    const purchaseH = (r.purchase_count / maxCount) * 100;
+    const wishlistH = (r.wishlist_count / maxCount) * 100;
+    const exitH = (r.exit_count / maxCount) * 100;
+    const rate = (r.purchase_rate * 100).toFixed(0);
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:13px;font-weight:700;color:var(--green)">${r.purchase_count}명</div>
+      <div class="bar-val" style="font-size:10px;color:var(--text2)">${rate}%</div>
+      <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:1px;">
+        <div style="width:100%;height:${purchaseH}%;background:var(--green);border-radius:4px 4px 0 0;min-height:${r.purchase_count?2:0}px;transition:height .5s"></div>
+        <div style="width:100%;height:${wishlistH}%;background:var(--orange);min-height:${r.wishlist_count?2:0}px;transition:height .5s"></div>
+        <div style="width:100%;height:${exitH}%;background:var(--red);border-radius:0 0 4px 4px;min-height:${r.exit_count?2:0}px;opacity:0.5;transition:height .5s"></div>
+      </div>
+      <div class="bar-label">#${r.iteration}</div>
+      <div style="font-size:9px;color:var(--text3)">${r.conversation_count}명</div>
+    </div>`;
+  }).join('') + '<div style="display:flex;flex-direction:column;gap:4px;justify-content:flex-end;padding-left:8px;font-size:9px;color:var(--text3)">' +
+    '<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:var(--green)"></div>구매</div>' +
+    '<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:var(--orange)"></div>찜</div>' +
+    '<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:var(--red);opacity:0.5"></div>이탈</div></div>';
 
-  // 매출 차트
-  const maxRev = Math.max(...loopResults.map(r=>r.total_revenue), 1);
-  document.getElementById('revenueChart').innerHTML = loopResults.map(r => {
-    const h = (r.total_revenue / (maxRev * 1.2)) * 100;
-    return `<div class="bar-col"><div class="bar-val">${(r.total_revenue/10000).toFixed(0)}만</div><div class="bar-fill" style="height:${h}%;background:var(--orange)"></div><div class="bar-label">#${r.iteration}</div></div>`;
+  // 누적 매출 차트
+  let cumRevenue = 0;
+  const cumData = loopResults.map(r => { cumRevenue += r.total_revenue; return {...r, cumRevenue}; });
+  const maxCum = Math.max(...cumData.map(r=>r.cumRevenue), 1);
+  document.getElementById('revenueChart').innerHTML = cumData.map(r => {
+    const h = (r.cumRevenue / (maxCum * 1.1)) * 100;
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:11px">${(r.cumRevenue/10000).toFixed(0)}만</div>
+      <div class="bar-val" style="font-size:9px;color:var(--text3)">+${(r.total_revenue/10000).toFixed(0)}만</div>
+      <div class="bar-fill" style="height:${h}%;background:var(--orange)"></div>
+      <div class="bar-label">#${r.iteration}</div>
+    </div>`;
   }).join('');
 }
 

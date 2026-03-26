@@ -29,14 +29,14 @@ async def main():
         product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포",
         product_price="49,900원 (정가 65,000원, 30일분)",
         max_turns=16,
-        concurrency=3,
+        concurrency=10,
     )
 
     # 실행
     results = await loop.run(
         personas=personas,
         n_iterations=5,
-        personas_per_iteration=10,
+        personas_per_iteration=100,
     )
 
     # 결과 요약
