@@ -1300,14 +1300,50 @@ function updateLoopTimeline() {
     const delta = r.iteration > 1 ?
       `<span class="rt-delta ${r.purchase_rate >= loopResults[r.iteration-2].purchase_rate ? 'up' : ''}">${r.purchase_rate >= (loopResults[r.iteration-2]?.purchase_rate||0) ? '↑' : '↓'}${Math.abs((r.purchase_rate - (loopResults[r.iteration-2]?.purchase_rate||0))*100).toFixed(0)}%p</span>` : '';
     const learnings = (r.learnings || []).map(l => `<div class="rt-learning">${l}</div>`).join('');
+    const tactics = (r.strategy_tactics || []).map(t => `<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(78,140,255,0.08);color:var(--blue);font-size:10px;margin:2px">${t}</span>`).join('');
+    const targets = (r.strategy_targets || []).map(t => `<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(149,128,255,0.08);color:var(--purple);font-size:10px;margin:2px">${t}</span>`).join('');
+    const analysis = r.analysis || {};
+    const successPatterns = (analysis.success_patterns || []).map(p => `<div class="rt-learning" style="border-left:2px solid var(--green);padding-left:8px">${p}</div>`).join('');
+    const failurePatterns = (analysis.failure_patterns || []).map(p => `<div class="rt-learning" style="border-left:2px solid var(--red);padding-left:8px">${p}</div>`).join('');
+    const improvements = (analysis.improvement_suggestions || []).map(p => `<div class="rt-learning" style="border-left:2px solid var(--orange);padding-left:8px">${p}</div>`).join('');
+
     return `
-      <div class="rt-item">
-        <div class="rt-num">${r.iteration}</div>
-        <div class="rt-body">
-          <div class="rt-head"><div class="rt-strategy">${r.strategy_name}</div>${delta}</div>
-          <div class="rt-meta">💬 ${r.conversation_count}개 대화 · 🛒 구매 ${r.purchase_count}명 (${(r.purchase_rate*100).toFixed(0)}%) · 💰 ₩${r.total_revenue.toLocaleString()}</div>
-          <div class="rt-learnings">${learnings}</div>
+      <div class="rt-item" style="flex-direction:column;gap:0">
+        <div style="display:flex;gap:16px">
+          <div class="rt-num">${r.iteration}</div>
+          <div class="rt-body">
+            <div class="rt-head"><div class="rt-strategy">${r.strategy_name}</div>${delta}</div>
+            <div class="rt-meta">💬 ${r.conversation_count}명 · 🛒 구매 ${r.purchase_count}명 (${(r.purchase_rate*100).toFixed(0)}%) · 💰 ₩${r.total_revenue.toLocaleString()}</div>
+          </div>
         </div>
+
+        <details style="margin-top:8px;margin-left:52px">
+          <summary style="font-size:11px;color:var(--text2);cursor:pointer;user-select:none;padding:4px 0">전략 상세</summary>
+          <div style="padding:10px;background:var(--surface2);border-radius:8px;margin-top:6px;font-size:11px;line-height:1.6">
+            <div style="margin-bottom:8px"><span style="color:var(--text3)">접근 방식:</span> ${r.strategy_approach || '-'}</div>
+            <div style="margin-bottom:8px"><span style="color:var(--text3)">오프닝:</span> ${r.strategy_opening || '-'}</div>
+            <div style="margin-bottom:8px"><span style="color:var(--text3)">설득 기법:</span><br>${tactics || '-'}</div>
+            <div style="margin-bottom:8px"><span style="color:var(--text3)">반론 대응:</span> ${r.strategy_objection || '-'}</div>
+            <div><span style="color:var(--text3)">타겟 페르소나:</span><br>${targets || '-'}</div>
+          </div>
+        </details>
+
+        <details style="margin-top:4px;margin-left:52px">
+          <summary style="font-size:11px;color:var(--text2);cursor:pointer;user-select:none;padding:4px 0">분석 결과 (REASON)</summary>
+          <div style="padding:10px;background:var(--surface2);border-radius:8px;margin-top:6px;display:flex;flex-direction:column;gap:6px">
+            ${successPatterns ? '<div style="font-size:10px;color:var(--green);font-weight:600;margin-bottom:2px">성공 패턴</div>' + successPatterns : ''}
+            ${failurePatterns ? '<div style="font-size:10px;color:var(--red);font-weight:600;margin-top:4px;margin-bottom:2px">실패 패턴</div>' + failurePatterns : ''}
+            ${improvements ? '<div style="font-size:10px;color:var(--orange);font-weight:600;margin-top:4px;margin-bottom:2px">개선 제안</div>' + improvements : ''}
+            ${!successPatterns && !failurePatterns ? '<div style="font-size:11px;color:var(--text3)">분석 데이터 없음</div>' : ''}
+          </div>
+        </details>
+
+        <details style="margin-top:4px;margin-left:52px">
+          <summary style="font-size:11px;color:var(--text2);cursor:pointer;user-select:none;padding:4px 0">학습 포인트 (LEARN)</summary>
+          <div style="padding:10px;background:var(--surface2);border-radius:8px;margin-top:6px;display:flex;flex-direction:column;gap:4px">
+            ${learnings || '<div style="font-size:11px;color:var(--text3)">학습 데이터 없음</div>'}
+          </div>
+        </details>
       </div>`;
   }).join('');
 }

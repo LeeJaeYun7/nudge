@@ -260,11 +260,15 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             loop_state["current_iteration"] = iteration
             _push_event({"type": "iteration_start", "iteration": iteration, "total": total})
 
-        async def on_iter_end(result, strategy):
+        async def on_iter_end(result, strategy, analysis=None):
             result_data = {
                 "iteration": result.iteration,
                 "strategy_name": strategy.name,
                 "strategy_approach": strategy.approach,
+                "strategy_opening": strategy.opening_style,
+                "strategy_tactics": strategy.persuasion_tactics,
+                "strategy_objection": strategy.objection_handling,
+                "strategy_targets": strategy.target_personas,
                 "avg_score": result.avg_weighted_score,
                 "purchase_count": result.purchase_count,
                 "wishlist_count": result.wishlist_count,
@@ -273,6 +277,7 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
                 "total_revenue": result.total_revenue,
                 "conversation_count": result.conversation_count,
                 "learnings": result.key_insights,
+                "analysis": analysis or {},
             }
             loop_state["results"].append(result_data)
             _push_event({"type": "iteration_end", **result_data})

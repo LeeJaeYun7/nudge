@@ -65,7 +65,7 @@ class RALPHLoop:
         console.print(f"  분석 모델: [cyan]{self.model_expensive}[/]\n")
 
         for iteration in range(1, n_iterations + 1):
-            console.print(f"\n[bold cyan]━━━ Iteration {iteration}/{n_iterations} ━━━[/]")
+            console.print(f"\n[bold cyan]=== Iteration {iteration}/{n_iterations} ===[/]")
 
             if self.on_iteration_start:
                 await self.on_iteration_start(iteration, n_iterations)
@@ -80,7 +80,7 @@ class RALPHLoop:
                 learnings=self.all_learnings,
             )
             self.strategy_history.append(strategy)
-            console.print(f"   전략: [bold]{strategy.name}[/] — {strategy.approach}")
+            console.print(f"   전략: [bold]{strategy.name}[/] -{strategy.approach}")
 
             # 2. PLAN
             console.print("[yellow]Plan:[/] 페르소나 선택 중...")
@@ -88,7 +88,7 @@ class RALPHLoop:
             selected = select_personas(personas, personas_per_iteration, focus)
             console.print(f"   선택: {len(selected)}명")
 
-            # 3. ACT (cheap) — 규칙 기반 고객으로 대화 실행
+            # 3. ACT (cheap) -규칙 기반 고객으로 대화 실행
             console.print(f"[yellow]Act:[/] {len(selected)}개 대화 실행 중...")
 
             def on_progress(done, total):
@@ -182,13 +182,13 @@ class RALPHLoop:
             self.result_history.append(result)
 
             if self.on_iteration_end:
-                await self.on_iteration_end(result, strategy)
+                await self.on_iteration_end(result, strategy, analysis)
 
-            console.print(f"[bold green]Iteration {iteration} 완료[/] — "
+            console.print(f"[bold green]Iteration {iteration} 완료[/] -"
                           f"점수: {avg_score:.1f}, 구매율: {purchase_rate:.0%}, 매출: ₩{total_revenue:,.0f}")
 
         # 최종 요약
-        console.print("\n[bold green]━━━ RALPH Loop 완료 ━━━[/]")
+        console.print("\n[bold green]=== RALPH Loop 완료 ===[/]")
         total_revenue_all = sum(r.total_revenue for r in self.result_history)
         console.print(f"총 매출: ₩{total_revenue_all:,.0f}")
         console.print(f"첫 구매율: {self.result_history[0].purchase_rate:.0%} → "
