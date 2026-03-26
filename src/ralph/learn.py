@@ -1,10 +1,12 @@
 import json
 
-import anthropic
+from openai import AsyncOpenAI
+
+from src.llm import chat
 
 
 async def extract_learnings(
-    client: anthropic.AsyncAnthropic,
+    client: AsyncOpenAI,
     model: str,
     analysis: dict,
     prior_learnings: list[str] | None = None,
@@ -32,13 +34,8 @@ async def extract_learnings(
 ["학습1", "학습2", "학습3"]
 """
 
-    response = await client.messages.create(
-        model=model,
-        max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = response.content[0].text.strip()
+    raw = await chat(client, model, [{"role": "user", "content": prompt}], max_tokens=1024)
+    raw = raw.strip()
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1]
         raw = raw.rsplit("```", 1)[0]

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
-import anthropic
+from openai import AsyncOpenAI
 
 from src.conversation.turn import Turn
+from src.llm import chat
 
 
 class BaseAgent(ABC):
@@ -10,8 +11,8 @@ class BaseAgent(ABC):
 
     def __init__(
         self,
-        client: anthropic.AsyncAnthropic,
-        model: str = "claude-sonnet-4-20250514",
+        client: AsyncOpenAI,
+        model: str = "google/gemini-2.0-flash-001",
         system_prompt: str = "",
     ):
         self.client = client
@@ -27,17 +28,16 @@ class BaseAgent(ABC):
         """대화 이력을 기반으로 응답을 생성합니다."""
         messages = self._build_messages(conversation_history)
         system = self.build_system_prompt()
-
-        response = await self.client.messages.create(
+        return await chat(
+            client=self.client,
             model=self.model,
+            messages=messages,
             max_tokens=1024,
             system=system,
-            messages=messages,
         )
-        return response.content[0].text
 
     def _build_messages(self, history: list[Turn]) -> list[dict]:
-        """Turn 리스트를 Claude API 메시지 포맷으로 변환합니다."""
+        """Turn 리스트를 OpenAI 호환 메시지 포맷으로 변환합니다."""
         messages = []
         for turn in history:
             role = "assistant" if turn.speaker == self.role else "user"

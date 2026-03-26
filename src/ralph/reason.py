@@ -1,13 +1,14 @@
 import json
 
-import anthropic
+from openai import AsyncOpenAI
 
 from src.conversation.turn import ConversationSession
 from src.evaluation.schema import EvaluationResult
+from src.llm import chat
 
 
 async def analyze_results(
-    client: anthropic.AsyncAnthropic,
+    client: AsyncOpenAI,
     model: str,
     sessions: list[ConversationSession],
     evaluations: list[EvaluationResult],
@@ -59,13 +60,8 @@ async def analyze_results(
 }}
 """
 
-    response = await client.messages.create(
-        model=model,
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = response.content[0].text.strip()
+    raw = await chat(client, model, [{"role": "user", "content": prompt}], max_tokens=2048)
+    raw = raw.strip()
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1]
         raw = raw.rsplit("```", 1)[0]

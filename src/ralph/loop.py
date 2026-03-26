@@ -1,4 +1,4 @@
-import anthropic
+from openai import AsyncOpenAI
 from rich.console import Console
 
 from src.evaluation.aggregator import Aggregator
@@ -22,8 +22,9 @@ class RALPHLoop:
 
     def __init__(
         self,
-        client: anthropic.AsyncAnthropic,
-        model: str = "claude-haiku-4-5-20251001",
+        client: AsyncOpenAI,
+        model_cheap: str = "google/gemini-2.0-flash-001",
+        model_expensive: str = "anthropic/claude-sonnet-4",
         product_name: str = "",
         product_description: str = "",
         product_price: str = "",
@@ -31,13 +32,14 @@ class RALPHLoop:
         concurrency: int = 50,
     ):
         self.client = client
-        self.model = model
+        self.model_cheap = model_cheap
+        self.model_expensive = model_expensive
         self.product_name = product_name
         self.product_description = product_description
         self.product_price = product_price
         self.max_turns = max_turns
         self.concurrency = concurrency
-        self.evaluator = Evaluator(client=client, model=model)
+        self.evaluator = Evaluator(client=client, model=model_expensive)
 
         # 상태 추적
         self.strategy_history: list[Strategy] = []
@@ -58,7 +60,9 @@ class RALPHLoop:
     ) -> list[StrategyResult]:
         """RALPH 루프를 n회 반복 실행합니다."""
 
-        console.print(f"\n[bold green]RALPH Loop 시작[/] - {n_iterations}회 반복, {personas_per_iteration}명/회\n")
+        console.print(f"\n[bold green]RALPH Loop 시작[/] - {n_iterations}회 반복, {personas_per_iteration}명/회")
+        console.print(f"  대화 모델: [cyan]{self.model_cheap}[/]")
+        console.print(f"  분석 모델: [cyan]{self.model_expensive}[/]\n")
 
         for iteration in range(1, n_iterations + 1):
             console.print(f"\n[bold cyan]━━━ Iteration {iteration}/{n_iterations} ━━━[/]")
@@ -66,11 +70,11 @@ class RALPHLoop:
             if self.on_iteration_start:
                 await self.on_iteration_start(iteration, n_iterations)
 
-            # 1. HYPOTHESIZE
+            # 1. HYPOTHESIZE (expensive)
             console.print("[yellow]Hypothesize:[/] 전략 생성 중...")
             strategy = await generate_hypothesis(
                 client=self.client,
-                model=self.model,
+                model=self.model_expensive,
                 iteration=iteration,
                 prior_results=self.result_history,
                 learnings=self.all_learnings,
@@ -84,7 +88,7 @@ class RALPHLoop:
             selected = select_personas(personas, personas_per_iteration, focus)
             console.print(f"   선택: {len(selected)}명")
 
-            # 3. ACT — 규칙 기반 고객으로 대화 실행
+            # 3. ACT (cheap) — 규칙 기반 고객으로 대화 실행
             console.print(f"[yellow]Act:[/] {len(selected)}개 대화 실행 중...")
 
             def on_progress(done, total):
@@ -96,7 +100,7 @@ class RALPHLoop:
 
             sessions = await execute_strategy(
                 client=self.client,
-                model=self.model,
+                model=self.model_cheap,
                 strategy=strategy,
                 personas=selected,
                 product_name=self.product_name,
@@ -118,7 +122,7 @@ class RALPHLoop:
                           f"찜: {wishlist_count}명 | 이탈: {exit_count}명")
             console.print(f"   매출: [bold]₩{total_revenue:,.0f}[/]")
 
-            # 4. EVALUATE
+            # 4. EVALUATE (expensive)
             console.print("[yellow]Evaluate:[/] 대화 평가 중...")
             evaluations: list[EvaluationResult] = []
             # 비용 절감: 전체 대신 샘플 30개만 평가
@@ -140,20 +144,20 @@ class RALPHLoop:
                 avg_score = 0.0
             console.print(f"   평균 점수: [bold]{avg_score:.1f}[/] (샘플 {len(evaluations)}개)")
 
-            # 5. REASON
+            # 5. REASON (expensive)
             console.print("[yellow]Reason:[/] 패턴 분석 중...")
             analysis = await analyze_results(
                 client=self.client,
-                model=self.model,
+                model=self.model_expensive,
                 sessions=sample_sessions,
                 evaluations=evaluations,
             )
 
-            # 6. LEARN
+            # 6. LEARN (expensive)
             console.print("[yellow]Learn:[/] 학습 추출 중...")
             new_learnings = await extract_learnings(
                 client=self.client,
-                model=self.model,
+                model=self.model_expensive,
                 analysis=analysis,
                 prior_learnings=self.all_learnings,
             )

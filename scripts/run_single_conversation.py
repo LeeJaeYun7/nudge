@@ -2,22 +2,23 @@
 
 import asyncio
 
-import anthropic
 from rich.console import Console
 from rich.panel import Panel
 
+from config.settings import get_settings
 from src.agents.customer_agent import CustomerAgent
 from src.agents.sales_agent import SalesAgent
 from src.conversation.engine import ConversationEngine
 from src.evaluation.evaluator import Evaluator
+from src.llm import create_client
 from src.personas.loader import load_personas
 
 console = Console()
 
 
 async def main():
-    client = anthropic.AsyncAnthropic()
-    model = "claude-sonnet-4-20250514"
+    settings = get_settings()
+    client = create_client(settings.openrouter_api_key)
 
     # 페르소나 로드 및 선택
     personas = load_personas()
@@ -25,10 +26,10 @@ async def main():
 
     console.print(Panel(f"[bold]페르소나:[/] {persona.summary}", title="고객 정보"))
 
-    # 에이전트 생성
+    # 에이전트 생성 (대화는 cheap 모델)
     sales = SalesAgent(
         client=client,
-        model=model,
+        model=settings.model_cheap,
         product_name="프리미엄 무선 이어폰",
         product_description="노이즈캔슬링, 30시간 배터리, IPX5 방수, Hi-Res 오디오 지원",
         product_price="199,000원",
@@ -36,7 +37,7 @@ async def main():
 
     customer = CustomerAgent(
         client=client,
-        model=model,
+        model=settings.model_cheap,
         persona=persona,
     )
 
@@ -54,16 +55,16 @@ async def main():
     # 대화 출력
     for turn in session.turns:
         if turn.speaker == "sales":
-            console.print(f"[blue]🧑‍💼 판매원:[/] {turn.content}")
+            console.print(f"[blue]판매원:[/] {turn.content}")
         else:
-            console.print(f"[green]🧑 고객:[/] {turn.content}")
+            console.print(f"[green]고객:[/] {turn.content}")
         console.print()
 
     console.print(f"[dim]종료 사유: {session.termination_reason} | 총 {session.total_turns}턴[/]\n")
 
-    # 평가
+    # 평가 (expensive 모델)
     console.print("[bold yellow]평가 중...[/]\n")
-    evaluator = Evaluator(client=client, model=model)
+    evaluator = Evaluator(client=client, model=settings.model_expensive)
     result = await evaluator.evaluate(session)
 
     console.print(Panel(

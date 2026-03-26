@@ -1,6 +1,6 @@
 import asyncio
 
-import anthropic
+from openai import AsyncOpenAI
 
 from src.agents.rule_customer import RuleCustomerAgent
 from src.agents.sales_agent import SalesAgent
@@ -11,7 +11,7 @@ from src.ralph.strategy import Strategy
 
 
 async def execute_strategy(
-    client: anthropic.AsyncAnthropic,
+    client: AsyncOpenAI,
     model: str,
     strategy: Strategy,
     personas: list[Persona],

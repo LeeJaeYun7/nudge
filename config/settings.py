@@ -3,8 +3,9 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    anthropic_api_key: str = Field(..., alias="ANTHROPIC_API_KEY")
-    model_name: str = Field("claude-haiku-4-5-20251001", alias="MODEL_NAME")
+    openrouter_api_key: str = Field(..., alias="OPENROUTER_API_KEY")
+    model_cheap: str = Field("google/gemini-2.0-flash-001", alias="MODEL_CHEAP")
+    model_expensive: str = Field("anthropic/claude-sonnet-4", alias="MODEL_EXPENSIVE")
     database_url: str = Field(
         "sqlite+aiosqlite:///data/db/nudge.db", alias="DATABASE_URL"
     )
@@ -17,9 +18,6 @@ class Settings(BaseSettings):
     ralph_iterations: int = 5
     personas_per_iteration: int = 200
     concurrent_conversations: int = 50
-
-    # Evaluation — Haiku for cost efficiency
-    eval_model: str = "claude-haiku-4-5-20251001"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

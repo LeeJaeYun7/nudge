@@ -1,10 +1,11 @@
 import json
 
-import anthropic
+from openai import AsyncOpenAI
 
 from src.conversation.turn import ConversationSession
 from src.evaluation.dimensions import get_evaluation_prompt
 from src.evaluation.schema import DimensionScore, EvaluationResult
+from src.llm import chat
 
 
 class Evaluator:
@@ -12,8 +13,8 @@ class Evaluator:
 
     def __init__(
         self,
-        client: anthropic.AsyncAnthropic,
-        model: str = "claude-sonnet-4-20250514",
+        client: AsyncOpenAI,
+        model: str = "anthropic/claude-sonnet-4",
     ):
         self.client = client
         self.model = model
@@ -23,13 +24,9 @@ class Evaluator:
 
         prompt = get_evaluation_prompt(session.transcript)
 
-        response = await self.client.messages.create(
-            model=self.model,
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}],
+        raw = await chat(
+            self.client, self.model, [{"role": "user", "content": prompt}], max_tokens=2048
         )
-
-        raw = response.content[0].text
 
         # JSON 파싱 (코드블록 제거)
         cleaned = raw.strip()

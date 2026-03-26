@@ -4,13 +4,13 @@ import asyncio
 import json
 from contextlib import asynccontextmanager
 
-import anthropic
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from config.settings import get_settings
+from src.llm import create_client
 from src.personas.schema import (
     Generation, InitialMood, InterestCategory, Persona,
     PriceSensitivity, PurchaseTendency, ReactionPattern,
@@ -167,11 +167,12 @@ async def stop_loop():
 async def _run_loop(personas: list[Persona], n_iterations: int):
     try:
         settings = get_settings()
-        client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        client = create_client(settings.openrouter_api_key)
 
         ralph = RALPHLoop(
             client=client,
-            model=settings.model_name,
+            model_cheap=settings.model_cheap,
+            model_expensive=settings.model_expensive,
             product_name="SoundForest SF-Pro Max 프리미엄 무선 노이즈캔슬링 이어폰",
             product_description="ANC, 30시간 배터리, IPX5 방수, Hi-Res 오디오, 4.7점 리뷰",
             product_price="₩199,000 (정가 ₩249,000)",

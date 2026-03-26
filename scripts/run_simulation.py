@@ -2,9 +2,10 @@
 
 import asyncio
 
-import anthropic
 from rich.console import Console
 
+from config.settings import get_settings
+from src.llm import create_client
 from src.personas.loader import load_personas
 from src.ralph.loop import RALPHLoop
 
@@ -12,8 +13,8 @@ console = Console()
 
 
 async def main():
-    client = anthropic.AsyncAnthropic()
-    model = "claude-sonnet-4-20250514"
+    settings = get_settings()
+    client = create_client(settings.openrouter_api_key)
 
     # 페르소나 로드
     personas = load_personas()
@@ -22,7 +23,8 @@ async def main():
     # RALPH Loop 설정
     loop = RALPHLoop(
         client=client,
-        model=model,
+        model_cheap=settings.model_cheap,
+        model_expensive=settings.model_expensive,
         product_name="프리미엄 무선 이어폰",
         product_description="노이즈캔슬링, 30시간 배터리, IPX5 방수, Hi-Res 오디오 지원",
         product_price="199,000원",

@@ -1,4 +1,4 @@
-import anthropic
+from openai import AsyncOpenAI
 
 from src.agents.base import BaseAgent
 from src.agents.prompts.customer_system import build_customer_system_prompt
@@ -10,8 +10,8 @@ class CustomerAgent(BaseAgent):
 
     def __init__(
         self,
-        client: anthropic.AsyncAnthropic,
-        model: str = "claude-sonnet-4-20250514",
+        client: AsyncOpenAI,
+        model: str = "google/gemini-2.0-flash-001",
         persona: Persona | None = None,
     ):
         super().__init__(client=client, model=model)
