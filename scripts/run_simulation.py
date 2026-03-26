@@ -36,7 +36,7 @@ async def main():
     results = await loop.run(
         personas=personas,
         n_iterations=5,
-        personas_per_iteration=100,
+        personas_per_iteration=200,
     )
 
     # 결과 요약

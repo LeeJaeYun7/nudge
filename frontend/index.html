@@ -531,7 +531,7 @@ details[open] summary::before { content:'▼ '; font-size:8px; }
           <option value="5" selected>5회</option>
           <option value="10">10회</option>
         </select>
-        <button class="btn btn-go" id="btnLoop" onclick="startLoop()">▶ Loop 시작 (100명/회)</button>
+        <button class="btn btn-go" id="btnLoop" onclick="startLoop()">▶ Loop 시작 (200명/회)</button>
         <button class="btn btn-ghost" id="btnStopLoop" onclick="stopLoop()" style="display:none;">■ 중단</button>
       </div>
     </div>
@@ -1207,7 +1207,7 @@ function handleLoopEvent(data) {
   if (data.type === 'iteration_start') {
     const pct = ((data.iteration - 1) / data.total * 100);
     document.getElementById('loopProgressBar').style.width = pct + '%';
-    document.getElementById('loopProgressText').textContent = `Iteration ${data.iteration}/${data.total} — 200명 대화 + 평가 + 학습 중...`;
+    document.getElementById('loopProgressText').textContent = `Iteration ${data.iteration}/${data.total} - 200명 대화 + 평가 + 학습 중...`;
   }
   else if (data.type === 'iteration_end') {
     loopResults.push(data);
