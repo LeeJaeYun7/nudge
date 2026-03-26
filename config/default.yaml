@@ -1,0 +1,37 @@
+# Nudge - Default Configuration
+
+conversation:
+  max_turns: 20
+  timeout_sec: 120
+  termination_keywords:
+    - "구매할게요"
+    - "안 살게요"
+    - "다음에 올게요"
+    - "그만하세요"
+
+ralph:
+  iterations: 10
+  personas_per_iteration: 20
+  concurrent_conversations: 5
+
+evaluation:
+  dimensions:
+    - name: interest_level
+      description: "고객이 제품에 관심을 보였는가"
+      weight: 0.2
+    - name: conversation_continuation
+      description: "고객이 대화에 계속 참여했는가"
+      weight: 0.15
+    - name: emotional_change
+      description: "고객의 감정이 긍정적으로 변화했는가"
+      weight: 0.2
+    - name: purchase_intent
+      description: "고객이 구매 의향을 표현했는가"
+      weight: 0.25
+    - name: final_outcome
+      description: "최종 행동 결과 (구매, 정보교환, 거절)"
+      weight: 0.2
+
+voice:
+  tts_provider: "openai"
+  stt_provider: "whisper"

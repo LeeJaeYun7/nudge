@@ -1,0 +1,35 @@
+[project]
+name = "nudge"
+version = "0.1.0"
+description = "Voice-based AI Sales Agent with RALPH loop self-optimization"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.42.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "pyyaml>=6.0",
+    "sqlmodel>=0.0.22",
+    "aiosqlite>=0.20.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "rich>=13.0",
+    "typer>=0.15.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+]
+voice = [
+    "openai>=1.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

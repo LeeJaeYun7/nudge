@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nudge - System Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    background: #0a0a0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 20px 24px;
+  }
+  .header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6ee7b7, #3b82f6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 16px;
+    color: #888;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Section */
+  .section {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .badge {
+    font-size: 11px;
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  /* RALPH Loop Diagram */
+  .ralph-loop {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+  }
+  .ralph-ring {
+    position: relative;
+    width: 560px;
+    height: 560px;
+  }
+  .ralph-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent);
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .ralph-center span:first-child {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #6ee7b7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ralph-center span:last-child {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .ralph-node {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+  .ralph-node:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+  }
+  .ralph-node .icon { font-size: 28px; margin-bottom: 6px; }
+  .ralph-node .label { font-size: 13px; font-weight: 600; }
+  .ralph-node .sub { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; line-height: 1.3; }
+
+  .node-hypothesize {
+    top: 0; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #312e81, #4338ca);
+    border: 1px solid #6366f1;
+  }
+  .node-plan {
+    top: 15%; right: 2%;
+    background: linear-gradient(135deg, #1e3a5f, #1d4ed8);
+    border: 1px solid #3b82f6;
+  }
+  .node-act {
+    bottom: 15%; right: 2%;
+    background: linear-gradient(135deg, #064e3b, #059669);
+    border: 1px solid #10b981;
+  }
+  .node-evaluate {
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #713f12, #d97706);
+    border: 1px solid #f59e0b;
+  }
+  .node-reason {
+    bottom: 15%; left: 2%;
+    background: linear-gradient(135deg, #7f1d1d, #dc2626);
+    border: 1px solid #ef4444;
+  }
+  .node-learn {
+    top: 15%; left: 2%;
+    background: linear-gradient(135deg, #581c87, #9333ea);
+    border: 1px solid #a855f7;
+  }
+
+  /* SVG Arrows */
+  .ralph-arrows {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  .ralph-arrows line {
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+  }
+  .ralph-arrows .arrow-flow {
+    stroke: rgba(110, 231, 183, 0.4);
+    stroke-width: 2.5;
+    stroke-dasharray: 8 4;
+    animation: flowDash 1.5s linear infinite;
+  }
+  @keyframes flowDash {
+    to { stroke-dashoffset: -24; }
+  }
+
+  /* Data Flow Section */
+  .flow-container {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+  .flow-card {
+    flex: 0 0 180px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .flow-card .flow-icon { font-size: 32px; margin-bottom: 10px; }
+  .flow-card .flow-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .flow-card .flow-desc { font-size: 11px; color: #888; line-height: 1.5; }
+  .flow-arrow {
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 20px;
+  }
+
+  /* Agents Battle */
+  .agents-battle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+  .agent-card {
+    width: 260px;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.07;
+    z-index: 0;
+  }
+  .agent-sales {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+  .agent-customer {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+  .agent-card .agent-icon { font-size: 48px; margin-bottom: 12px; position: relative; z-index: 1; }
+  .agent-card .agent-name { font-size: 18px; font-weight: 700; position: relative; z-index: 1; }
+  .agent-card .agent-role { font-size: 12px; color: #888; margin-top: 4px; position: relative; z-index: 1; }
+  .agent-card .agent-detail {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.8;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+  }
+  .agent-card .agent-detail li {
+    list-style: none;
+    padding-left: 16px;
+    position: relative;
+  }
+  .agent-card .agent-detail li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: #666;
+  }
+
+  .vs-badge {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #f59e0b;
+    letter-spacing: 1px;
+    position: relative;
+  }
+  .vs-badge::before, .vs-badge::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 2px;
+    background: rgba(255,255,255,0.08);
+  }
+  .vs-badge::before { left: -34px; }
+  .vs-badge::after { right: -34px; }
+
+  /* Evaluation Radar */
+  .eval-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    padding: 10px 0;
+  }
+  .eval-dim {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .eval-dim:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+  }
+  .eval-dim .eval-icon { font-size: 28px; margin-bottom: 10px; }
+  .eval-dim .eval-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .eval-dim .eval-name-en { font-size: 10px; color: #666; margin-top: 2px; }
+  .eval-dim .eval-weight {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: rgba(99, 102, 241, 0.15);
+    border-radius: 10px;
+    font-size: 11px;
+    color: #818cf8;
+  }
+  .eval-dim .eval-desc {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
+  }
+
+  /* Persona Grid */
+  .persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .persona-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s;
+  }
+  .persona-card:hover {
+    background: rgba(255,255,255,0.06);
+  }
+  .persona-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .persona-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .persona-name { font-size: 14px; font-weight: 600; }
+  .persona-gen { font-size: 11px; color: #888; }
+  .persona-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .persona-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    color: #aaa;
+  }
+  .tag-impulse { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+  .tag-deliberate { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+  .tag-bargain { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+  .tag-brand { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+  .tag-needs { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+  .tag-friendly { background: rgba(110, 231, 183, 0.1); color: #6ee7b7; }
+  .tag-skeptical { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
+  .tag-impatient { background: rgba(244, 63, 94, 0.1); color: #fb7185; }
+  .tag-curious { background: rgba(96, 165, 250, 0.1); color: #60a5fa; }
+  .tag-defensive { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+
+  /* Tech Stack */
+  .tech-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .tech-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .tech-badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* File Tree */
+  .file-tree {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #888;
+    overflow-x: auto;
+  }
+  .file-tree .dir { color: #60a5fa; }
+  .file-tree .file { color: #aaa; }
+  .file-tree .highlight { color: #6ee7b7; font-weight: 600; }
+  .file-tree .comment { color: #555; font-style: italic; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .ralph-ring { width: 340px; height: 340px; }
+    .ralph-node { width: 90px; height: 90px; border-radius: 14px; }
+    .ralph-node .icon { font-size: 20px; }
+    .ralph-node .label { font-size: 10px; }
+    .ralph-node .sub { display: none; }
+    .ralph-center { width: 100px; height: 100px; }
+    .ralph-center span:first-child { font-size: 18px; }
+    .agents-battle { flex-direction: column; }
+    .eval-grid { grid-template-columns: repeat(2, 1fr); }
+    .flow-container { flex-wrap: nowrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>Nudge</h1>
+  <p>고객 반응을 해석하고, 더 잘 팔리는 설득 전략을 스스로 학습하는<br>Voice AI Sales Agent System</p>
+</div>
+
+<!-- Section 1: RALPH Loop -->
+<div class="section">
+  <div class="section-title">
+    RALPH Loop - 자기 개선 사이클
+    <span class="badge">CORE ENGINE</span>
+  </div>
+
+  <div class="ralph-loop">
+    <div class="ralph-ring">
+      <!-- Center -->
+      <div class="ralph-center">
+        <span>RALPH</span>
+        <span>Self-improving Loop</span>
+      </div>
+
+      <!-- SVG Arrows -->
+      <svg class="ralph-arrows" viewBox="0 0 560 560">
+        <!-- H → P -->
+        <line class="arrow-flow" x1="345" y1="55" x2="440" y2="120" />
+        <!-- P → A -->
+        <line class="arrow-flow" x1="480" y1="220" x2="480" y2="330" />
+        <!-- A → E -->
+        <line class="arrow-flow" x1="440" y1="435" x2="345" y2="505" />
+        <!-- E → R -->
+        <line class="arrow-flow" x1="215" y1="505" x2="120" y2="435" />
+        <!-- R → L -->
+        <line class="arrow-flow" x1="80" y1="330" x2="80" y2="220" />
+        <!-- L → H -->
+        <line class="arrow-flow" x1="120" y1="120" x2="215" y2="55" />
+      </svg>
+
+      <!-- Nodes -->
+      <div class="ralph-node node-hypothesize">
+        <div class="icon">💡</div>
+        <div class="label">Hypothesize</div>
+        <div class="sub">전략 가설 생성</div>
+      </div>
+      <div class="ralph-node node-plan">
+        <div class="icon">📋</div>
+        <div class="label">Plan</div>
+        <div class="sub">페르소나 선택</div>
+      </div>
+      <div class="ralph-node node-act">
+        <div class="icon">🎯</div>
+        <div class="label">Act</div>
+        <div class="sub">대화 배치 실행</div>
+      </div>
+      <div class="ralph-node node-evaluate">
+        <div class="icon">📊</div>
+        <div class="label">Evaluate</div>
+        <div class="sub">5차원 평가</div>
+      </div>
+      <div class="ralph-node node-reason">
+        <div class="icon">🔍</div>
+        <div class="label">Reason</div>
+        <div class="sub">패턴 분석</div>
+      </div>
+      <div class="ralph-node node-learn">
+        <div class="icon">📚</div>
+        <div class="label">Learn</div>
+        <div class="sub">학습 포인트 추출</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: Agent Battle -->
+<div class="section">
+  <div class="section-title">
+    Agent 대화 시뮬레이션
+    <span class="badge">CONVERSATION ENGINE</span>
+  </div>
+
+  <div class="agents-battle">
+    <div class="agent-card agent-sales">
+      <div class="agent-icon">🧑‍💼</div>
+      <div class="agent-name">Sales Agent</div>
+      <div class="agent-role">AI 판매 에이전트</div>
+      <ul class="agent-detail">
+        <li>전략 기반 시스템 프롬프트</li>
+        <li>제품 정보 + 가격 숙지</li>
+        <li>설득 기법 적용</li>
+        <li>반론 대응 전략</li>
+        <li>RALPH Loop에서 전략 업데이트</li>
+      </ul>
+    </div>
+
+    <div class="vs-badge">VS</div>
+
+    <div class="agent-card agent-customer">
+      <div class="agent-icon">🧑</div>
+      <div class="agent-name">Customer Agent</div>
+      <div class="agent-role">페르소나 기반 고객</div>
+      <ul class="agent-detail">
+        <li>200개 페르소나 프로필</li>
+        <li>세대·관심사·구매성향 반영</li>
+        <li>가격 민감도 시뮬레이션</li>
+        <li>반응 패턴 (호의적~방어적)</li>
+        <li>현실적 구매/거절 결정</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Data Flow -->
+<div class="section">
+  <div class="section-title">
+    데이터 흐름
+    <span class="badge">DATA PIPELINE</span>
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-card">
+      <div class="flow-icon">📄</div>
+      <div class="flow-title">Persona YAML</div>
+      <div class="flow-desc">200개 고객 프로필<br>세대·성향·반응패턴</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-card">
+      <div class="flow-icon">💡</div>
+      <div class="flow-title">Strategy</div>
+      <div class="flow-desc">LLM이 생성한<br>영업 전략 가설</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-card">
+      <div class="flow-icon">💬</div>
+      <div class="flow-title">Conversation</div>
+      <div class="flow-desc">Sales ↔ Customer<br>턴 기반 대화</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-card">
+      <div class="flow-icon">📊</div>
+      <div class="flow-title">Evaluation</div>
+      <div class="flow-desc">5차원 점수<br>LLM-as-Judge</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-card">
+      <div class="flow-icon">🧠</div>
+      <div class="flow-title">Learning</div>
+      <div class="flow-desc">패턴 분석<br>학습 포인트 축적</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-card">
+      <div class="flow-icon">🗄️</div>
+      <div class="flow-title">Storage</div>
+      <div class="flow-desc">SQLite 저장<br>실험 이력 추적</div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: 5-Dimension Evaluation -->
+<div class="section">
+  <div class="section-title">
+    5차원 평가 시스템
+    <span class="badge">EVALUATION</span>
+  </div>
+
+  <div class="eval-grid">
+    <div class="eval-dim">
+      <div class="eval-icon">👀</div>
+      <div class="eval-name">관심도</div>
+      <div class="eval-name-en">Interest Level</div>
+      <div class="eval-weight">20%</div>
+      <div class="eval-desc">고객이 제품에<br>관심을 보였는가</div>
+    </div>
+    <div class="eval-dim">
+      <div class="eval-icon">🔄</div>
+      <div class="eval-name">대화 지속도</div>
+      <div class="eval-name-en">Continuation</div>
+      <div class="eval-weight">15%</div>
+      <div class="eval-desc">대화에 계속<br>참여했는가</div>
+    </div>
+    <div class="eval-dim">
+      <div class="eval-icon">💖</div>
+      <div class="eval-name">감정 변화</div>
+      <div class="eval-name-en">Emotional Change</div>
+      <div class="eval-weight">20%</div>
+      <div class="eval-desc">감정이 긍정적으로<br>변화했는가</div>
+    </div>
+    <div class="eval-dim">
+      <div class="eval-icon">💰</div>
+      <div class="eval-name">구매 의향</div>
+      <div class="eval-name-en">Purchase Intent</div>
+      <div class="eval-weight">25%</div>
+      <div class="eval-desc">구매 의사를<br>표현했는가</div>
+    </div>
+    <div class="eval-dim">
+      <div class="eval-icon">🎯</div>
+      <div class="eval-name">최종 결과</div>
+      <div class="eval-name-en">Final Outcome</div>
+      <div class="eval-weight">20%</div>
+      <div class="eval-desc">구매·정보교환<br>·거절 등</div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Personas -->
+<div class="section">
+  <div class="section-title">
+    고객 페르소나 샘플
+    <span class="badge">200 PERSONAS</span>
+  </div>
+
+  <div class="persona-grid">
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(244,63,94,0.15)">🧑‍🎓</div>
+        <div>
+          <div class="persona-name">김하은</div>
+          <div class="persona-gen">10대 · 패션</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-impulse">충동구매</span>
+        <span class="persona-tag tag-curious">호기심</span>
+        <span class="persona-tag">가격민감↑</span>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(59,130,246,0.15)">👩</div>
+        <div>
+          <div class="persona-name">이서연</div>
+          <div class="persona-gen">20대 · 패션</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-impulse">충동구매</span>
+        <span class="persona-tag tag-friendly">호의적</span>
+        <span class="persona-tag">가격민감 中</span>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(16,185,129,0.15)">👨‍💻</div>
+        <div>
+          <div class="persona-name">김태윤</div>
+          <div class="persona-gen">30대 · 전자기기</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-deliberate">신중구매</span>
+        <span class="persona-tag tag-skeptical">회의적</span>
+        <span class="persona-tag">가격민감 中</span>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(245,158,11,0.15)">👨‍💼</div>
+        <div>
+          <div class="persona-name">강현우</div>
+          <div class="persona-gen">40대 · 전자기기</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-deliberate">신중구매</span>
+        <span class="persona-tag tag-defensive">방어적</span>
+        <span class="persona-tag">실패경험↑</span>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(168,85,247,0.15)">👴</div>
+        <div>
+          <div class="persona-name">박정수</div>
+          <div class="persona-gen">50대 · 건강</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-needs">필요기반</span>
+        <span class="persona-tag tag-defensive">방어적</span>
+        <span class="persona-tag">사기경험↑</span>
+      </div>
+    </div>
+    <div class="persona-card">
+      <div class="persona-header">
+        <div class="persona-avatar" style="background:rgba(110,231,183,0.15)">👵</div>
+        <div>
+          <div class="persona-name">정옥순</div>
+          <div class="persona-gen">60대+ · 식품</div>
+        </div>
+      </div>
+      <div class="persona-tags">
+        <span class="persona-tag tag-brand">브랜드충성</span>
+        <span class="persona-tag tag-defensive">방어적</span>
+        <span class="persona-tag">전통선호</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6: Tech Stack -->
+<div class="section">
+  <div class="section-title">
+    기술 스택
+    <span class="badge">STACK</span>
+  </div>
+
+  <div class="tech-row">
+    <div class="tech-badge"><div class="dot" style="background:#a78bfa"></div>Claude API (Anthropic)</div>
+    <div class="tech-badge"><div class="dot" style="background:#3b82f6"></div>Python 3.11+</div>
+    <div class="tech-badge"><div class="dot" style="background:#10b981"></div>Pydantic v2</div>
+    <div class="tech-badge"><div class="dot" style="background:#f59e0b"></div>SQLModel + SQLite</div>
+    <div class="tech-badge"><div class="dot" style="background:#ef4444"></div>FastAPI</div>
+    <div class="tech-badge"><div class="dot" style="background:#6ee7b7"></div>Rich (CLI)</div>
+    <div class="tech-badge"><div class="dot" style="background:#fb923c"></div>asyncio</div>
+  </div>
+</div>
+
+<!-- Section 7: Project Structure -->
+<div class="section" style="padding-bottom: 80px;">
+  <div class="section-title">
+    프로젝트 구조
+    <span class="badge">46 FILES</span>
+  </div>
+
+  <div class="file-tree">
+<span class="dir">nudge/</span>
+├── <span class="dir">config/</span>
+│   ├── <span class="file">settings.py</span>        <span class="comment"># 환경 설정</span>
+│   ├── <span class="file">default.yaml</span>       <span class="comment"># 기본값</span>
+│   └── <span class="highlight">personas.yaml</span>      <span class="comment"># 고객 페르소나 200개</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="dir">agents/</span>
+│   │   ├── <span class="highlight">base.py</span>           <span class="comment"># 에이전트 기반 클래스</span>
+│   │   ├── <span class="highlight">sales_agent.py</span>    <span class="comment"># 판매 에이전트</span>
+│   │   ├── <span class="highlight">customer_agent.py</span> <span class="comment"># 고객 에이전트</span>
+│   │   └── <span class="dir">prompts/</span>         <span class="comment"># 시스템 프롬프트</span>
+│   ├── <span class="dir">conversation/</span>
+│   │   ├── <span class="highlight">engine.py</span>         <span class="comment"># 턴 기반 대화 엔진</span>
+│   │   ├── <span class="file">turn.py</span>           <span class="comment"># Turn, Session 모델</span>
+│   │   └── <span class="file">rules.py</span>          <span class="comment"># 종료 조건</span>
+│   ├── <span class="dir">evaluation/</span>
+│   │   ├── <span class="highlight">evaluator.py</span>      <span class="comment"># LLM-as-Judge</span>
+│   │   ├── <span class="file">dimensions.py</span>     <span class="comment"># 5차원 평가 기준</span>
+│   │   └── <span class="file">aggregator.py</span>     <span class="comment"># 통계 집계</span>
+│   ├── <span class="dir">ralph/</span>
+│   │   ├── <span class="highlight">loop.py</span>           <span class="comment"># RALPH 메인 루프</span>
+│   │   ├── <span class="file">hypothesize.py</span>    <span class="comment"># 전략 가설 생성</span>
+│   │   ├── <span class="file">act.py</span>            <span class="comment"># 전략 실행</span>
+│   │   ├── <span class="file">reason.py</span>         <span class="comment"># 패턴 분석</span>
+│   │   ├── <span class="file">learn.py</span>          <span class="comment"># 학습 추출</span>
+│   │   └── <span class="file">strategy.py</span>       <span class="comment"># 전략 모델</span>
+│   ├── <span class="dir">storage/</span>            <span class="comment"># SQLModel 저장</span>
+│   ├── <span class="dir">voice/</span>              <span class="comment"># TTS/STT (예정)</span>
+│   └── <span class="dir">api/</span>                <span class="comment"># FastAPI 대시보드</span>
+└── <span class="dir">scripts/</span>
+    ├── <span class="highlight">run_single_conversation.py</span>
+    └── <span class="highlight">run_simulation.py</span>
+  </div>
+</div>
+
+</body>
+</html>

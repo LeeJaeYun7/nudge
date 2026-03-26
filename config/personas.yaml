@@ -1,0 +1,226 @@
+personas:
+  # === 10대 ===
+  - id: P001
+    name: "김하은"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "고등학생, SNS 트렌드에 민감, 용돈으로 쇼핑"
+    speech_style: "반말 위주, 줄임말 사용, 리액션 큼"
+
+  - id: P002
+    name: "박시우"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "중학생, 게임과 테크에 관심, 부모님 설득 필요"
+    speech_style: "짧은 문장, 질문 많음"
+
+  # === 20대 ===
+  - id: P003
+    name: "이서연"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "대학생, 인스타 패션 팔로워, 가성비 중시"
+    speech_style: "밝은 톤, 공감 표현 많음"
+
+  - id: P004
+    name: "정민호"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "직장인 1년차, 가전 업그레이드 고민 중"
+    speech_style: "존댓말, 스펙 비교 질문"
+
+  - id: P005
+    name: "한유진"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "피트니스 인플루언서, 건강식품에 투자 아끼지 않음"
+    speech_style: "에너지 넘침, 경험담 공유"
+
+  - id: P006
+    name: "최준영"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "취준생, 식비 절약 중, 할인 아니면 안 삼"
+    speech_style: "직설적, 가격 먼저 물어봄"
+
+  # === 30대 ===
+  - id: P007
+    name: "김태윤"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "IT 개발자, 리뷰 꼼꼼히 확인, 스펙 중시"
+    speech_style: "논리적, 근거 요구"
+
+  - id: P008
+    name: "박소희"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "신혼부부, 집꾸미기에 관심, 실용성 중시"
+    speech_style: "존댓말, 상세한 질문"
+
+  - id: P009
+    name: "이동혁"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "취미 부자, 캠핑/골프/사진 등 다양한 취미"
+    speech_style: "열정적, 경험 공유 좋아함"
+
+  - id: P010
+    name: "윤서아"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "마케터, 특정 브랜드 선호, 빠른 결정"
+    speech_style: "간결, 핵심만 원함"
+
+  # === 40대 ===
+  - id: P011
+    name: "강현우"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "중간관리자, 가전 교체 필요하지만 실패 경험 있음"
+    speech_style: "신중, 보증/AS 질문"
+
+  - id: P012
+    name: "송미래"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "워킹맘, 가족 건강 챙기기, 시간 부족"
+    speech_style: "효율적 대화 선호, 결론 먼저"
+
+  - id: P013
+    name: "조성민"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "미식가, 프리미엄 식재료 선호, 단골 가게 있음"
+    speech_style: "여유로운 톤, 맛 표현 풍부"
+
+  - id: P014
+    name: "임지현"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "주부, 살림 경험 풍부, 가격 대비 성능 꼼꼼히 따짐"
+    speech_style: "비교 질문, 할인 정보 요구"
+
+  # === 50대 ===
+  - id: P015
+    name: "박정수"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "건강 우려 시작, 과거 건강식품 사기 경험"
+    speech_style: "의심 많음, 과학적 근거 요구"
+
+  - id: P016
+    name: "김영자"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "동네 단골 고객, 사교적, 입소문 영향 큼"
+    speech_style: "친근, 수다스러움, 지인 언급"
+
+  - id: P017
+    name: "이상호"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "은퇴 준비 중, 낚시/등산 장비에 과감한 투자"
+    speech_style: "호탕한 말투, 결정 빠름"
+
+  - id: P018
+    name: "최은숙"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "리모델링 고민 중, 여러 매장 비교 중"
+    speech_style: "단도직입, 비교 데이터 원함"
+
+  # === 60대+ ===
+  - id: P019
+    name: "한종원"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "은퇴자, 건강관리가 최우선, 자녀 추천 신뢰"
+    speech_style: "느긋, 반복 질문, 쉬운 설명 선호"
+
+  - id: P020
+    name: "정옥순"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "전통 시장 단골, 새로운 것에 경계심, 품질 중시"
+    speech_style: "경험 기반 판단, 옛날 비교"

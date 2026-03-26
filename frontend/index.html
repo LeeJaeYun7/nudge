@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nudge - AI Sales Simulation</title>
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --surface3: #222230;
+  --border: rgba(255,255,255,0.06);
+  --text: #e8e8ec;
+  --text2: #8888a0;
+  --text3: #4a4a5c;
+  --blue: #4e8cff;
+  --green: #2dd4a0;
+  --orange: #ffaa40;
+  --red: #ff5a5a;
+  --purple: #9580ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', -apple-system, sans-serif; background:var(--bg); color:var(--text); }
+
+/* ============ LAYOUT ============ */
+.app { display:grid; grid-template-rows:auto 1fr; height:100vh; }
+
+/* Top */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 28px; border-bottom:1px solid var(--border); background:var(--surface);
+}
+.logo { font-size:18px; font-weight:700; background:linear-gradient(135deg,#2dd4a0,#4e8cff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.topbar-nav { display:flex; gap:4px; }
+.nav-btn {
+  padding:7px 16px; border-radius:8px; border:none; background:transparent;
+  color:var(--text2); font-size:12px; cursor:pointer; transition:all .15s;
+}
+.nav-btn:hover { background:var(--surface2); color:var(--text); }
+.nav-btn.active { background:rgba(78,140,255,0.1); color:var(--blue); }
+
+/* ============ STORE PAGE ============ */
+.store-page { display:grid; grid-template-columns:400px 1fr 380px; height:calc(100vh - 49px); overflow:hidden; }
+
+/* --- LEFT: Store Context --- */
+.store-context {
+  border-right:1px solid var(--border); overflow-y:auto; padding:24px;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+}
+
+.store-header { margin-bottom:24px; }
+.store-name { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px; }
+.store-title { font-size:20px; font-weight:700; margin-bottom:2px; }
+.store-location { font-size:12px; color:var(--text2); }
+
+/* Product Card */
+.product-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:16px;
+  overflow:hidden; margin-bottom:20px;
+}
+.product-img {
+  height:180px; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:72px; position:relative;
+}
+.product-img::after {
+  content:'NEW'; position:absolute; top:12px; right:12px;
+  background:var(--orange); color:#000; font-size:10px; font-weight:700;
+  padding:3px 8px; border-radius:4px;
+}
+.product-body { padding:16px; }
+.product-name { font-size:16px; font-weight:600; margin-bottom:4px; }
+.product-brand { font-size:11px; color:var(--text2); margin-bottom:12px; }
+.product-price-row { display:flex; align-items:baseline; gap:8px; margin-bottom:14px; }
+.product-price { font-size:24px; font-weight:700; color:var(--orange); }
+.product-price-original { font-size:13px; color:var(--text3); text-decoration:line-through; }
+
+.spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.spec-item {
+  background:var(--surface); border-radius:8px; padding:10px;
+  text-align:center;
+}
+.spec-value { font-size:15px; font-weight:700; margin-bottom:2px; }
+.spec-label { font-size:10px; color:var(--text2); }
+
+/* Competitor */
+.competitor-section { margin-bottom:20px; }
+.section-label {
+  font-size:10px; color:var(--text3); text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:10px; font-weight:600;
+}
+.competitor-row {
+  display:flex; align-items:center; gap:10px; padding:10px;
+  background:var(--surface2); border-radius:10px; margin-bottom:6px;
+  border:1px solid var(--border);
+}
+.comp-name { font-size:12px; font-weight:500; flex:1; }
+.comp-price { font-size:12px; color:var(--text2); }
+.comp-badge {
+  font-size:9px; padding:2px 6px; border-radius:4px;
+  background:rgba(45,212,160,0.1); color:var(--green);
+}
+
+/* Promo */
+.promo-card {
+  background:linear-gradient(135deg, rgba(78,140,255,0.08), rgba(149,128,255,0.08));
+  border:1px solid rgba(78,140,255,0.15); border-radius:12px;
+  padding:14px; margin-bottom:20px;
+}
+.promo-title { font-size:12px; font-weight:600; color:var(--blue); margin-bottom:4px; }
+.promo-desc { font-size:11px; color:var(--text2); line-height:1.5; }
+.promo-deadline { font-size:10px; color:var(--orange); margin-top:6px; }
+
+/* --- CENTER: Conversation --- */
+.conv-center { display:flex; flex-direction:column; border-right:1px solid var(--border); }
+
+/* Scene Banner */
+.scene-banner {
+  padding:16px 24px; border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.scene-row { display:flex; align-items:center; justify-content:space-between; }
+.scene-situation {
+  display:flex; align-items:center; gap:10px;
+  font-size:13px; color:var(--text2);
+}
+.scene-dot { width:8px; height:8px; border-radius:50%; }
+.scene-dot.live { background:var(--green); animation:pulse 2s infinite; }
+.scene-dot.idle { background:var(--text3); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+.scene-phase {
+  font-size:11px; padding:4px 10px; border-radius:6px;
+  background:var(--surface2); color:var(--text2);
+}
+.scene-phase.active { background:rgba(78,140,255,0.1); color:var(--blue); }
+
+/* Stage Description */
+.stage-bar {
+  display:flex; gap:2px; padding:10px 24px; border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.stage-step {
+  flex:1; text-align:center; padding:6px 4px; border-radius:6px;
+  font-size:10px; color:var(--text3); transition:all .3s;
+}
+.stage-step.current { background:rgba(78,140,255,0.1); color:var(--blue); font-weight:600; }
+.stage-step.done { color:var(--green); }
+.stage-step.done::before { content:'✓ '; }
+
+/* Chat */
+.chat-area { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+
+.msg { display:flex; gap:10px; max-width:88%; animation:fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg.sales { align-self:flex-start; }
+.msg.customer { align-self:flex-end; flex-direction:row-reverse; }
+
+.msg-av {
+  width:34px; height:34px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:15px; flex-shrink:0;
+}
+.msg-av.av-sales { background:rgba(78,140,255,0.12); }
+.msg-av.av-cust { background:rgba(45,212,160,0.12); }
+
+.msg-body {}
+.msg-speaker { font-size:10px; color:var(--text3); margin-bottom:3px; padding:0 2px; }
+.msg.customer .msg-speaker { text-align:right; }
+.msg-text {
+  padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.65;
+  position:relative;
+}
+.msg.sales .msg-text { background:var(--surface2); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.msg.customer .msg-text { background:rgba(78,140,255,0.08); border:1px solid rgba(78,140,255,0.12); border-bottom-right-radius:4px; }
+
+/* Action bubble (리뷰 안내, 쿠폰 제공 등) */
+.msg-action {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 12px; border-radius:8px; margin-top:6px;
+  background:rgba(149,128,255,0.08); border:1px solid rgba(149,128,255,0.15);
+  font-size:11px; color:var(--purple);
+}
+
+.msg-mood {
+  font-size:10px; padding:2px 8px; border-radius:4px; margin-top:4px;
+  display:inline-block;
+}
+.mood-positive { background:rgba(45,212,160,0.1); color:var(--green); }
+.mood-neutral { background:rgba(255,255,255,0.04); color:var(--text3); }
+.mood-negative { background:rgba(255,90,90,0.1); color:var(--red); }
+
+/* Typing */
+.typing { display:flex; align-items:center; gap:8px; padding:0 4px; font-size:11px; color:var(--text3); }
+.typing-dots { display:flex; gap:3px; }
+.typing-dots span { width:5px; height:5px; border-radius:50%; background:var(--text3); animation:bounce 1.4s infinite; }
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-5px);opacity:1} }
+
+/* System message */
+.sys-msg {
+  text-align:center; font-size:11px; color:var(--text3);
+  padding:4px 0;
+}
+.sys-msg span {
+  background:var(--surface2); padding:4px 12px; border-radius:10px;
+}
+
+/* Controls */
+.conv-controls {
+  padding:14px 24px; border-top:1px solid var(--border);
+  display:flex; align-items:center; gap:10px; background:var(--surface);
+}
+.btn {
+  padding:8px 18px; border-radius:9px; border:none; font-size:12px;
+  font-weight:500; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:5px;
+}
+.btn-go { background:var(--blue); color:#fff; }
+.btn-go:hover { opacity:.9; }
+.btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--surface2); }
+.btn:disabled { opacity:.35; cursor:not-allowed; }
+.spacer { flex:1; }
+.turn-info { font-size:11px; color:var(--text3); }
+
+/* --- RIGHT: Live Evaluation --- */
+.eval-side { overflow-y:auto; padding:20px; background:var(--surface); }
+
+.eval-header { margin-bottom:20px; }
+.eval-title { font-size:14px; font-weight:600; margin-bottom:2px; }
+.eval-sub { font-size:11px; color:var(--text2); }
+
+/* Live meters */
+.live-meter { margin-bottom:14px; }
+.meter-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.meter-label { font-size:12px; display:flex; align-items:center; gap:6px; }
+.meter-val { font-size:16px; font-weight:700; }
+.meter-bar-bg { height:6px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
+.meter-bar { height:100%; border-radius:3px; transition:width .6s ease; }
+.meter-note { font-size:10px; color:var(--text3); margin-top:4px; line-height:1.4; }
+
+/* Composite */
+.composite-card {
+  background:linear-gradient(135deg, rgba(78,140,255,0.06), rgba(149,128,255,0.06));
+  border:1px solid rgba(78,140,255,0.12); border-radius:14px;
+  padding:20px; text-align:center; margin-bottom:20px;
+}
+.comp-score { font-size:48px; font-weight:700; background:linear-gradient(135deg,#4e8cff,#9580ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.comp-label { font-size:11px; color:var(--text2); margin-top:2px; }
+
+/* Insight cards */
+.insight-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+  padding:12px; margin-bottom:8px;
+}
+.insight-title { font-size:11px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:5px; }
+.insight-text { font-size:11px; color:var(--text2); line-height:1.5; }
+
+/* Customer Profile Mini */
+.cust-profile {
+  background:var(--surface2); border:1px solid var(--border); border-radius:12px;
+  padding:14px; margin-bottom:20px;
+}
+.cust-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.cust-av {
+  width:40px; height:40px; border-radius:12px; display:flex;
+  align-items:center; justify-content:center; font-size:20px;
+}
+.cust-name { font-size:14px; font-weight:600; }
+.cust-gen { font-size:11px; color:var(--text2); }
+.cust-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.cust-tag {
+  font-size:10px; padding:3px 8px; border-radius:6px;
+  background:rgba(255,255,255,0.04); color:var(--text2);
+}
+
+/* ============ RALPH PAGE ============ */
+.ralph-page { display:none; height:calc(100vh - 49px); overflow-y:auto; padding:28px; }
+.ralph-page.active { display:block; }
+
+.ralph-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.ralph-title { font-size:20px; font-weight:700; }
+
+.ralph-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.ralph-stat-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px;
+}
+.ralph-stat-val { font-size:28px; font-weight:700; }
+.ralph-stat-label { font-size:12px; color:var(--text2); margin-top:2px; }
+.ralph-stat-delta { font-size:12px; margin-top:4px; }
+.delta-up { color:var(--green); }
+.delta-down { color:var(--red); }
+
+.ralph-timeline {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px;
+}
+.rt-item { display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--border); }
+.rt-item:last-child { border-bottom:none; }
+.rt-num {
+  width:36px; height:36px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:13px;
+  font-weight:700; flex-shrink:0; background:rgba(45,212,160,0.12); color:var(--green);
+}
+.rt-body { flex:1; }
+.rt-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.rt-strategy { font-size:14px; font-weight:500; }
+.rt-delta {
+  font-size:11px; padding:2px 7px; border-radius:5px; font-weight:600;
+}
+.rt-delta.up { background:rgba(45,212,160,0.1); color:var(--green); }
+.rt-meta { font-size:12px; color:var(--text2); margin-bottom:8px; }
+.rt-learnings { display:flex; flex-direction:column; gap:4px; }
+.rt-learning {
+  font-size:11px; color:var(--text2); padding:5px 10px;
+  background:var(--surface2); border-radius:6px; line-height:1.4;
+}
+
+/* Chart */
+.chart-section { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.chart-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; }
+.chart-title { font-size:13px; font-weight:600; margin-bottom:16px; }
+.bar-chart { display:flex; align-items:flex-end; gap:10px; height:140px; }
+.bar-col { flex:1; display:flex; flex-direction:column; align-items:center; }
+.bar-val { font-size:11px; font-weight:600; color:var(--text2); margin-bottom:4px; }
+.bar-fill { width:100%; border-radius:6px 6px 0 0; transition:height .5s; min-height:4px; }
+.bar-label { font-size:10px; color:var(--text3); margin-top:6px; }
+
+/* Details toggle */
+details summary { list-style:none; }
+details summary::-webkit-details-marker { display:none; }
+details summary::before { content:'▶ '; font-size:8px; }
+details[open] summary::before { content:'▼ '; font-size:8px; }
+
+/* Responsive */
+@media(max-width:1200px) {
+  .store-page { grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+  .store-context, .eval-side { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">Nudge</div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" onclick="showPage('store',this)">쇼핑 시뮬레이션</button>
+      <button class="nav-btn" onclick="showPage('ralph',this)">RALPH Loop</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">
+      <span id="globalStatus" style="color:var(--green)">● Ready</span>
+    </div>
+  </div>
+
+  <!-- ============ STORE SIMULATION ============ -->
+  <div class="store-page" id="page-store">
+
+    <!-- LEFT: Persona + Product Context -->
+    <div class="store-context">
+      <!-- Persona Select (맨 위) -->
+      <div class="section-label" style="margin-bottom:8px;">고객 페르소나 <span id="personaCount" style="color:var(--text3);font-weight:400"></span></div>
+      <input id="personaSearch" type="text" placeholder="이름, 세대, 성향으로 검색..."
+        oninput="filterPersonas()"
+        style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;margin-bottom:8px;outline:none;">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;" id="genFilter"></div>
+      <div id="personaSelect" style="display:flex;flex-direction:column;gap:4px;max-height:calc(100vh - 340px);overflow-y:auto;"></div>
+
+      <!-- 상품 정보 (접힘 가능) -->
+      <details style="margin-top:16px;" open>
+        <summary style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600;cursor:pointer;padding:8px 0;user-select:none;">🎧 상품 정보</summary>
+        <div class="product-card" style="margin-top:8px;">
+          <div class="product-img" style="height:100px;font-size:48px;">🎧</div>
+          <div class="product-body" style="padding:12px;">
+            <div class="product-brand">SoundForest · SF-Pro Max</div>
+            <div class="product-name">프리미엄 무선 노이즈캔슬링 이어폰</div>
+            <div class="product-price-row">
+              <div class="product-price" style="font-size:20px;">₩199,000</div>
+              <div class="product-price-original">₩249,000</div>
+            </div>
+            <div class="spec-grid">
+              <div class="spec-item"><div class="spec-value">30h</div><div class="spec-label">배터리</div></div>
+              <div class="spec-item"><div class="spec-value">ANC</div><div class="spec-label">노이즈캔슬링</div></div>
+              <div class="spec-item"><div class="spec-value">IPX5</div><div class="spec-label">방수등급</div></div>
+              <div class="spec-item"><div class="spec-value">Hi-Res</div><div class="spec-label">오디오</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="promo-card" style="margin-top:10px;">
+          <div class="promo-title">🎁 온라인 한정 혜택</div>
+          <div class="promo-desc">첫 구매 15% 쿠폰 + 무료배송<br>앱 결제 시 5% 추가 적립 · 카드사 7% 즉시할인</div>
+          <div class="promo-deadline">⏰ 3/28(금) 자정까지</div>
+        </div>
+
+        <div class="competitor-section" style="margin-top:10px;">
+          <div class="section-label">경쟁 제품 비교</div>
+          <div class="competitor-row">
+            <span style="font-size:16px">🍎</span>
+            <div class="comp-name">AirPods Pro 2</div>
+            <div class="comp-price">₩329,000</div>
+          </div>
+          <div class="competitor-row">
+            <span style="font-size:16px">🎵</span>
+            <div class="comp-name">Sony WF-1000XM5</div>
+            <div class="comp-price">₩279,000</div>
+          </div>
+          <div class="competitor-row">
+            <span style="font-size:16px">🔊</span>
+            <div class="comp-name">Galaxy Buds3 Pro</div>
+            <div class="comp-price">₩259,000</div>
+            <div class="comp-badge">최다 비교</div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- CENTER: Conversation -->
+    <div class="conv-center">
+      <div class="scene-banner">
+        <div class="scene-row">
+          <div class="scene-situation">
+            <div class="scene-dot idle" id="liveDot"></div>
+            <span id="sceneText">고객 접속 대기 중</span>
+          </div>
+          <div class="scene-phase" id="scenePhase">대기</div>
+        </div>
+      </div>
+      <div class="stage-bar">
+        <div class="stage-step" id="stage-enter">사이트방문</div>
+        <div class="stage-step" id="stage-approach">상품조회</div>
+        <div class="stage-step" id="stage-intro">상세확인</div>
+        <div class="stage-step" id="stage-trial">리뷰/비교</div>
+        <div class="stage-step" id="stage-negotiate">장바구니</div>
+        <div class="stage-step" id="stage-close">결제</div>
+      </div>
+
+      <div class="chat-area" id="chatArea">
+        <div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--text3);font-size:13px;text-align:center;line-height:1.8;">
+          왼쪽에서 고객 페르소나를 선택하고<br>▶ 시뮬레이션 시작을 눌러주세요
+        </div>
+      </div>
+
+      <div class="conv-controls">
+        <button class="btn btn-go" id="btnStart" onclick="startSim()">▶ 시뮬레이션 시작</button>
+        <button class="btn btn-ghost" id="btnPause" onclick="togglePause()" disabled>⏸</button>
+        <button class="btn btn-ghost" onclick="resetSim()">↺ 리셋</button>
+        <div class="spacer"></div>
+        <div class="turn-info">턴 <strong id="turnNum">0</strong>/16 · <span id="elapsed">0:00</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live Eval + Customer Profile -->
+    <div class="eval-side">
+      <div class="cust-profile" id="custProfile">
+        <div class="cust-row">
+          <div class="cust-av" style="background:rgba(255,255,255,0.05)">❓</div>
+          <div>
+            <div class="cust-name" id="custName">고객 미선택</div>
+            <div class="cust-gen" id="custGen">페르소나를 선택하세요</div>
+          </div>
+        </div>
+        <div class="cust-tags" id="custTags"></div>
+      </div>
+
+      <div class="eval-header">
+        <div class="eval-title">실시간 평가</div>
+        <div class="eval-sub">대화 진행에 따라 업데이트됩니다</div>
+      </div>
+
+      <div class="composite-card">
+        <div class="comp-score" id="totalScore">-</div>
+        <div class="comp-label">종합 점수</div>
+      </div>
+
+      <div id="liveMeters">
+        <div class="live-meter">
+          <div class="meter-head">
+            <div class="meter-label">👀 관심도</div>
+            <div class="meter-val" id="mInterest" style="color:var(--blue)">-</div>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="barInterest" style="width:0;background:var(--blue)"></div></div>
+          <div class="meter-note" id="noteInterest"></div>
+        </div>
+        <div class="live-meter">
+          <div class="meter-head">
+            <div class="meter-label">🔄 대화 지속도</div>
+            <div class="meter-val" id="mCont" style="color:var(--purple)">-</div>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="barCont" style="width:0;background:var(--purple)"></div></div>
+          <div class="meter-note" id="noteCont"></div>
+        </div>
+        <div class="live-meter">
+          <div class="meter-head">
+            <div class="meter-label">💖 감정 변화</div>
+            <div class="meter-val" id="mEmotion" style="color:#ec4899">-</div>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="barEmotion" style="width:0;background:#ec4899"></div></div>
+          <div class="meter-note" id="noteEmotion"></div>
+        </div>
+        <div class="live-meter">
+          <div class="meter-head">
+            <div class="meter-label">💰 구매 의향</div>
+            <div class="meter-val" id="mIntent" style="color:var(--orange)">-</div>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="barIntent" style="width:0;background:var(--orange)"></div></div>
+          <div class="meter-note" id="noteIntent"></div>
+        </div>
+        <div class="live-meter">
+          <div class="meter-head">
+            <div class="meter-label">🎯 최종 결과</div>
+            <div class="meter-val" id="mOutcome" style="color:var(--green)">-</div>
+          </div>
+          <div class="meter-bar-bg"><div class="meter-bar" id="barOutcome" style="width:0;background:var(--green)"></div></div>
+          <div class="meter-note" id="noteOutcome"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;" id="insightsArea"></div>
+    </div>
+  </div>
+
+  <!-- ============ RALPH PAGE ============ -->
+  <div class="ralph-page" id="page-ralph">
+    <div class="ralph-top">
+      <div class="ralph-title">RALPH Loop</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <label style="font-size:12px;color:var(--text2);">반복 횟수:</label>
+        <select id="loopIterations" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;">
+          <option value="1">1회 (테스트)</option>
+          <option value="3">3회</option>
+          <option value="5" selected>5회</option>
+          <option value="10">10회</option>
+        </select>
+        <button class="btn btn-go" id="btnLoop" onclick="startLoop()">▶ Loop 시작 (200명)</button>
+        <button class="btn btn-ghost" id="btnStopLoop" onclick="stopLoop()" style="display:none;">■ 중단</button>
+      </div>
+    </div>
+
+    <!-- 진행 상태 -->
+    <div id="loopProgress" style="display:none;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;" id="loopProgressText">준비 중...</div>
+        <div style="flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden;">
+          <div id="loopProgressBar" style="height:100%;width:0%;background:var(--blue);border-radius:3px;transition:width .3s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실시간 결과 통계 -->
+    <div class="ralph-grid" id="loopStats">
+      <div class="ralph-stat-card">
+        <div class="ralph-stat-val" id="statScore" style="color:var(--green)">—</div>
+        <div class="ralph-stat-label">현재 평균 점수</div>
+        <div class="ralph-stat-delta" id="statScoreDelta"></div>
+      </div>
+      <div class="ralph-stat-card">
+        <div class="ralph-stat-val" id="statPurchase">—</div>
+        <div class="ralph-stat-label">구매 전환율</div>
+        <div class="ralph-stat-delta" id="statPurchaseDelta"></div>
+      </div>
+      <div class="ralph-stat-card">
+        <div class="ralph-stat-val" id="statRevenue" style="color:var(--orange)">—</div>
+        <div class="ralph-stat-label">누적 매출</div>
+        <div class="ralph-stat-delta" id="statRevenueDelta"></div>
+      </div>
+      <div class="ralph-stat-card">
+        <div class="ralph-stat-val" id="statStrategy" style="color:var(--purple)">—</div>
+        <div class="ralph-stat-label">현재 전략</div>
+        <div class="ralph-stat-delta" id="statStrategyDesc"></div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-card">
+        <div class="chart-title">구매율 추이</div>
+        <div class="bar-chart" id="purchaseChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">매출 추이 (₩)</div>
+        <div class="bar-chart" id="revenueChart"></div>
+      </div>
+    </div>
+
+    <div class="ralph-timeline">
+      <div class="chart-title" style="margin-bottom:16px;">반복 히스토리</div>
+      <div id="ralphTimeline"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const personas = [
+  {id:"P001",name:"손예나",gen:"50대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👧",color:"#8b5cf6",desc:"은퇴 준비 중, 가성비 중시"},
+  {id:"P002",name:"추찬영",gen:"60대+",cat:"건강",tendency:"트렌드추구",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👦",color:"#f472b6",desc:"자녀가 대신 주문, 본인은 확인만"},
+  {id:"P003",name:"길하준",gen:"60대+",cat:"패션",tendency:"신중구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨‍🎨",color:"#ef4444",desc:"전통적 소비관, 필요한 것만 구매"},
+  {id:"P004",name:"장규민",gen:"30대",cat:"도서",tendency:"할인추구",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍🎨",color:"#d946ef",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P005",name:"장주원",gen:"40대",cat:"도서",tendency:"할인추구",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"🧑",color:"#f472b6",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P006",name:"권수호",gen:"10대",cat:"식품",tendency:"트렌드추구",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👨‍💼",color:"#f97316",desc:"고등학생, 게임 장비 관심, 가성비 중시"},
+  {id:"P007",name:"소수아",gen:"20대",cat:"패션",tendency:"신중구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👵",color:"#ec4899",desc:"대학생, 리뷰 탐색형, 가성비 중시"},
+  {id:"P008",name:"천수빈",gen:"20대",cat:"뷰티",tendency:"할인추구",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👩",color:"#f472b6",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P009",name:"표다은",gen:"10대",cat:"패션",tendency:"트렌드추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍💼",color:"#ef4444",desc:"고등학생, 게임 장비 관심, 가성비 중시"},
+  {id:"P010",name:"강승우",gen:"20대",cat:"전자기기",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👦",color:"#7c3aed",desc:"직장인, 퇴근 후 앱 쇼핑, 새벽배송 선호"},
+  {id:"P011",name:"송민혁",gen:"10대",cat:"패션",tendency:"할인추구",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍🏫",color:"#78716c",desc:"중학생, 유튜브 리뷰 참고, 용돈 쇼핑"},
+  {id:"P012",name:"곽예은",gen:"50대",cat:"반려동물",tendency:"신중구매",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"🧑‍🎓",color:"#64748b",desc:"쿠폰 수집형, 카톡 공유, 입소문 영향"},
+  {id:"P013",name:"길미래",gen:"20대",cat:"스포츠",tendency:"필요기반",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩‍💻",color:"#9ca3af",desc:"프리랜서, 트렌드 민감, 충동구매"},
+  {id:"P014",name:"선예나",gen:"30대",cat:"식품",tendency:"트렌드추구",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"🧑‍🎓",color:"#78716c",desc:"맞벌이, 새벽배송 헤비유저"},
+  {id:"P015",name:"송지원",gen:"30대",cat:"전자기기",tendency:"신중구매",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"🧑",color:"#14b8a6",desc:"디자이너, 감성 소비, 디자인 중시"},
+  {id:"P016",name:"최정은",gen:"40대",cat:"뷰티",tendency:"트렌드추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍💻",color:"#0ea5e9",desc:"투자자, 합리적 소비, ROI 계산형"},
+  {id:"P017",name:"신정민",gen:"10대",cat:"도서",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👨‍🏫",color:"#f43f5e",desc:"고등학생, 틱톡 헤비유저, 앱 쇼핑"},
+  {id:"P018",name:"강태민",gen:"30대",cat:"반려동물",tendency:"필요기반",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍💼",color:"#9ca3af",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P019",name:"위수호",gen:"40대",cat:"스포츠",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍🎓",color:"#78716c",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P020",name:"방태민",gen:"30대",cat:"스포츠",tendency:"할인추구",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👨‍🎓",color:"#f472b6",desc:"육아맘, 시간 없어 빠른 결제 선호"},
+  {id:"P021",name:"허원준",gen:"20대",cat:"도서",tendency:"할인추구",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👨‍🔬",color:"#10b981",desc:"대학생, 리뷰 탐색형, 가성비 중시"},
+  {id:"P022",name:"전은호",gen:"10대",cat:"식품",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨‍🎓",color:"#10b981",desc:"고등학생, 틱톡 헤비유저, 앱 쇼핑"},
+  {id:"P023",name:"신찬영",gen:"10대",cat:"뷰티",tendency:"충동구매",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"🧔",color:"#a855f7",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P024",name:"심예준",gen:"20대",cat:"뷰티",tendency:"충동구매",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👨‍🎓",color:"#ec4899",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P025",name:"홍주호",gen:"50대",cat:"리빙",tendency:"신중구매",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"🧔",color:"#3b82f6",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P026",name:"오다은",gen:"20대",cat:"스포츠",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍💻",color:"#d946ef",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P027",name:"권하린",gen:"30대",cat:"도서",tendency:"신중구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#f97316",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P028",name:"오지민",gen:"20대",cat:"키즈",tendency:"신중구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍🏫",color:"#d946ef",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P029",name:"임태민",gen:"30대",cat:"반려동물",tendency:"신중구매",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👨‍💻",color:"#f43f5e",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P030",name:"오채은",gen:"20대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👵",color:"#10b981",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P031",name:"정현우",gen:"50대",cat:"리빙",tendency:"필요기반",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨",color:"#ef4444",desc:"백화점 선호하지만 온라인 도전 중"},
+  {id:"P032",name:"선현우",gen:"10대",cat:"도서",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍🎓",color:"#e11d48",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P033",name:"고이준",gen:"30대",cat:"패션",tendency:"브랜드충성",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👨",color:"#d946ef",desc:"교사, 계획적 구매, 후기 꼼꼼히 확인"},
+  {id:"P034",name:"탁다은",gen:"20대",cat:"리빙",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🎨",color:"#a855f7",desc:"대학생, 중고거래 활발, 가격비교 철저"},
+  {id:"P035",name:"마지호",gen:"40대",cat:"리빙",tendency:"브랜드충성",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👨‍🎨",color:"#7c3aed",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P036",name:"배수아",gen:"20대",cat:"뷰티",tendency:"브랜드충성",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍🎨",color:"#9ca3af",desc:"프리랜서, 트렌드 민감, 충동구매"},
+  {id:"P037",name:"강승현",gen:"10대",cat:"도서",tendency:"충동구매",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#ec4899",desc:"수험생, 스트레스 쇼핑, SNS 추천 의존"},
+  {id:"P038",name:"여시은",gen:"20대",cat:"키즈",tendency:"할인추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🔬",color:"#f472b6",desc:"프리랜서, 트렌드 민감, 충동구매"},
+  {id:"P039",name:"채은서",gen:"20대",cat:"키즈",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍💻",color:"#14b8a6",desc:"대학생, 리뷰 탐색형, 가성비 중시"},
+  {id:"P040",name:"천대현",gen:"30대",cat:"건강",tendency:"충동구매",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👨‍🎨",color:"#f472b6",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P041",name:"손지민",gen:"30대",cat:"도서",tendency:"트렌드추구",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"👩‍🎨",color:"#14b8a6",desc:"교사, 계획적 구매, 후기 꼼꼼히 확인"},
+  {id:"P042",name:"나서현",gen:"10대",cat:"전자기기",tendency:"트렌드추구",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#9ca3af",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P043",name:"정지아",gen:"20대",cat:"전자기기",tendency:"필요기반",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#8b5cf6",desc:"대학생, 공동구매 참여형"},
+  {id:"P044",name:"명승현",gen:"30대",cat:"리빙",tendency:"트렌드추구",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨‍🔬",color:"#7c3aed",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P045",name:"진윤서",gen:"30대",cat:"식품",tendency:"할인추구",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#f97316",desc:"맞벌이, 새벽배송 헤비유저"},
+  {id:"P046",name:"민승현",gen:"30대",cat:"뷰티",tendency:"충동구매",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👨‍🏫",color:"#78716c",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P047",name:"고채원",gen:"10대",cat:"패션",tendency:"트렌드추구",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👩",color:"#0ea5e9",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P048",name:"손수빈",gen:"30대",cat:"반려동물",tendency:"할인추구",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#10b981",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P049",name:"곽승민",gen:"20대",cat:"패션",tendency:"할인추구",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👨‍🎨",color:"#9ca3af",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P050",name:"한은지",gen:"10대",cat:"건강",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"🧑‍🎓",color:"#78716c",desc:"수험생, 스트레스 쇼핑, SNS 추천 의존"},
+  {id:"P051",name:"박민서",gen:"50대",cat:"반려동물",tendency:"신중구매",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👩",color:"#ef4444",desc:"자녀가 추천해주는 제품 위주 구매"},
+  {id:"P052",name:"태한결",gen:"30대",cat:"패션",tendency:"신중구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👨‍🎨",color:"#f59e0b",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P053",name:"주시우",gen:"50대",cat:"반려동물",tendency:"할인추구",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#8b5cf6",desc:"쿠폰 수집형, 카톡 공유, 입소문 영향"},
+  {id:"P054",name:"하승민",gen:"10대",cat:"스포츠",tendency:"할인추구",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👨‍💼",color:"#06b6d4",desc:"고등학생, 게임 장비 관심, 가성비 중시"},
+  {id:"P055",name:"나현아",gen:"40대",cat:"전자기기",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🏫",color:"#f59e0b",desc:"투자자, 합리적 소비, ROI 계산형"},
+  {id:"P056",name:"차이준",gen:"30대",cat:"반려동물",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👨‍🔬",color:"#a855f7",desc:"스타트업 대표, 프리미엄 선호"},
+  {id:"P057",name:"길유준",gen:"50대",cat:"스포츠",tendency:"트렌드추구",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👨‍💼",color:"#d946ef",desc:"재테크 관심, 불필요한 지출 경계"},
+  {id:"P058",name:"심하은",gen:"30대",cat:"식품",tendency:"할인추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#14b8a6",desc:"디자이너, 감성 소비, 디자인 중시"},
+  {id:"P059",name:"공시현",gen:"60대+",cat:"뷰티",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👨‍💼",color:"#ec4899",desc:"오프라인 선호, 온라인 구매에 경계심"},
+  {id:"P060",name:"유진우",gen:"20대",cat:"스포츠",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍💻",color:"#f97316",desc:"프리랜서, 트렌드 민감, 충동구매"},
+  {id:"P061",name:"권예준",gen:"30대",cat:"건강",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👨‍🔬",color:"#0ea5e9",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P062",name:"채예린",gen:"30대",cat:"반려동물",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👧",color:"#d946ef",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P063",name:"탁영은",gen:"40대",cat:"전자기기",tendency:"충동구매",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👩‍🎨",color:"#0ea5e9",desc:"공무원, 보수적 구매 성향, 안전 선호"},
+  {id:"P064",name:"양보라",gen:"30대",cat:"패션",tendency:"신중구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👩",color:"#f59e0b",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P065",name:"채서아",gen:"30대",cat:"스포츠",tendency:"충동구매",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👵",color:"#e11d48",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P066",name:"왕채은",gen:"50대",cat:"뷰티",tendency:"충동구매",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍💼",color:"#a855f7",desc:"쿠폰 수집형, 카톡 공유, 입소문 영향"},
+  {id:"P067",name:"박한결",gen:"20대",cat:"키즈",tendency:"신중구매",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"🧔",color:"#0ea5e9",desc:"대학생, 리뷰 탐색형, 가성비 중시"},
+  {id:"P068",name:"채준영",gen:"40대",cat:"키즈",tendency:"충동구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👨‍💻",color:"#64748b",desc:"투자자, 합리적 소비, ROI 계산형"},
+  {id:"P069",name:"백승현",gen:"10대",cat:"패션",tendency:"브랜드충성",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👨‍🏫",color:"#ef4444",desc:"중학생, 유튜브 리뷰 참고, 용돈 쇼핑"},
+  {id:"P070",name:"남보은",gen:"20대",cat:"건강",tendency:"브랜드충성",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"💁‍♀️",color:"#14b8a6",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P071",name:"배찬영",gen:"50대",cat:"전자기기",tendency:"할인추구",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👦",color:"#10b981",desc:"자녀가 추천해주는 제품 위주 구매"},
+  {id:"P072",name:"위다은",gen:"20대",cat:"패션",tendency:"신중구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"💁‍♀️",color:"#84cc16",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P073",name:"탁하영",gen:"40대",cat:"도서",tendency:"브랜드충성",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍🔬",color:"#f43f5e",desc:"전문직, 시간 절약형 쇼핑, 프리미엄 선호"},
+  {id:"P074",name:"오지우",gen:"50대",cat:"도서",tendency:"할인추구",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👧",color:"#8b5cf6",desc:"자녀가 추천해주는 제품 위주 구매"},
+  {id:"P075",name:"태세은",gen:"60대+",cat:"건강",tendency:"충동구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩",color:"#10b981",desc:"손주 선물 구매 시에만 온라인 이용"},
+  {id:"P076",name:"석진우",gen:"30대",cat:"키즈",tendency:"필요기반",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍🔬",color:"#8b5cf6",desc:"스타트업 대표, 프리미엄 선호"},
+  {id:"P077",name:"홍아린",gen:"30대",cat:"스포츠",tendency:"브랜드충성",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👩‍💼",color:"#8b5cf6",desc:"맞벌이, 새벽배송 헤비유저"},
+  {id:"P078",name:"우서윤",gen:"30대",cat:"리빙",tendency:"필요기반",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩‍🎨",color:"#f59e0b",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P079",name:"성서연",gen:"30대",cat:"키즈",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"🧑‍🎓",color:"#e11d48",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P080",name:"문성민",gen:"10대",cat:"반려동물",tendency:"트렌드추구",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍💻",color:"#f472b6",desc:"수험생, 스트레스 쇼핑, SNS 추천 의존"},
+  {id:"P081",name:"구윤서",gen:"40대",cat:"키즈",tendency:"신중구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👩‍🏫",color:"#14b8a6",desc:"전문직, 시간 절약형 쇼핑, 프리미엄 선호"},
+  {id:"P082",name:"설예준",gen:"40대",cat:"뷰티",tendency:"신중구매",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"👨‍💼",color:"#f43f5e",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P083",name:"선민혁",gen:"40대",cat:"키즈",tendency:"브랜드충성",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👦",color:"#f43f5e",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P084",name:"문하린",gen:"30대",cat:"식품",tendency:"신중구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#f43f5e",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P085",name:"유대현",gen:"50대",cat:"패션",tendency:"필요기반",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"🧔",color:"#ef4444",desc:"동호회 활동 활발, 공동구매 관심"},
+  {id:"P086",name:"주보라",gen:"50대",cat:"키즈",tendency:"트렌드추구",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#3b82f6",desc:"온라인 쇼핑 초보, 사기 피해 우려"},
+  {id:"P087",name:"장지환",gen:"30대",cat:"도서",tendency:"브랜드충성",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨‍💼",color:"#f97316",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P088",name:"소지원",gen:"30대",cat:"스포츠",tendency:"신중구매",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"👩‍🏫",color:"#f43f5e",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P089",name:"구예린",gen:"60대+",cat:"스포츠",tendency:"신중구매",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👵",color:"#10b981",desc:"건강보조제 관심, 검증된 제품만 구매"},
+  {id:"P090",name:"차지연",gen:"30대",cat:"키즈",tendency:"충동구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍🏫",color:"#f472b6",desc:"디자이너, 감성 소비, 디자인 중시"},
+  {id:"P091",name:"문정우",gen:"40대",cat:"도서",tendency:"할인추구",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"🧑",color:"#a855f7",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P092",name:"주하영",gen:"30대",cat:"건강",tendency:"브랜드충성",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👵",color:"#ec4899",desc:"육아맘, 시간 없어 빠른 결제 선호"},
+  {id:"P093",name:"염민준",gen:"20대",cat:"식품",tendency:"브랜드충성",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👨‍🎨",color:"#0ea5e9",desc:"직장 2년차, 브랜드 입문기"},
+  {id:"P094",name:"손지호",gen:"20대",cat:"식품",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨",color:"#78716c",desc:"직장 2년차, 브랜드 입문기"},
+  {id:"P095",name:"남시현",gen:"30대",cat:"반려동물",tendency:"브랜드충성",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👨‍💻",color:"#84cc16",desc:"마케터, 브랜드 선호, 빠른 결제"},
+  {id:"P096",name:"진태윤",gen:"60대+",cat:"반려동물",tendency:"브랜드충성",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#f59e0b",desc:"손주 선물 구매 시에만 온라인 이용"},
+  {id:"P097",name:"하재민",gen:"30대",cat:"전자기기",tendency:"충동구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨‍🔬",color:"#ef4444",desc:"맞벌이, 새벽배송 헤비유저"},
+  {id:"P098",name:"구도현",gen:"20대",cat:"리빙",tendency:"할인추구",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#d946ef",desc:"대학생, 공동구매 참여형"},
+  {id:"P099",name:"소민지",gen:"40대",cat:"전자기기",tendency:"신중구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧑‍🎓",color:"#a855f7",desc:"부장급, 고급 브랜드 선호, 품질 중시"},
+  {id:"P100",name:"길지유",gen:"50대",cat:"건강",tendency:"할인추구",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👩‍🔬",color:"#e11d48",desc:"백화점 선호하지만 온라인 도전 중"},
+  {id:"P101",name:"윤시우",gen:"50대",cat:"식품",tendency:"브랜드충성",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"🧑",color:"#d946ef",desc:"동호회 활동 활발, 공동구매 관심"},
+  {id:"P102",name:"도하은",gen:"60대+",cat:"식품",tendency:"할인추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍🏫",color:"#78716c",desc:"건강보조제 관심, 검증된 제품만 구매"},
+  {id:"P103",name:"소지아",gen:"60대+",cat:"리빙",tendency:"필요기반",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍🔬",color:"#e11d48",desc:"자녀가 대신 주문, 본인은 확인만"},
+  {id:"P104",name:"고민지",gen:"30대",cat:"리빙",tendency:"신중구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👵",color:"#f97316",desc:"스타트업 대표, 프리미엄 선호"},
+  {id:"P105",name:"마민준",gen:"20대",cat:"반려동물",tendency:"충동구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨‍🔬",color:"#0ea5e9",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P106",name:"안서현",gen:"20대",cat:"도서",tendency:"브랜드충성",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩‍🔬",color:"#d946ef",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P107",name:"노지환",gen:"50대",cat:"반려동물",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👨‍💼",color:"#78716c",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P108",name:"문대현",gen:"20대",cat:"건강",tendency:"신중구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👨",color:"#3b82f6",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P109",name:"왕주원",gen:"50대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#f43f5e",desc:"백화점 선호하지만 온라인 도전 중"},
+  {id:"P110",name:"여시현",gen:"20대",cat:"반려동물",tendency:"충동구매",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👨",color:"#f43f5e",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P111",name:"마예준",gen:"40대",cat:"식품",tendency:"할인추구",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👨‍💼",color:"#64748b",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P112",name:"황도윤",gen:"40대",cat:"리빙",tendency:"트렌드추구",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨",color:"#14b8a6",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P113",name:"윤예서",gen:"20대",cat:"반려동물",tendency:"신중구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👩",color:"#8b5cf6",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P114",name:"마태윤",gen:"50대",cat:"뷰티",tendency:"브랜드충성",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👨‍🏫",color:"#f43f5e",desc:"재테크 관심, 불필요한 지출 경계"},
+  {id:"P115",name:"전승민",gen:"20대",cat:"건강",tendency:"브랜드충성",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"🧔",color:"#f472b6",desc:"직장 2년차, 브랜드 입문기"},
+  {id:"P116",name:"이시우",gen:"60대+",cat:"스포츠",tendency:"브랜드충성",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"🧔",color:"#ef4444",desc:"손주 선물 구매 시에만 온라인 이용"},
+  {id:"P117",name:"차혜원",gen:"20대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧑‍🎓",color:"#84cc16",desc:"직장인, 퇴근 후 앱 쇼핑, 새벽배송 선호"},
+  {id:"P118",name:"주지민",gen:"20대",cat:"반려동물",tendency:"충동구매",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"🧑‍🎓",color:"#f97316",desc:"직장인, 퇴근 후 앱 쇼핑, 새벽배송 선호"},
+  {id:"P119",name:"설예서",gen:"40대",cat:"반려동물",tendency:"필요기반",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"💁‍♀️",color:"#ef4444",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P120",name:"방민준",gen:"30대",cat:"리빙",tendency:"충동구매",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👦",color:"#78716c",desc:"디자이너, 감성 소비, 디자인 중시"},
+  {id:"P121",name:"이우진",gen:"20대",cat:"리빙",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧑",color:"#9ca3af",desc:"직장 2년차, 브랜드 입문기"},
+  {id:"P122",name:"진성민",gen:"50대",cat:"반려동물",tendency:"트렌드추구",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"👨‍💼",color:"#3b82f6",desc:"은퇴 준비 중, 가성비 중시"},
+  {id:"P123",name:"표연서",gen:"40대",cat:"식품",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍💻",color:"#d946ef",desc:"부장급, 고급 브랜드 선호, 품질 중시"},
+  {id:"P124",name:"서미래",gen:"40대",cat:"반려동물",tendency:"할인추구",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👵",color:"#f472b6",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P125",name:"설민지",gen:"10대",cat:"반려동물",tendency:"트렌드추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🏫",color:"#f43f5e",desc:"고등학생, 틱톡 헤비유저, 앱 쇼핑"},
+  {id:"P126",name:"성정민",gen:"10대",cat:"키즈",tendency:"신중구매",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"👨‍💼",color:"#e11d48",desc:"고등학생, 게임 장비 관심, 가성비 중시"},
+  {id:"P127",name:"백나윤",gen:"20대",cat:"식품",tendency:"트렌드추구",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"💁‍♀️",color:"#ec4899",desc:"대학생, 공동구매 참여형"},
+  {id:"P128",name:"송한결",gen:"40대",cat:"키즈",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"🧔",color:"#d946ef",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P129",name:"허현우",gen:"30대",cat:"식품",tendency:"할인추구",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"🧔",color:"#10b981",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P130",name:"선지아",gen:"30대",cat:"뷰티",tendency:"충동구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"💁‍♀️",color:"#64748b",desc:"육아맘, 시간 없어 빠른 결제 선호"},
+  {id:"P131",name:"배유나",gen:"40대",cat:"키즈",tendency:"신중구매",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👩‍🏫",color:"#9ca3af",desc:"전문직, 시간 절약형 쇼핑, 프리미엄 선호"},
+  {id:"P132",name:"반지아",gen:"60대+",cat:"건강",tendency:"신중구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧑‍🎓",color:"#9ca3af",desc:"TV홈쇼핑 경험 있어 온라인 적응 중"},
+  {id:"P133",name:"선채원",gen:"10대",cat:"전자기기",tendency:"할인추구",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"💁‍♀️",color:"#f97316",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P134",name:"주정은",gen:"30대",cat:"건강",tendency:"브랜드충성",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩‍💼",color:"#3b82f6",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P135",name:"추승민",gen:"20대",cat:"뷰티",tendency:"브랜드충성",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👦",color:"#78716c",desc:"대학생, 공동구매 참여형"},
+  {id:"P136",name:"한주호",gen:"30대",cat:"키즈",tendency:"할인추구",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍🎨",color:"#ec4899",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P137",name:"소준혁",gen:"20대",cat:"리빙",tendency:"충동구매",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍💻",color:"#14b8a6",desc:"프리랜서, 트렌드 민감, 충동구매"},
+  {id:"P138",name:"강은지",gen:"50대",cat:"패션",tendency:"충동구매",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👩‍🔬",color:"#8b5cf6",desc:"은퇴 준비 중, 가성비 중시"},
+  {id:"P139",name:"석하은",gen:"50대",cat:"패션",tendency:"할인추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🏫",color:"#0ea5e9",desc:"동호회 활동 활발, 공동구매 관심"},
+  {id:"P140",name:"추영은",gen:"40대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👩‍💻",color:"#7c3aed",desc:"공무원, 보수적 구매 성향, 안전 선호"},
+  {id:"P141",name:"류민재",gen:"50대",cat:"반려동물",tendency:"신중구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"🧑",color:"#06b6d4",desc:"재테크 관심, 불필요한 지출 경계"},
+  {id:"P142",name:"조수호",gen:"10대",cat:"패션",tendency:"신중구매",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👦",color:"#f59e0b",desc:"고등학생, 틱톡 헤비유저, 앱 쇼핑"},
+  {id:"P143",name:"심현아",gen:"60대+",cat:"도서",tendency:"브랜드충성",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#f59e0b",desc:"오프라인 선호, 온라인 구매에 경계심"},
+  {id:"P144",name:"소재민",gen:"30대",cat:"건강",tendency:"필요기반",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧑",color:"#7c3aed",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P145",name:"최선우",gen:"20대",cat:"건강",tendency:"충동구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👨‍🎨",color:"#7c3aed",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P146",name:"신지아",gen:"40대",cat:"건강",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🎨",color:"#f472b6",desc:"부장급, 고급 브랜드 선호, 품질 중시"},
+  {id:"P147",name:"손승현",gen:"40대",cat:"식품",tendency:"필요기반",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👨",color:"#10b981",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P148",name:"태소연",gen:"30대",cat:"키즈",tendency:"트렌드추구",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"👩",color:"#f97316",desc:"영업직, 선물 구매 많음, 효율 중시"},
+  {id:"P149",name:"김예나",gen:"20대",cat:"건강",tendency:"할인추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👧",color:"#64748b",desc:"직장인, 퇴근 후 앱 쇼핑, 새벽배송 선호"},
+  {id:"P150",name:"원준혁",gen:"40대",cat:"건강",tendency:"할인추구",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👨‍🏫",color:"#d946ef",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"},
+  {id:"P151",name:"우민재",gen:"20대",cat:"키즈",tendency:"트렌드추구",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍🎨",color:"#64748b",desc:"취준생, 예산 제한적, 할인 민감"},
+  {id:"P152",name:"손윤서",gen:"50대",cat:"건강",tendency:"충동구매",sensitivity:"중간",reaction:"호의적",mood:"긍정",avatar:"👩",color:"#78716c",desc:"은퇴 준비 중, 가성비 중시"},
+  {id:"P153",name:"안민재",gen:"50대",cat:"리빙",tendency:"필요기반",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👨‍🔬",color:"#7c3aed",desc:"백화점 선호하지만 온라인 도전 중"},
+  {id:"P154",name:"민지훈",gen:"40대",cat:"뷰티",tendency:"충동구매",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👨‍🎨",color:"#7c3aed",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"},
+  {id:"P155",name:"왕보은",gen:"40대",cat:"뷰티",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"🧑‍🎓",color:"#06b6d4",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P156",name:"변미래",gen:"60대+",cat:"키즈",tendency:"트렌드추구",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👩‍🏫",color:"#f472b6",desc:"건강보조제 관심, 검증된 제품만 구매"},
+  {id:"P157",name:"기은지",gen:"40대",cat:"뷰티",tendency:"필요기반",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩",color:"#7c3aed",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"},
+  {id:"P158",name:"송지아",gen:"40대",cat:"키즈",tendency:"할인추구",sensitivity:"중간",reaction:"방어적",mood:"부정",avatar:"🧑‍🎓",color:"#f43f5e",desc:"부장급, 고급 브랜드 선호, 품질 중시"},
+  {id:"P159",name:"도지원",gen:"50대",cat:"식품",tendency:"필요기반",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👩‍💻",color:"#10b981",desc:"쿠폰 수집형, 카톡 공유, 입소문 영향"},
+  {id:"P160",name:"고서아",gen:"20대",cat:"뷰티",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#64748b",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P161",name:"권원준",gen:"40대",cat:"식품",tendency:"신중구매",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"🧔",color:"#ef4444",desc:"주부, 가족 쇼핑 담당, 쿠폰 활용 능숙"},
+  {id:"P162",name:"차하린",gen:"20대",cat:"뷰티",tendency:"할인추구",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👵",color:"#ef4444",desc:"직장 초년생, 자취 쇼핑 많음"},
+  {id:"P163",name:"정보은",gen:"30대",cat:"키즈",tendency:"신중구매",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👩‍💼",color:"#14b8a6",desc:"육아맘, 시간 없어 빠른 결제 선호"},
+  {id:"P164",name:"설수연",gen:"20대",cat:"패션",tendency:"충동구매",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👵",color:"#f43f5e",desc:"대학생, 공동구매 참여형"},
+  {id:"P165",name:"진채린",gen:"50대",cat:"뷰티",tendency:"충동구매",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#9ca3af",desc:"자녀가 추천해주는 제품 위주 구매"},
+  {id:"P166",name:"탁수호",gen:"10대",cat:"도서",tendency:"할인추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨",color:"#f472b6",desc:"수험생, 스트레스 쇼핑, SNS 추천 의존"},
+  {id:"P167",name:"권보라",gen:"50대",cat:"패션",tendency:"필요기반",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"💁‍♀️",color:"#78716c",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P168",name:"차시윤",gen:"20대",cat:"식품",tendency:"신중구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨‍🎨",color:"#d946ef",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P169",name:"진준우",gen:"30대",cat:"도서",tendency:"필요기반",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👨‍🔬",color:"#d946ef",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P170",name:"탁가은",gen:"40대",cat:"스포츠",tendency:"브랜드충성",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👵",color:"#7c3aed",desc:"전문직, 시간 절약형 쇼핑, 프리미엄 선호"},
+  {id:"P171",name:"윤준서",gen:"30대",cat:"키즈",tendency:"필요기반",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍🏫",color:"#7c3aed",desc:"맞벌이, 새벽배송 헤비유저"},
+  {id:"P172",name:"유원준",gen:"40대",cat:"식품",tendency:"필요기반",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👨‍🔬",color:"#78716c",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P173",name:"유수아",gen:"50대",cat:"뷰티",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👩‍🎨",color:"#78716c",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P174",name:"노승현",gen:"40대",cat:"키즈",tendency:"신중구매",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"🧑",color:"#ec4899",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"},
+  {id:"P175",name:"신하린",gen:"20대",cat:"건강",tendency:"필요기반",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👩",color:"#14b8a6",desc:"대학원생, 스펙 비교 꼼꼼"},
+  {id:"P176",name:"최건우",gen:"60대+",cat:"반려동물",tendency:"할인추구",sensitivity:"높음",reaction:"방어적",mood:"부정",avatar:"👨‍🏫",color:"#e11d48",desc:"자녀가 대신 주문, 본인은 확인만"},
+  {id:"P177",name:"신우진",gen:"40대",cat:"식품",tendency:"할인추구",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👨‍💻",color:"#0ea5e9",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P178",name:"기정우",gen:"50대",cat:"키즈",tendency:"할인추구",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👨‍🎓",color:"#8b5cf6",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P179",name:"배유진",gen:"60대+",cat:"도서",tendency:"트렌드추구",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👵",color:"#64748b",desc:"건강보조제 관심, 검증된 제품만 구매"},
+  {id:"P180",name:"성세은",gen:"30대",cat:"리빙",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍💼",color:"#e11d48",desc:"육아맘, 시간 없어 빠른 결제 선호"},
+  {id:"P181",name:"도재민",gen:"10대",cat:"반려동물",tendency:"필요기반",sensitivity:"높음",reaction:"호기심",mood:"긍정",avatar:"👨",color:"#78716c",desc:"수험생, 스트레스 쇼핑, SNS 추천 의존"},
+  {id:"P182",name:"하승준",gen:"50대",cat:"전자기기",tendency:"할인추구",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👨‍💼",color:"#8b5cf6",desc:"건강식품 관심, 광고 경계심 높음"},
+  {id:"P183",name:"도서준",gen:"10대",cat:"뷰티",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"🧔",color:"#ec4899",desc:"고등학생, 인스타 감성, 트렌드 민감"},
+  {id:"P184",name:"전연서",gen:"20대",cat:"스포츠",tendency:"브랜드충성",sensitivity:"중간",reaction:"급한성격",mood:"중립",avatar:"👩‍🎨",color:"#d946ef",desc:"직장인, 퇴근 후 앱 쇼핑, 새벽배송 선호"},
+  {id:"P185",name:"노태윤",gen:"60대+",cat:"키즈",tendency:"충동구매",sensitivity:"중간",reaction:"호기심",mood:"긍정",avatar:"🧑",color:"#84cc16",desc:"TV홈쇼핑 경험 있어 온라인 적응 중"},
+  {id:"P186",name:"진예은",gen:"50대",cat:"건강",tendency:"할인추구",sensitivity:"낮음",reaction:"급한성격",mood:"중립",avatar:"👩‍🏫",color:"#f43f5e",desc:"백화점 선호하지만 온라인 도전 중"},
+  {id:"P187",name:"안미소",gen:"60대+",cat:"패션",tendency:"필요기반",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"🧑‍🎓",color:"#ef4444",desc:"자녀가 대신 주문, 본인은 확인만"},
+  {id:"P188",name:"표민서",gen:"40대",cat:"건강",tendency:"트렌드추구",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👵",color:"#64748b",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P189",name:"주영은",gen:"40대",cat:"뷰티",tendency:"충동구매",sensitivity:"낮음",reaction:"방어적",mood:"부정",avatar:"👩‍🎨",color:"#7c3aed",desc:"전문직, 시간 절약형 쇼핑, 프리미엄 선호"},
+  {id:"P190",name:"류승준",gen:"20대",cat:"키즈",tendency:"충동구매",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"🧔",color:"#f472b6",desc:"대학생, 공동구매 참여형"},
+  {id:"P191",name:"안미래",gen:"30대",cat:"도서",tendency:"필요기반",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👩‍🔬",color:"#0ea5e9",desc:"신혼부부, 가전 구매 다수, 리뷰 중시"},
+  {id:"P192",name:"김서윤",gen:"40대",cat:"전자기기",tendency:"브랜드충성",sensitivity:"낮음",reaction:"호의적",mood:"긍정",avatar:"👩‍💼",color:"#ef4444",desc:"자영업자, 대량구매 선호, 가격 협상 기대"},
+  {id:"P193",name:"황정우",gen:"10대",cat:"패션",tendency:"브랜드충성",sensitivity:"높음",reaction:"회의적",mood:"중립",avatar:"👨‍🏫",color:"#8b5cf6",desc:"고등학생, 게임 장비 관심, 가성비 중시"},
+  {id:"P194",name:"홍연우",gen:"40대",cat:"키즈",tendency:"트렌드추구",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👨‍🔬",color:"#d946ef",desc:"학부모, 자녀 용품 구매 다수"},
+  {id:"P195",name:"마소율",gen:"60대+",cat:"스포츠",tendency:"신중구매",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👩",color:"#ec4899",desc:"자녀가 대신 주문, 본인은 확인만"},
+  {id:"P196",name:"석지연",gen:"30대",cat:"리빙",tendency:"충동구매",sensitivity:"중간",reaction:"회의적",mood:"중립",avatar:"👩‍💼",color:"#f43f5e",desc:"교사, 계획적 구매, 후기 꼼꼼히 확인"},
+  {id:"P197",name:"서지환",gen:"30대",cat:"전자기기",tendency:"할인추구",sensitivity:"낮음",reaction:"호기심",mood:"긍정",avatar:"👦",color:"#10b981",desc:"IT 개발자, 스펙 비교 꼼꼼, 최저가 검색"},
+  {id:"P198",name:"홍이준",gen:"40대",cat:"패션",tendency:"필요기반",sensitivity:"높음",reaction:"급한성격",mood:"중립",avatar:"👨‍🎨",color:"#e11d48",desc:"공무원, 보수적 구매 성향, 안전 선호"},
+  {id:"P199",name:"유서현",gen:"20대",cat:"식품",tendency:"할인추구",sensitivity:"높음",reaction:"호의적",mood:"긍정",avatar:"👩‍🏫",color:"#7c3aed",desc:"직장 2년차, 브랜드 입문기"},
+  {id:"P200",name:"구재민",gen:"40대",cat:"뷰티",tendency:"충동구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨",color:"#06b6d4",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"}
+];
+
+// 시나리오: 온라인 쇼핑 상황 기반
+const scenarios = {
+  friendly: {
+    stages:["enter","approach","intro","trial","negotiate","close"],
+    msgs:[
+      {s:"system",text:"고객이 상품 페이지에 접속했습니다. 체류 시간 30초 경과."},
+      {s:"sales",text:"안녕하세요! SF-Pro Max 이어폰에 관심 있으신가요? 궁금한 점 도와드릴게요 😊",stage:"approach",mood:"neutral"},
+      {s:"customer",text:"네 ㅎㅎ 이어폰 좀 바꾸려고 찾아보는 중이에요.",mood:"positive"},
+      {s:"sales",text:"어떤 이어폰 쓰고 계세요? 어떤 점이 아쉬우셨어요?",stage:"approach"},
+      {s:"customer",text:"유선 쓰는데 줄이 자꾸 엉켜서... 무선으로 바꿀까 해서 검색 중이에요.",mood:"positive"},
+      {s:"sales",text:"그러시면 이 제품 딱이에요! 저희 몰 베스트셀러인데, 노이즈캔슬링이 정말 좋다고 리뷰가 많아요.",stage:"intro"},
+      {s:"customer",text:"오 디자인 괜찮다. 노캔은 어느 정도예요?",mood:"positive"},
+      {s:"sales",text:"카페에서 써도 옆 테이블 대화가 거의 안 들린다는 후기가 많아요. 구매자 리뷰 4.7점이에요! 리뷰 확인해보시겠어요?",action:"리뷰 섹션 안내",stage:"trial"},
+      {s:"customer",text:"리뷰 좀 볼게요. 오 진짜 후기 좋네요.",mood:"positive"},
+      {s:"system",text:"고객이 리뷰 섹션을 스크롤하며 상세 후기를 읽고 있습니다."},
+      {s:"customer",text:"음질 좋다는 리뷰가 많네요...! 배터리도 오래간다고?",mood:"positive"},
+      {s:"sales",text:"네! Hi-Res 오디오라서 음질이 깨끗하고, 배터리 30시간이라 충전 스트레스 없어요. IPX5 방수라 운동할 때도 OK!",stage:"intro"},
+      {s:"customer",text:"30시간이면 넉넉하다... 근데 가격이 좀 고민되네요.",mood:"neutral"},
+      {s:"sales",text:"지금 정가 249,000원에서 199,000원으로 할인 중이에요. 첫 구매 쿠폰 쓰시면 15% 추가 할인돼요!",stage:"negotiate"},
+      {s:"customer",text:"첫 구매 쿠폰이요? 그러면 얼마까지 되는 거예요?",mood:"positive"},
+      {s:"sales",text:"쿠폰 적용하면 169,150원이에요! 카드사 즉시할인까지 합치면 더 내려가고, 무료배송에 케이스도 같이 보내드려요.",stage:"negotiate"},
+      {s:"customer",text:"오 17만원이면 괜찮네! 장바구니 담을게요.",mood:"positive"},
+      {s:"sales",text:"장바구니에 담겼어요! 지금 결제하시면 내일 도착이에요. 이니셜 각인 서비스도 무료로 신청 가능해요 🎁",stage:"close"},
+      {s:"customer",text:"바로 결제할게요 ㅋㅋ 각인도 넣어주세요!",mood:"positive"},
+      {s:"system",text:"✅ 결제 완료 — 고객이 온라인 결제를 진행합니다. 내일 배송 예정."},
+    ]
+  },
+  skeptical: {
+    stages:["enter","approach","intro","negotiate","close"],
+    msgs:[
+      {s:"system",text:"고객이 상품 페이지에 접속 후 스펙 비교 탭을 빠르게 훑어보고 있습니다."},
+      {s:"sales",text:"안녕하세요~ 이어폰 찾고 계시나요? 도움이 필요하시면 말씀해주세요!",stage:"approach",mood:"neutral"},
+      {s:"customer",text:"그냥 보는 거예요. 에어팟 쓰는데 굳이 바꿀 생각은 없어요.",mood:"neutral"},
+      {s:"sales",text:"아 에어팟 좋죠! 혹시 배터리 때문에 불편하신 적은 없으세요?",stage:"approach"},
+      {s:"customer",text:"뭐... 가끔 외출할 때 배터리 떨어지긴 하는데.",mood:"neutral"},
+      {s:"sales",text:"이 제품이 배터리가 30시간이라 그런 걱정이 확실히 없거든요. 출장이나 여행 때 특히 편해요.",stage:"intro"},
+      {s:"customer",text:"30시간은 좀 많은 것 같긴 한데... 노캔은 에어팟 프로도 되잖아요.",mood:"neutral"},
+      {s:"sales",text:"맞아요, 다만 이쪽이 Hi-Res 오디오 지원이라 음질 차이가 있어요. 비교 리뷰 영상 링크 보내드릴까요?",stage:"intro",action:"비교 리뷰 안내"},
+      {s:"customer",text:"음... 근데 얼만데요?",mood:"neutral"},
+      {s:"sales",text:"199,000원이에요. 에어팟 프로보다 13만원 저렴한데, 스펙은 오히려 좋아요. 첫 구매 쿠폰도 있고요.",stage:"negotiate"},
+      {s:"customer",text:"흠... 20만원이면 고민되네. 에어팟도 쓸만하긴 한데.",mood:"neutral"},
+      {s:"sales",text:"급하지 않으시면 위시리스트에 담아두세요! 가격 변동 알림 보내드릴게요. 이번 주까지 케이스 증정 이벤트도 하고 있어요.",stage:"close"},
+      {s:"customer",text:"네 일단 찜해둘게요. 좀 더 생각해볼게요.",mood:"neutral"},
+      {s:"system",text:"⏸ 이탈 — 고객이 위시리스트에 상품을 담고 페이지를 떠났습니다. 재방문 가능성 있음."},
+    ]
+  },
+  defensive: {
+    stages:["enter","approach","intro","close"],
+    msgs:[
+      {s:"system",text:"고객이 검색을 통해 상품 페이지에 접속했습니다. 빠르게 스크롤 중."},
+      {s:"sales",text:"안녕하세요~ 궁금한 점 있으시면 편하게 물어보세요!",stage:"approach",mood:"neutral"},
+      {s:"customer",text:"...",mood:"negative"},
+      {s:"system",text:"고객이 가격 정보만 확인하고 있습니다."},
+      {s:"sales",text:"혹시 도움이 필요하시면 채팅 남겨주세요~",stage:"approach"},
+      {s:"customer",text:"이거 최저가 맞아요? 다른 데 더 싼 거 같은데.",mood:"negative"},
+      {s:"sales",text:"현재 199,000원으로 공식몰 최저가예요. 노이즈캔슬링이랑 배터리 30시간에...",stage:"intro"},
+      {s:"customer",text:"20만원이요? 비싸네. 쿠팡에 3만원짜리도 충분하던데.",mood:"negative"},
+      {s:"sales",text:"가격대가 있죠. 다만 노캔이랑 30시간 배터리, 방수까지 합치면 가성비가...",stage:"intro"},
+      {s:"customer",text:"됐어요. 그냥 나갈게요.",mood:"negative"},
+      {s:"system",text:"❌ 즉시 이탈 — 고객이 페이지를 닫았습니다."},
+    ]
+  }
+};
+
+// ===== STATE =====
+let selected = null;
+let running = false;
+let paused = false;
+let msgIdx = 0;
+let currentScenario = null;
+let timer = null;
+let turnCount = 0;
+let startTime = null;
+let elapsedTimer = null;
+
+// Eval state
+let evalScores = {interest:0,cont:0,emotion:0,intent:0,outcome:0};
+
+// ===== INIT =====
+let activeGenFilter = null;
+
+function init() {
+  renderGenFilter();
+  renderPersonas();
+  renderRalph();
+}
+
+function renderGenFilter() {
+  const gens = ['전체','10대','20대','30대','40대','50대','60대+'];
+  document.getElementById('genFilter').innerHTML = gens.map(g=>`
+    <button onclick="setGenFilter('${g}',this)" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:${g==='전체'?'rgba(78,140,255,0.1)':'transparent'};color:${g==='전체'?'var(--blue)':'var(--text3)'};font-size:10px;cursor:pointer;" class="gen-btn${g==='전체'?' active':''}">${g}</button>
+  `).join('');
+}
+
+function setGenFilter(gen, btn) {
+  activeGenFilter = gen==='전체'?null:gen;
+  document.querySelectorAll('.gen-btn').forEach(b=>{b.style.background='transparent';b.style.color='var(--text3)';b.classList.remove('active');});
+  btn.style.background='rgba(78,140,255,0.1)';btn.style.color='var(--blue)';btn.classList.add('active');
+  filterPersonas();
+}
+
+function filterPersonas() {
+  const query = document.getElementById('personaSearch').value.toLowerCase();
+  const filtered = personas.filter(p=>{
+    if(activeGenFilter && p.gen!==activeGenFilter) return false;
+    if(!query) return true;
+    return (p.name+p.gen+p.tendency+p.reaction+p.cat+p.desc+p.sensitivity).toLowerCase().includes(query);
+  });
+  renderPersonaList(filtered);
+}
+
+function showPage(id, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-store').style.display = id==='store'?'grid':'none';
+  document.getElementById('page-ralph').style.display = id==='ralph'?'block':'none';
+  document.getElementById('page-ralph').classList.toggle('active', id==='ralph');
+}
+
+// ===== PERSONAS =====
+function renderPersonas() {
+  renderPersonaList(personas);
+}
+
+function renderPersonaList(list) {
+  const el = document.getElementById('personaSelect');
+  document.getElementById('personaCount').textContent = `(${list.length}/${personas.length})`;
+  el.innerHTML = list.map(p=>`
+    <div class="persona-item" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid transparent;"
+         id="pi-${p.id}" onclick="selectPersona('${p.id}')"
+         onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=selected&&selected.id==='${p.id}'?'rgba(78,140,255,0.08)':''">
+      <div style="width:30px;height:30px;border-radius:8px;background:${p.color}18;display:flex;align-items:center;justify-content:center;font-size:14px">${p.avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500">${p.name}</div>
+        <div style="font-size:10px;color:var(--text3)">${p.gen} · ${p.reaction}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectPersona(id) {
+  selected = personas.find(p=>p.id===id);
+  // Highlight
+  document.querySelectorAll('#personaSelect > div').forEach(el=>{el.style.background='';el.style.borderColor='transparent';});
+  const el = document.getElementById('pi-'+id);
+  el.style.background='rgba(78,140,255,0.08)';
+  el.style.borderColor='rgba(78,140,255,0.2)';
+
+  // Update profile
+  document.getElementById('custName').textContent = selected.name;
+  document.getElementById('custGen').textContent = `${selected.gen} · ${selected.cat} · ${selected.desc}`;
+  document.querySelector('#custProfile .cust-av').textContent = selected.avatar;
+  document.querySelector('#custProfile .cust-av').style.background = selected.color+'18';
+  document.getElementById('custTags').innerHTML = [
+    selected.tendency, selected.reaction, '가격민감:'+selected.sensitivity, selected.mood
+  ].map(t=>`<span class="cust-tag">${t}</span>`).join('');
+
+  resetSim();
+}
+
+// ===== SIMULATION =====
+function startSim() {
+  if(!selected){alert('고객을 선택하세요');return;}
+  if(paused){paused=false;document.getElementById('btnPause').textContent='⏸';playNext();return;}
+
+  // Pick scenario
+  if(selected.reaction==='방어적') currentScenario=scenarios.defensive;
+  else if(selected.reaction==='회의적'||selected.reaction==='급한성격') currentScenario=scenarios.skeptical;
+  else currentScenario=scenarios.friendly;
+
+  running=true; paused=false; msgIdx=0; turnCount=0;
+  evalScores={interest:0,cont:0,emotion:0,intent:0,outcome:0};
+  document.getElementById('chatArea').innerHTML='';
+  document.getElementById('btnStart').disabled=true;
+  document.getElementById('btnPause').disabled=false;
+  document.getElementById('liveDot').className='scene-dot live';
+  document.getElementById('sceneText').textContent='대화 진행 중';
+  document.getElementById('globalStatus').innerHTML='<span style="color:var(--blue)">● Running</span>';
+  startTime=Date.now();
+  elapsedTimer=setInterval(updateElapsed,1000);
+  resetStages();
+  resetEvalMeters();
+  playNext();
+}
+
+function playNext() {
+  if(!running||paused) return;
+  if(msgIdx>=currentScenario.msgs.length){endSim();return;}
+
+  const m = currentScenario.msgs[msgIdx];
+
+  if(m.s==='system'){
+    appendSystem(m.text);
+    msgIdx++;
+    setTimeout(playNext, 600);
+    return;
+  }
+
+  // Show typing
+  showTyping(m.s);
+  const delay = 800 + Math.random()*1400;
+
+  timer = setTimeout(()=>{
+    removeTyping();
+    appendMsg(m);
+    if(m.stage) setStage(m.stage);
+    turnCount++;
+    document.getElementById('turnNum').textContent=turnCount;
+
+    // Update eval progressively
+    updateLiveEval(msgIdx, currentScenario.msgs.length);
+
+    msgIdx++;
+    setTimeout(playNext, 400+Math.random()*600);
+  }, delay);
+}
+
+function appendMsg(m) {
+  const area = document.getElementById('chatArea');
+  const isSales = m.s==='sales';
+  const cls = isSales?'sales':'customer';
+  const avCls = isSales?'av-sales':'av-cust';
+  const icon = isSales?'🤖':selected.avatar;
+  const name = isSales?'AI 상담봇':selected.name;
+
+  let extra = '';
+  if(m.action) extra += `<div class="msg-action">🤝 ${m.action}</div>`;
+  if(m.mood && !isSales) {
+    const moodCls = m.mood==='positive'?'mood-positive':m.mood==='negative'?'mood-negative':'mood-neutral';
+    const moodLabel = m.mood==='positive'?'😊 긍정적':m.mood==='negative'?'😟 부정적':'😐 중립';
+    extra += `<div class="msg-mood ${moodCls}">${moodLabel}</div>`;
+  }
+
+  const div = document.createElement('div');
+  div.className=`msg ${cls}`;
+  div.innerHTML=`
+    <div class="msg-av ${avCls}">${icon}</div>
+    <div class="msg-body">
+      <div class="msg-speaker">${name}</div>
+      <div class="msg-text">${m.text}</div>
+      ${extra}
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+
+function appendSystem(text) {
+  const area=document.getElementById('chatArea');
+  const div=document.createElement('div');
+  div.className='sys-msg';
+  div.innerHTML=`<span>${text}</span>`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+
+function showTyping(speaker) {
+  const area=document.getElementById('chatArea');
+  const name=speaker==='sales'?'AI 상담봇':selected.name;
+  const div=document.createElement('div');
+  div.className='typing';div.id='typingEl';
+  div.innerHTML=`<div class="typing-dots"><span></span><span></span><span></span></div>${name} 입력 중...`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+function removeTyping(){const e=document.getElementById('typingEl');if(e)e.remove();}
+
+function togglePause() {
+  if(!running)return;
+  paused=!paused;
+  document.getElementById('btnPause').textContent=paused?'▶':'⏸';
+  document.getElementById('btnStart').disabled=!paused;
+  if(paused){clearTimeout(timer);document.getElementById('sceneText').textContent='일시정지';}
+  else{document.getElementById('sceneText').textContent='대화 진행 중';playNext();}
+}
+
+function endSim() {
+  running=false;
+  clearInterval(elapsedTimer);
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('btnPause').disabled=true;
+  document.getElementById('liveDot').className='scene-dot idle';
+  document.getElementById('globalStatus').innerHTML='<span style="color:var(--green)">● Complete</span>';
+
+  // Determine outcome
+  const lastReal = [...currentScenario.msgs].reverse().find(m=>m.s==='customer');
+  const purchased = lastReal && (lastReal.text.includes('결제할게요')||lastReal.text.includes('할게요')||lastReal.text.includes('살게요'));
+  const exited = lastReal && (lastReal.text.includes('찜해')||lastReal.text.includes('생각해볼')||lastReal.text.includes('나갈게요'));
+
+  if(purchased){
+    document.getElementById('sceneText').textContent='결제 완료';
+    document.getElementById('scenePhase').textContent='✅ 성공';
+    document.getElementById('scenePhase').className='scene-phase active';
+  } else if(exited) {
+    document.getElementById('sceneText').textContent='페이지 이탈';
+    document.getElementById('scenePhase').textContent='이탈';
+  } else {
+    document.getElementById('sceneText').textContent='대화 종료';
+    document.getElementById('scenePhase').textContent='종료';
+  }
+
+  showFinalEval(purchased, exited);
+}
+
+function resetSim() {
+  running=false;paused=false;msgIdx=0;turnCount=0;
+  clearTimeout(timer);clearInterval(elapsedTimer);
+  document.getElementById('chatArea').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--text3);font-size:13px;text-align:center;line-height:1.8;">왼쪽에서 고객 페르소나를 선택하고<br>▶ 시뮬레이션 시작을 눌러주세요</div>`;
+  document.getElementById('turnNum').textContent='0';
+  document.getElementById('elapsed').textContent='0:00';
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('btnPause').disabled=true;
+  document.getElementById('liveDot').className='scene-dot idle';
+  document.getElementById('sceneText').textContent='접속 대기 중';
+  document.getElementById('scenePhase').textContent='대기';
+  document.getElementById('scenePhase').className='scene-phase';
+  document.getElementById('globalStatus').innerHTML='<span style="color:var(--green)">● Ready</span>';
+  resetStages();
+  resetEvalMeters();
+  document.getElementById('insightsArea').innerHTML='';
+}
+
+function updateElapsed() {
+  if(!startTime)return;
+  const sec=Math.floor((Date.now()-startTime)/1000);
+  document.getElementById('elapsed').textContent=`${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+}
+
+// ===== STAGES =====
+function resetStages(){
+  ['enter','approach','intro','trial','negotiate','close'].forEach(s=>{
+    document.getElementById('stage-'+s).className='stage-step';
+  });
+}
+function setStage(stage){
+  const order=['enter','approach','intro','trial','negotiate','close'];
+  const idx=order.indexOf(stage);
+  order.forEach((s,i)=>{
+    const el=document.getElementById('stage-'+s);
+    if(i<idx) el.className='stage-step done';
+    else if(i===idx) el.className='stage-step current';
+    else el.className='stage-step';
+  });
+}
+
+// ===== LIVE EVAL =====
+function resetEvalMeters(){
+  ['mInterest','mCont','mEmotion','mIntent','mOutcome'].forEach(id=>{document.getElementById(id).textContent='-';});
+  ['barInterest','barCont','barEmotion','barIntent','barOutcome'].forEach(id=>{document.getElementById(id).style.width='0';});
+  ['noteInterest','noteCont','noteEmotion','noteIntent','noteOutcome'].forEach(id=>{document.getElementById(id).textContent='';});
+  document.getElementById('totalScore').textContent='-';
+}
+
+function updateLiveEval(idx,total){
+  const progress=idx/total;
+  const isPositive = currentScenario===scenarios.friendly;
+  const isNeg = currentScenario===scenarios.defensive;
+
+  // Simulate progressive eval
+  if(isPositive){
+    evalScores.interest = Math.min(10, 3 + progress*7);
+    evalScores.cont = Math.min(10, 3 + progress*6);
+    evalScores.emotion = Math.min(10, 4 + progress*5);
+    evalScores.intent = Math.min(10, 2 + progress*8);
+    evalScores.outcome = Math.min(10, 2 + progress*8);
+  } else if(isNeg){
+    evalScores.interest = Math.min(10, 2 + progress*2);
+    evalScores.cont = Math.min(10, 3 - progress*1);
+    evalScores.emotion = Math.min(10, 2);
+    evalScores.intent = Math.min(10, 1 + progress*1);
+    evalScores.outcome = Math.min(10, 1 + progress*2);
+  } else {
+    evalScores.interest = Math.min(10, 3 + progress*3);
+    evalScores.cont = Math.min(10, 4 + progress*2);
+    evalScores.emotion = Math.min(10, 3 + progress*2);
+    evalScores.intent = Math.min(10, 2 + progress*3);
+    evalScores.outcome = Math.min(10, 3 + progress*2);
+  }
+
+  setMeter('Interest',evalScores.interest);
+  setMeter('Cont',evalScores.cont);
+  setMeter('Emotion',evalScores.emotion);
+  setMeter('Intent',evalScores.intent);
+  setMeter('Outcome',evalScores.outcome);
+
+  const w = (evalScores.interest*.2+evalScores.cont*.15+evalScores.emotion*.2+evalScores.intent*.25+evalScores.outcome*.2).toFixed(1);
+  document.getElementById('totalScore').textContent=w;
+}
+
+function setMeter(key,val){
+  const v = val.toFixed(1);
+  document.getElementById('m'+key).textContent=v;
+  document.getElementById('bar'+key).style.width=(val*10)+'%';
+}
+
+function showFinalEval(purchased,exited){
+  let notes;
+  if(purchased){
+    notes={
+      interest:"적극적 질문과 리뷰 확인으로 높은 관심도",
+      cont:"자연스러운 채팅 흐름, 고객 주도 질문 다수",
+      emotion:"호기심 → 리뷰 신뢰 → 구매 결정으로 긍정 흐름",
+      intent:"'바로 결제할게요' — 명확한 구매 의사",
+      outcome:"온라인 결제 완료. 쿠폰+할인 조합 효과적"
+    };
+  } else if(exited){
+    notes={
+      interest:"배터리에 일부 관심, 그러나 기존 제품 만족도 높음",
+      cont:"12턴 유지했으나 대부분 소극적 반응",
+      emotion:"큰 감정 변화 없음. 중립 유지",
+      intent:"'찜해둘게요' — 위시리스트 저장 후 이탈",
+      outcome:"재방문 가능성 있으나 전환 불확실"
+    };
+  } else {
+    notes={
+      interest:"가격만 확인. 제품 자체에 관심 미미",
+      cont:"조기 이탈. 채팅 지속 의지 없음",
+      emotion:"부정 → 부정. 감정 전환 실패",
+      intent:"즉시 거절. 페이지 이탈",
+      outcome:"즉시 이탈. 재방문 가능성 매우 낮음"
+    };
+  }
+
+  document.getElementById('noteInterest').textContent=notes.interest;
+  document.getElementById('noteCont').textContent=notes.cont;
+  document.getElementById('noteEmotion').textContent=notes.emotion;
+  document.getElementById('noteIntent').textContent=notes.intent;
+  document.getElementById('noteOutcome').textContent=notes.outcome;
+
+  // Insights
+  const insights = purchased ? [
+    {title:'✅ 핵심 성공 요인',text:'리뷰 신뢰 확보 + 쿠폰 할인 조합으로 가격 저항 해소. 즉시배송 안내가 결제 전환에 효과적.'},
+    {title:'💡 전략 인사이트',text:'니즈 파악 → 리뷰 유도 → 쿠폰 안내 → 배송 정보 순서가 효과적.'},
+  ] : exited ? [
+    {title:'⚠️ 이탈 원인',text:'기존 에어팟 만족도가 높아 교체 동기 부족. 온라인 비교 리뷰 활용 부족.'},
+    {title:'💡 개선 제안',text:'에어팟과의 비교 리뷰 콘텐츠를 선제적으로 안내했다면 전환 가능성 높았을 것.'},
+  ] : [
+    {title:'❌ 실패 분석',text:'초기 신뢰 구축 실패. 가격 비교만 하는 고객에게 바로 제품 소개로 진입.'},
+    {title:'💡 개선 제안',text:'방어적 고객에게는 한정 할인/타임세일 긴급성 대신, 사용 후기 기반 공감 접근 필요.'},
+  ];
+
+  document.getElementById('insightsArea').innerHTML = insights.map(i=>`
+    <div class="insight-card">
+      <div class="insight-title">${i.title}</div>
+      <div class="insight-text">${i.text}</div>
+    </div>
+  `).join('');
+}
+
+// ===== RALPH =====
+// ===== RALPH LOOP API =====
+const API_BASE = 'http://localhost:8000';
+let loopResults = [];
+let eventSource = null;
+
+function renderRalph() {
+  // 초기 상태 — 빈 차트
+  document.getElementById('purchaseChart').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:12px;">Loop을 시작하면 결과가 표시됩니다</div>';
+  document.getElementById('revenueChart').innerHTML = '';
+  document.getElementById('ralphTimeline').innerHTML = '';
+}
+
+async function startLoop() {
+  const n = parseInt(document.getElementById('loopIterations').value);
+
+  // UI 상태 변경
+  document.getElementById('btnLoop').disabled = true;
+  document.getElementById('btnStopLoop').style.display = '';
+  document.getElementById('loopProgress').style.display = 'block';
+  document.getElementById('loopProgressText').textContent = '서버에 요청 중...';
+  document.getElementById('globalStatus').innerHTML = '<span style="color:var(--blue)">● Running Loop</span>';
+  loopResults = [];
+
+  try {
+    // 페르소나 데이터를 API에 전송
+    const res = await fetch(`${API_BASE}/api/loop/start`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        personas: personas.map(p => ({id:p.id, name:p.name, gen:p.gen, cat:p.cat, tendency:p.tendency, sensitivity:p.sensitivity, reaction:p.reaction, mood:p.mood, desc:p.desc})),
+        n_iterations: n,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert('오류: ' + (err.error || err.detail || 'unknown'));
+      resetLoopUI();
+      return;
+    }
+
+    // SSE 스트림 연결
+    eventSource = new EventSource(`${API_BASE}/api/loop/stream`);
+    eventSource.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      handleLoopEvent(data);
+    };
+    eventSource.onerror = () => {
+      eventSource.close();
+      eventSource = null;
+    };
+  } catch(e) {
+    alert('서버 연결 실패. 서버가 실행 중인지 확인하세요.\n\npython -m uvicorn src.api.main:app --reload');
+    resetLoopUI();
+  }
+}
+
+function stopLoop() {
+  fetch(`${API_BASE}/api/loop/stop`, {method:'POST'});
+  if(eventSource) { eventSource.close(); eventSource=null; }
+  resetLoopUI();
+}
+
+function resetLoopUI() {
+  document.getElementById('btnLoop').disabled = false;
+  document.getElementById('btnStopLoop').style.display = 'none';
+  document.getElementById('loopProgress').style.display = 'none';
+  document.getElementById('globalStatus').innerHTML = '<span style="color:var(--green)">● Ready</span>';
+}
+
+function handleLoopEvent(data) {
+  if (data.type === 'iteration_start') {
+    const pct = ((data.iteration - 1) / data.total * 100);
+    document.getElementById('loopProgressBar').style.width = pct + '%';
+    document.getElementById('loopProgressText').textContent = `Iteration ${data.iteration}/${data.total} — 200명 대화 + 평가 + 학습 중...`;
+  }
+  else if (data.type === 'iteration_end') {
+    loopResults.push(data);
+    updateLoopStats(data);
+    updateLoopCharts();
+    updateLoopTimeline();
+    const pct = (data.iteration / document.getElementById('loopIterations').value * 100);
+    document.getElementById('loopProgressBar').style.width = pct + '%';
+  }
+  else if (data.type === 'done') {
+    if(eventSource) { eventSource.close(); eventSource=null; }
+    document.getElementById('loopProgressText').textContent = `완료! ${loopResults.length}회 반복 실행됨`;
+    document.getElementById('loopProgressBar').style.width = '100%';
+    document.getElementById('loopProgressBar').style.background = 'var(--green)';
+    document.getElementById('btnLoop').disabled = false;
+    document.getElementById('btnStopLoop').style.display = 'none';
+    document.getElementById('globalStatus').innerHTML = '<span style="color:var(--green)">● Complete</span>';
+  }
+  else if (data.type === 'error') {
+    alert('오류 발생: ' + data.message);
+    resetLoopUI();
+  }
+}
+
+function updateLoopStats(data) {
+  // 현재 점수
+  document.getElementById('statScore').textContent = data.avg_score.toFixed(1);
+  if (loopResults.length > 1) {
+    const prev = loopResults[loopResults.length - 2].avg_score;
+    const diff = data.avg_score - prev;
+    document.getElementById('statScoreDelta').innerHTML = `<span class="${diff>=0?'delta-up':'delta-down'}">${diff>=0?'↑':'↓'}${Math.abs(diff).toFixed(1)} from ${prev.toFixed(1)}</span>`;
+  }
+
+  // 구매율
+  const rate = (data.purchase_rate * 100).toFixed(0);
+  document.getElementById('statPurchase').textContent = rate + '%';
+  document.getElementById('statPurchaseDelta').textContent = `${data.purchase_count}명 구매 / ${data.wishlist_count}명 찜 / ${data.exit_count}명 이탈`;
+
+  // 매출
+  const totalRev = loopResults.reduce((s, r) => s + r.total_revenue, 0);
+  document.getElementById('statRevenue').textContent = '₩' + totalRev.toLocaleString();
+  document.getElementById('statRevenueDelta').textContent = `이번 회차: ₩${data.total_revenue.toLocaleString()}`;
+
+  // 전략
+  document.getElementById('statStrategy').textContent = data.strategy_name;
+  document.getElementById('statStrategyDesc').textContent = data.strategy_approach;
+}
+
+function updateLoopCharts() {
+  // 구매율 차트
+  const maxRate = Math.max(...loopResults.map(r=>r.purchase_rate), 0.01);
+  document.getElementById('purchaseChart').innerHTML = loopResults.map(r => {
+    const h = (r.purchase_rate / Math.max(maxRate * 1.2, 0.5)) * 100;
+    const hue = r.purchase_rate * 120;
+    return `<div class="bar-col"><div class="bar-val">${(r.purchase_rate*100).toFixed(0)}%</div><div class="bar-fill" style="height:${h}%;background:hsl(${hue},65%,45%)"></div><div class="bar-label">#${r.iteration}</div></div>`;
+  }).join('');
+
+  // 매출 차트
+  const maxRev = Math.max(...loopResults.map(r=>r.total_revenue), 1);
+  document.getElementById('revenueChart').innerHTML = loopResults.map(r => {
+    const h = (r.total_revenue / (maxRev * 1.2)) * 100;
+    return `<div class="bar-col"><div class="bar-val">${(r.total_revenue/10000).toFixed(0)}만</div><div class="bar-fill" style="height:${h}%;background:var(--orange)"></div><div class="bar-label">#${r.iteration}</div></div>`;
+  }).join('');
+}
+
+function updateLoopTimeline() {
+  document.getElementById('ralphTimeline').innerHTML = loopResults.map(r => {
+    const delta = r.iteration > 1 ?
+      `<span class="rt-delta ${r.purchase_rate >= loopResults[r.iteration-2].purchase_rate ? 'up' : ''}">${r.purchase_rate >= (loopResults[r.iteration-2]?.purchase_rate||0) ? '↑' : '↓'}${Math.abs((r.purchase_rate - (loopResults[r.iteration-2]?.purchase_rate||0))*100).toFixed(0)}%p</span>` : '';
+    const learnings = (r.learnings || []).map(l => `<div class="rt-learning">${l}</div>`).join('');
+    return `
+      <div class="rt-item">
+        <div class="rt-num">${r.iteration}</div>
+        <div class="rt-body">
+          <div class="rt-head"><div class="rt-strategy">${r.strategy_name}</div>${delta}</div>
+          <div class="rt-meta">💬 ${r.conversation_count}개 대화 · 🛒 구매 ${r.purchase_count}명 (${(r.purchase_rate*100).toFixed(0)}%) · 💰 ₩${r.total_revenue.toLocaleString()}</div>
+          <div class="rt-learnings">${learnings}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
