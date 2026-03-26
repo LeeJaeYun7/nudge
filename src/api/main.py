@@ -1,9 +1,8 @@
-"""FastAPI 서버 — RALPH Loop 실행 및 결과 조회 API"""
+"""FastAPI 서버 - RALPH Loop 실행 및 결과 조회 API"""
 
 import asyncio
 import json
 from contextlib import asynccontextmanager
-
 from pathlib import Path
 
 from fastapi import FastAPI

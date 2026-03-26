@@ -1,13 +1,5 @@
-import sys
-import io
-
 from openai import AsyncOpenAI
 from rich.console import Console
-
-# Windows cp949 인코딩 문제 방지
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from src.evaluation.aggregator import Aggregator
 from src.evaluation.evaluator import Evaluator
