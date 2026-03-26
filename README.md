@@ -1,4 +1,4 @@
-# Nudge - Voice AI Sales Agent with RALPH Loop
+# Nudge - AI Sales Agent with RALPH Loop
 
 고객 반응을 해석하고 실제로 더 잘 팔리는 설득 전략을 학습하는 AI Sales Agent 시스템.
 
@@ -70,7 +70,6 @@ nudge/
 │   ├── evaluation/         # 다차원 평가 시스템
 │   ├── ralph/              # RALPH Loop (핵심 최적화 루프)
 │   ├── storage/            # 데이터 저장 (SQLModel)
-│   ├── voice/              # Voice 인터페이스 (TTS/STT)
 │   └── api/                # FastAPI 대시보드
 │
 ├── scripts/                # 실행 스크립트
@@ -102,4 +101,3 @@ python scripts/run_simulation.py
 - **LLM**: Claude API (Anthropic)
 - **Backend**: Python 3.11+, FastAPI
 - **Data**: Pydantic, SQLModel, SQLite
-- **Voice** (예정): OpenAI TTS, Whisper STT

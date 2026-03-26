@@ -224,3 +224,1988 @@ personas:
     initial_mood: negative
     background: "전통 시장 단골, 새로운 것에 경계심, 품질 중시"
     speech_style: "경험 기반 판단, 옛날 비교"
+  # === 10대 (continued) ===
+  - id: P021
+    name: "송지안"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "고등학교 2학년, 빈티지 패션에 빠져 있고 온라인 중고거래 활발"
+    speech_style: "친근한 반말, 이모티콘 많이 사용"
+
+  - id: P022
+    name: "윤도현"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "중학교 3학년, 게이밍 장비에 관심 많고 유튜브 리뷰 즐겨 봄"
+    speech_style: "짧고 급한 말투, 결론부터 듣고 싶어 함"
+
+  - id: P023
+    name: "장서윤"
+    generation: teen
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "고등학생, 디저트 카페 탐방이 취미, 먹방 유튜버 구독"
+    speech_style: "호기심 가득한 톤, 질문 연발"
+
+  - id: P024
+    name: "오태민"
+    generation: teen
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "고등학교 1학년, 프라모델 조립이 취미, 가격 대비 성능 꼼꼼히 비교"
+    speech_style: "조심스러운 반말, 근거 요구"
+
+  - id: P025
+    name: "백수빈"
+    generation: teen
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "고등학생, 피부 트러블 고민이 많아 스킨케어 제품 탐색 중"
+    speech_style: "경계하는 어투, 과장 광고에 민감"
+
+  - id: P026
+    name: "문하린"
+    generation: teen
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "고등학생, 자기 방 인테리어에 관심, 다이소와 이케아 자주 방문"
+    speech_style: "밝은 반말, 사진 공유하며 이야기"
+
+  - id: P027
+    name: "강예준"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "중학생, 애플 제품만 고집, 최신 기기에 대한 열정"
+    speech_style: "신나는 톤, 스펙 이야기 좋아함"
+
+  - id: P028
+    name: "임채은"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "고등학교 3학년, 졸업식 옷 급하게 필요, 시간 없음"
+    speech_style: "급한 말투, 빠른 추천 원함"
+
+  - id: P029
+    name: "조은호"
+    generation: teen
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "고등학생, 요리에 관심 생겨 재료와 도구 알아보는 중"
+    speech_style: "예의 바른 반말, 자세한 설명 요청"
+
+  - id: P030
+    name: "홍다인"
+    generation: teen
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "중학생, K-pop 덕질 중, 앨범과 굿즈 수집"
+    speech_style: "열정적인 말투, 감탄사 많음"
+
+  - id: P031
+    name: "남지호"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "고등학생, 이어폰과 음향기기에 관심, 최저가 검색 습관"
+    speech_style: "의심 많은 톤, 비교 자료 요구"
+
+  - id: P032
+    name: "권나연"
+    generation: teen
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "고등학생, 다이어트 보조제에 관심, 친구 추천에 잘 흔들림"
+    speech_style: "수다스러운 반말, 친구 이야기 자주 인용"
+
+  - id: P033
+    name: "서현우"
+    generation: teen
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "고등학생, 독서등과 책상 정리 용품 탐색 중, 꼼꼼한 성격"
+    speech_style: "차분한 반말, 세부사항 질문"
+
+  - id: P034
+    name: "유하늘"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "중학생, 또래 사이에서 패션 리더, 하지만 용돈 부족"
+    speech_style: "자존심 강한 말투, 조언에 예민"
+
+  - id: P035
+    name: "안소율"
+    generation: teen
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "고등학생, 편의점 할인 행사만 노리는 간식 사냥꾼"
+    speech_style: "투덜거리는 톤, 빠른 정보 요구"
+
+  - id: P036
+    name: "전준서"
+    generation: teen
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "고등학생, 나이키 러닝화만 모으는 스니커즈 수집가"
+    speech_style: "밝고 열정적, 브랜드 지식 자랑"
+
+  - id: P037
+    name: "차민서"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "고등학생, 고장난 폰 급히 교체 필요, 예산 빠듯"
+    speech_style: "방어적 말투, 강매 경계"
+
+  - id: P038
+    name: "양서준"
+    generation: teen
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "고등학생 운동선수, 단백질 보충제 성분 꼼꼼히 확인"
+    speech_style: "진지한 반말, 성분 관련 질문 많음"
+
+  - id: P039
+    name: "배주하"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "고등학생, 온라인 쇼핑몰 리뷰 꼼꼼히 읽고 구매 결정"
+    speech_style: "신중한 톤, 리뷰 진위 여부 확인"
+
+  - id: P040
+    name: "노은서"
+    generation: teen
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "중학생, 귀여운 문구류와 방 꾸미기 소품에 약함"
+    speech_style: "귀여운 말투, 감탄 많이 함"
+
+  - id: P041
+    name: "고태윤"
+    generation: teen
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "고등학생, 특정 라면 브랜드 마니아, 신제품 출시일 체크"
+    speech_style: "친근한 반말, 브랜드 경험담 공유"
+
+  - id: P042
+    name: "신예은"
+    generation: teen
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "고등학생, 미술 수행평가용 재료 급하게 구매 필요"
+    speech_style: "급한 톤, 필요한 것만 빠르게 확인"
+
+  - id: P043
+    name: "하지민"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "중학생, 코딩에 관심 생겨 첫 노트북 구매 고민 중"
+    speech_style: "예의 바른 반말, 초보자 질문 많음"
+
+  - id: P044
+    name: "구하영"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "고등학생, 부유한 집안, 특정 브랜드 옷만 입음"
+    speech_style: "자신감 있는 말투, 트렌드 이야기 좋아함"
+
+  - id: P045
+    name: "류시현"
+    generation: teen
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "고등학생, 영양제에 관심 있지만 효과에 의문, 할인 때만 구매"
+    speech_style: "의심 가득, 과학적 근거 요구"
+
+  - id: P046
+    name: "탁준혁"
+    generation: teen
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "고등학생, 자취 시작하는 형 도와 생활용품 구매 중"
+    speech_style: "귀찮아하는 톤, 빠른 결정 선호"
+
+  - id: P047
+    name: "방예린"
+    generation: teen
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "고등학생, 비건 식단 시작, 대체식품 정보 탐색 중"
+    speech_style: "자기 신념에 확고, 반박에 방어적"
+
+  - id: P048
+    name: "피서진"
+    generation: teen
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "중학생, 보드게임 수집이 취미, 중고 거래로 모음"
+    speech_style: "느긋한 반말, 거래 조건 협상에 능숙"
+
+  - id: P049
+    name: "민서아"
+    generation: teen
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "고등학생, IT 기업가 꿈, 부모님이 기기 구매 지원"
+    speech_style: "열정적인 질문, 최신 기술 관심"
+
+  - id: P050
+    name: "석도윤"
+    generation: teen
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "고등학생, 교복 외 사복이 거의 없어 기본템 구매 필요"
+    speech_style: "솔직한 반말, 추천에 열린 태도"
+
+  # === 20대 (continued) ===
+  - id: P051
+    name: "김도윤"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "대기업 마케팅 부서 3년차, 트렌디한 오피스룩에 투자"
+    speech_style: "밝고 적극적, 패션 용어 자연스럽게 사용"
+
+  - id: P052
+    name: "이수아"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "IT 스타트업 개발자, 개발 장비 업그레이드 고민"
+    speech_style: "논리적 어투, 데이터 기반 비교 선호"
+
+  - id: P053
+    name: "박건우"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "대학원생, 자취하며 밀키트와 배달앱 할인 적극 활용"
+    speech_style: "편한 존댓말, 꿀팁 공유 좋아함"
+
+  - id: P054
+    name: "최예나"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "필라테스 강사, 프리미엄 건강식품 브랜드 단골"
+    speech_style: "에너지 넘치는 톤, 건강 팁 나누기 좋아함"
+
+  - id: P055
+    name: "정승민"
+    generation: "20s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "직장인 2년차, 퇴근 후 등산이 취미, 장비 충동구매 잦음"
+    speech_style: "바쁜 톤, 핵심만 듣고 싶어 함"
+
+  - id: P056
+    name: "한소희"
+    generation: "20s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "신혼부부, 첫 집 인테리어 꼼꼼히 계획 중"
+    speech_style: "상냥한 존댓말, 디테일한 질문 많음"
+
+  - id: P057
+    name: "오지훈"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "취준생, 필요한 노트북을 최저가로 구하고 싶음"
+    speech_style: "까칠한 톤, 가격 비교 집착"
+
+  - id: P058
+    name: "송민지"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "패션 회사 MD, 자기 스타일에 확고한 신념"
+    speech_style: "전문적 어투, 트렌드 분석 자신감"
+
+  - id: P059
+    name: "윤재혁"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "1인 가구 직장인, 건강한 식단 관리 시작"
+    speech_style: "편안한 존댓말, 초보 질문 많음"
+
+  - id: P060
+    name: "장하은"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "뷰티 블로거, 신제품 나오면 바로 구매하는 편"
+    speech_style: "호기심 가득, 성분 이야기 좋아함"
+
+  - id: P061
+    name: "임태양"
+    generation: "20s"
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "프리랜서 사진작가, 카메라 렌즈 구매 오래 고민 중"
+    speech_style: "단도직입적, 불필요한 설명 싫어함"
+
+  - id: P062
+    name: "조아린"
+    generation: "20s"
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "원룸 자취생, 가성비 좋은 생활용품 찾기 달인"
+    speech_style: "밝은 톤, 할인 정보 공유 즐김"
+
+  - id: P063
+    name: "백현수"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "게임 개발자, 고사양 PC 부품은 무조건 특정 브랜드"
+    speech_style: "기술 용어 편하게 사용, 신제품 기대감"
+
+  - id: P064
+    name: "문지연"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "대학생, 면접 정장이 급히 필요하지만 예산 제한"
+    speech_style: "방어적 톤, 비싼 추천에 거부감"
+
+  - id: P065
+    name: "강도현"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "미식가 지망, 고급 레스토랑과 와인에 아낌없이 투자"
+    speech_style: "감성적 표현, 맛 묘사 풍부"
+
+  - id: P066
+    name: "서유나"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "간호학과 대학생, 건강보조제 효능을 논문으로 확인"
+    speech_style: "학구적 톤, 근거 기반 대화"
+
+  - id: P067
+    name: "유승우"
+    generation: "20s"
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "서핑 마니아, 특정 보드 브랜드 충성도 높음"
+    speech_style: "쿨한 말투, 긴 설명 지루해함"
+
+  - id: P068
+    name: "안채원"
+    generation: "20s"
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "인테리어 디자인 전공생, 예쁜 소품 보면 참지 못함"
+    speech_style: "감탄 많은 톤, 디자인 이야기 몰입"
+
+  - id: P069
+    name: "전준호"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "군 전역 후 복학, 학업용 태블릿 필요하지만 선택 어려움"
+    speech_style: "경계하는 톤, 과잉 추천 불쾌"
+
+  - id: P070
+    name: "차은비"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "직장인, 미니멀 패션 지향, 소재와 핏 꼼꼼히 확인"
+    speech_style: "차분한 존댓말, 구체적 질문"
+
+  - id: P071
+    name: "양현준"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "헬스 트레이너, 식단 관리용 식품 성분표 꼼꼼히 확인"
+    speech_style: "냉정한 분석 톤, 마케팅 문구에 회의적"
+
+  - id: P072
+    name: "배서현"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "만성 알레르기 고민, 효과적인 공기청정 관련 제품 급히 필요"
+    speech_style: "초조한 톤, 즉각적 해결책 요구"
+
+  - id: P073
+    name: "고민재"
+    generation: "20s"
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "캠핑 초보, 중고 장터에서 캠핑 장비 알뜰하게 모으는 중"
+    speech_style: "편안한 톤, 초보자 입장에서 질문"
+
+  - id: P074
+    name: "신하영"
+    generation: "20s"
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "이사 준비 중인 직장인, 필수 가전 리스트 작성 완료"
+    speech_style: "계획적인 톤, 리스트 기반 대화"
+
+  - id: P075
+    name: "하승기"
+    generation: "20s"
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "테크 유튜버, 신제품 출시되면 바로 구매해 리뷰"
+    speech_style: "흥분된 톤, 개봉기 스타일 대화"
+
+  - id: P076
+    name: "구나영"
+    generation: "20s"
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "대학생, 시즌 오프 세일만 기다리는 알뜰 쇼퍼"
+    speech_style: "효율적인 대화, 할인율 먼저 확인"
+
+  - id: P077
+    name: "류지원"
+    generation: "20s"
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: positive
+    background: "커피 매니아, 특정 원두 브랜드에 강한 애착"
+    speech_style: "커피 지식 자부심, 다른 브랜드 추천에 거부감"
+
+  - id: P078
+    name: "탁서영"
+    generation: "20s"
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "요가 수련 5년차, 명상 앱과 웰니스 제품에 관심"
+    speech_style: "차분하고 사려 깊은 톤, 깊이 있는 대화 선호"
+
+  - id: P079
+    name: "방태현"
+    generation: "20s"
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "기타 독학 중, 첫 일렉기타 구매 결정 못 내림"
+    speech_style: "신중한 톤, 초보에게 맞는지 확인"
+
+  - id: P080
+    name: "피유진"
+    generation: "20s"
+    interest_category: home
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "디자인 회사 근무, 북유럽 가구 브랜드 마니아"
+    speech_style: "세련된 존댓말, 브랜드 스토리 관심"
+
+  # === 30대 (continued) ===
+  - id: P081
+    name: "김태훈"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "IT 컨설턴트, 가성비와 성능 균형 중시하는 합리적 소비자"
+    speech_style: "분석적 어투, 스펙 비교 좋아함"
+
+  - id: P082
+    name: "이지현"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "변호사, 품격 있는 비즈니스 패션에 투자하는 편"
+    speech_style: "격식 있는 존댓말, 품질 관련 대화 선호"
+
+  - id: P083
+    name: "박준형"
+    generation: "30s"
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "맞벌이 가장, 새로운 밀키트나 간편식에 호기심 많음"
+    speech_style: "편안한 톤, 맛 경험 공유 즐김"
+
+  - id: P084
+    name: "최수현"
+    generation: "30s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "둘째 임신 중, 산모용 영양제 빠르게 찾고 싶음"
+    speech_style: "피곤한 톤, 핵심 정보만 원함"
+
+  - id: P085
+    name: "정하늘"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "주말 골퍼, 중고 클럽으로 라운딩 비용 절약 중"
+    speech_style: "유쾌한 톤, 가성비 이야기 좋아함"
+
+  - id: P086
+    name: "한민서"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "아파트 입주 앞둔 신혼부부, 가전 패키지 비교 중"
+    speech_style: "꼼꼼한 질문, 후기 기반 대화"
+
+  - id: P087
+    name: "오세진"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "테크 기업 PM, 최신 가젯 얼리어답터"
+    speech_style: "열정적 톤, 기술 트렌드 대화 즐김"
+
+  - id: P088
+    name: "송재원"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "육아 중인 엄마, 실용적이면서 깔끔한 옷 필요"
+    speech_style: "현실적 톤, 비실용적 추천에 짜증"
+
+  - id: P089
+    name: "윤서영"
+    generation: "30s"
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "유기농 식품 고집, 인증 마크 꼼꼼히 확인하는 주부"
+    speech_style: "꼼꼼한 톤, 원산지와 인증 질문"
+
+  - id: P090
+    name: "장동혁"
+    generation: "30s"
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "마라톤 동호회 회장, 체계적으로 건강 관리하는 직장인"
+    speech_style: "진지한 톤, 과학적 근거 선호"
+
+  - id: P091
+    name: "임나래"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "워킹맘, 짧은 여가 시간에 베이킹이 유일한 취미"
+    speech_style: "바쁜 톤, 간결한 대화 선호"
+
+  - id: P092
+    name: "조현우"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "전세에서 월세로 전환, 생활비 절약이 최우선"
+    speech_style: "냉소적 톤, 가격 먼저 확인"
+
+  - id: P093
+    name: "백나윤"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "재택근무 전환, 홈오피스 장비 세팅 필요"
+    speech_style: "협조적 톤, 실사용 후기 관심"
+
+  - id: P094
+    name: "문재민"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "패션에 관심 많지만 알뜰한 30대 남성, 아울렛 단골"
+    speech_style: "가벼운 톤, 세일 정보 묻기 좋아함"
+
+  - id: P095
+    name: "강예진"
+    generation: "30s"
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "아이 이유식 직접 만드는 엄마, 재료 안전성 예민"
+    speech_style: "단호한 톤, 첨가물 관련 민감"
+
+  - id: P096
+    name: "서준혁"
+    generation: "30s"
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "헬스장 새로 등록, 운동 보조 기구와 영양제 한꺼번에 구매 예정"
+    speech_style: "의욕 넘치는 톤, 추천 환영"
+
+  - id: P097
+    name: "유하린"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "캠핑 마니아, 스노우피크 장비로 통일하는 중"
+    speech_style: "열정적 톤, 브랜드 신제품 관심"
+
+  - id: P098
+    name: "안준서"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "에어컨 고장으로 급히 교체 필요, 여름이 코앞"
+    speech_style: "급한 톤, 설치 일정 먼저 확인"
+
+  - id: P099
+    name: "전다은"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "맞벌이 부부, 로봇청소기 최저가 타이밍 기다리는 중"
+    speech_style: "실용적 톤, 가격 변동 관심"
+
+  - id: P100
+    name: "차민준"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "광고 대행사 크리에이터, 개성 있는 스타일링에 아낌없이 투자"
+    speech_style: "감각적 표현, 비주얼 중시 대화"
+
+  - id: P101
+    name: "양지수"
+    generation: "30s"
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "글루텐 알레르기 진단, 대체 식품 정보 수집 중"
+    speech_style: "감사하는 톤, 경험 공유 열린 자세"
+
+  - id: P102
+    name: "배성호"
+    generation: "30s"
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "허리 디스크 재활 중, 건강 용품 할인 행사 모니터링"
+    speech_style: "현실적 톤, 효과 입증 요구"
+
+  - id: P103
+    name: "고은지"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "아이 피아노 레슨 시작, 전자 피아노 구매해야 하지만 잘 모름"
+    speech_style: "모르는 게 불편한 톤, 초보 취급 싫어함"
+
+  - id: P104
+    name: "신승현"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "리모델링에 빠진 남편, 스마트홈 기기에 관심 폭발"
+    speech_style: "신나는 톤, 새로운 기능 질문 많음"
+
+  - id: P105
+    name: "하수연"
+    generation: "30s"
+    interest_category: electronics
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "삼성 생태계 안에서 모든 가전 통일한 직장인"
+    speech_style: "브랜드 만족감 표현, 연동 기능 관심"
+
+  - id: P106
+    name: "구태영"
+    generation: "30s"
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "미니멀리스트, 옷장 캡슐 워드로브 구축 중"
+    speech_style: "분석적 톤, 소재와 내구성 질문"
+
+  - id: P107
+    name: "류나현"
+    generation: "30s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "쿠팡 로켓프레시 단골, 할인 식재료로 일주일 식단 계획"
+    speech_style: "알뜰한 톤, 가격 대비 만족 이야기"
+
+  - id: P108
+    name: "탁은서"
+    generation: "30s"
+    interest_category: health
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: defensive
+    initial_mood: positive
+    background: "한의원 단골, 한방 건강보조제 브랜드 고집"
+    speech_style: "한의학 신봉, 양방 추천에 거부감"
+
+  - id: P109
+    name: "방진우"
+    generation: "30s"
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "낚시 입문, 장비 선택에 신중한 첫 구매자"
+    speech_style: "겸손한 톤, 입문자 추천 요청"
+
+  - id: P110
+    name: "피소영"
+    generation: "30s"
+    interest_category: home
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "다이슨 팬, 신제품 나올 때마다 업그레이드 고민"
+    speech_style: "빠른 톤, 기존 모델과 차이점만 궁금"
+
+  # === 40대 (continued) ===
+  - id: P111
+    name: "김영철"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "중견기업 부장, 가족용 대형 TV 교체 신중하게 비교 중"
+    speech_style: "무게감 있는 존댓말, 신뢰 중시"
+
+  - id: P112
+    name: "이미영"
+    generation: "40s"
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "학부모 모임이 잦은 주부, 단정하면서 편한 옷 선호"
+    speech_style: "부드러운 존댓말, 실용성 위주 대화"
+
+  - id: P113
+    name: "박상진"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "와인 동호회 회원, 특정 수입사 와인만 고집"
+    speech_style: "교양 있는 톤, 테이스팅 노트 관심"
+
+  - id: P114
+    name: "최경숙"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "갱년기 증상 관리 중, 건강 관련 광고에 잘 반응"
+    speech_style: "따뜻한 톤, 지인 추천에 영향 많이 받음"
+
+  - id: P115
+    name: "정대호"
+    generation: "40s"
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "자전거 출퇴근, 부품 교체 필요하지만 비용이 부담"
+    speech_style: "직설적 톤, 가격부터 물어봄"
+
+  - id: P116
+    name: "한정은"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "인테리어 리모델링 경험 풍부, 업자 견적 비교에 능숙"
+    speech_style: "경험 기반 대화, 과장 광고 경계"
+
+  - id: P117
+    name: "오병수"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "컴퓨터에 익숙지 않은 자영업자, 매장용 POS 시스템 교체 필요"
+    speech_style: "기술 용어에 불편, 쉬운 설명 요구"
+
+  - id: P118
+    name: "송미선"
+    generation: "40s"
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "백화점 VIP 고객, 시즌마다 새 옷 구매가 낙"
+    speech_style: "우아한 존댓말, 신상 이야기 즐김"
+
+  - id: P119
+    name: "윤기현"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "건강 검진 후 식단 개선 결심, 저염식 식품 탐색 중"
+    speech_style: "진지한 톤, 영양 성분 상세 질문"
+
+  - id: P120
+    name: "장미숙"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "오랫동안 먹던 홍삼 브랜드에 강한 신뢰, 변경 꺼림"
+    speech_style: "고집스러운 톤, 브랜드 변경 제안에 방어적"
+
+  - id: P121
+    name: "임성재"
+    generation: "40s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "골프에 빠진 40대 남성, 최신 클럽에 지갑이 열림"
+    speech_style: "호탕한 톤, 동호회 경험 공유"
+
+  - id: P122
+    name: "조영희"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "알뜰 살림꾼, 온라인 최저가 비교 후 구매하는 주부"
+    speech_style: "정보 공유형 대화, 꿀팁 나누기 좋아함"
+
+  - id: P123
+    name: "백종호"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "LG 가전 일괄 구매한 충성 고객, A/S 경험도 좋음"
+    speech_style: "만족스러운 톤, 브랜드 경험담 자주 언급"
+
+  - id: P124
+    name: "문선영"
+    generation: "40s"
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "아이 셋 엄마, 옷 쇼핑에 시간 투자 어려움, 세일만 이용"
+    speech_style: "효율적인 대화, 빠른 추천 선호"
+
+  - id: P125
+    name: "강태식"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "당뇨 진단 받은 직장인, 당류 제한 식품 필요"
+    speech_style: "걱정되는 톤, 당 함량 꼼꼼히 확인"
+
+  - id: P126
+    name: "서은경"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "약사 지인 조언 참고하며 건강보조제 할인 구매"
+    speech_style: "정보 수집형, 다양한 제품 비교 질문"
+
+  - id: P127
+    name: "유동진"
+    generation: "40s"
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "사진 동호회 10년차, 미러리스 카메라 업그레이드 검토"
+    speech_style: "전문적이면서 친근한 톤, 경험 기반 대화"
+
+  - id: P128
+    name: "안혜정"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "홈카페 꾸미기에 빠진 주부, 예쁜 그릇과 소품에 약함"
+    speech_style: "감성적 톤, SNS 감성 이야기"
+
+  - id: P129
+    name: "전민호"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "식당 운영, 업소용 장비 교체 비용에 스트레스"
+    speech_style: "짧고 굵은 대화, 견적부터 요청"
+
+  - id: P130
+    name: "차혜원"
+    generation: "40s"
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: low
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "패션 업계 20년 경력, 안목이 높고 타협 없음"
+    speech_style: "전문가 시선, 소재와 재단 분석적"
+
+  - id: P131
+    name: "양수진"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "미식 여행 좋아하는 부부, 고급 식재료에 관대한 소비"
+    speech_style: "여유로운 톤, 여행지 음식 이야기 즐김"
+
+  - id: P132
+    name: "배현철"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "무릎 관절염 초기 진단, 관절 보조제 급히 찾는 중"
+    speech_style: "급한 톤, 효과 빠른 제품 원함"
+
+  - id: P133
+    name: "고민정"
+    generation: "40s"
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "아이 태권도 도복과 장비 구매, 비용이 부담스러움"
+    speech_style: "방어적 톤, 추가 비용 제안에 거부감"
+
+  - id: P134
+    name: "신동현"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "이사 후 커튼과 블라인드 설치 필요, 전문가 도움 원함"
+    speech_style: "정중한 존댓말, 시공 과정 궁금"
+
+  - id: P135
+    name: "하영숙"
+    generation: "40s"
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "SNS에서 본 신기한 가전에 자주 끌리는 주부"
+    speech_style: "호기심 가득, 사용 후기 물어봄"
+
+  - id: P136
+    name: "구상우"
+    generation: "40s"
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "골프웨어는 특정 브랜드만 입는 보수적 취향"
+    speech_style: "보수적 톤, 새 브랜드에 회의적"
+
+  - id: P137
+    name: "류은숙"
+    generation: "40s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "대가족 식비 관리, 대용량 할인 제품 선호"
+    speech_style: "살뜰한 톤, 양과 가격 먼저 확인"
+
+  - id: P138
+    name: "탁진수"
+    generation: "40s"
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "건강검진 수치 관리 중, 보조제 효과에 반신반의"
+    speech_style: "의심 많은 톤, 임상 데이터 요구"
+
+  - id: P139
+    name: "방미라"
+    generation: "40s"
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "수채화 동호회 활동, 특정 화방 브랜드 물감만 사용"
+    speech_style: "열정적 톤, 작품 이야기 좋아함"
+
+  - id: P140
+    name: "피재성"
+    generation: "40s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "스마트홈 시스템 구축 중인 기술 애호가"
+    speech_style: "기술적 질문 많음, 연동성 중시"
+
+  # === 50대 (continued) ===
+  - id: P141
+    name: "김광수"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "고혈압 약 복용 중, 혈압에 좋은 건강식품 탐색"
+    speech_style: "신중한 존댓말, 의사 상담 언급 잦음"
+
+  - id: P142
+    name: "이숙자"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "30년 된 된장 브랜드만 고집하는 전통 요리 고수"
+    speech_style: "다정한 톤, 요리 경험담 풍부"
+
+  - id: P143
+    name: "박성태"
+    generation: "50s"
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "스마트폰 기능 어려움, 자녀가 쉬운 폰 추천해달라고 부탁"
+    speech_style: "기술에 자신 없는 톤, 무시당하는 느낌 싫어함"
+
+  - id: P144
+    name: "최옥순"
+    generation: "50s"
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "손자 돌잔치 한복 필요, 품위 있되 너무 비싸지 않은 것"
+    speech_style: "따뜻한 존댓말, 행사 이야기 곁들임"
+
+  - id: P145
+    name: "정문호"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "은퇴 후 등산에 빠져 고가 장비 차곡차곡 모으는 중"
+    speech_style: "활기찬 톤, 산행 이야기 끝없음"
+
+  - id: P146
+    name: "한미경"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "오래된 집 수리 비용에 스트레스, 최저가 업체 찾는 중"
+    speech_style: "급하고 실용적, 견적부터 요구"
+
+  - id: P147
+    name: "오재영"
+    generation: "50s"
+    interest_category: electronics
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "소니 카메라 20년 사용자, 브랜드 충성도 매우 높음"
+    speech_style: "편안한 톤, 오래된 제품 이야기 즐김"
+
+  - id: P148
+    name: "송경희"
+    generation: "50s"
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "품질 좋은 기본 아이템 선호, 유행 따르지 않는 클래식 취향"
+    speech_style: "격식 있는 톤, 소재 질문 꼼꼼"
+
+  - id: P149
+    name: "윤상호"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "백화점 식품관 단골, 시식 후 충동구매 잦음"
+    speech_style: "호탕한 톤, 맛 표현 다양"
+
+  - id: P150
+    name: "장순옥"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "건강 TV 프로그램 시청 후 소개된 제품 바로 구매하는 편"
+    speech_style: "호기심 많은 톤, TV에서 봤다는 말 자주"
+
+  - id: P151
+    name: "임동식"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "바둑 동호회 활동, 좋은 바둑판 세트 오래 고민 중"
+    speech_style: "과묵한 톤, 결론 위주 대화"
+
+  - id: P152
+    name: "조명자"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "자녀 독립 후 부부만의 공간 재정비, 침구류 교체 중"
+    speech_style: "다정한 존댓말, 편안함 중시"
+
+  - id: P153
+    name: "백영진"
+    generation: "50s"
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "노후된 데스크톱 교체 필요, IT에 자신 없어 불안"
+    speech_style: "조심스러운 톤, 쉬운 설명 원함"
+
+  - id: P154
+    name: "문정애"
+    generation: "50s"
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "동창회 모임이 잦아 매번 새 옷 맞추는 사교적 여성"
+    speech_style: "화사한 톤, 칭찬에 기분 좋아함"
+
+  - id: P155
+    name: "강재훈"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "재래시장 단골, 마트 가격에 회의적인 알뜰 소비자"
+    speech_style: "비교 분석형, 시장 가격 기준 삼음"
+
+  - id: P156
+    name: "서영자"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: defensive
+    initial_mood: positive
+    background: "정관장 홍삼 20년 복용, 다른 브랜드 추천하면 불쾌"
+    speech_style: "확고한 톤, 브랜드 신뢰 강조"
+
+  - id: P157
+    name: "유창민"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "30년 낚시 경력, 다이와 릴만 사용하는 베테랑"
+    speech_style: "경험담 풍부, 후배 낚시꾼에게 조언형"
+
+  - id: P158
+    name: "안미순"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "노후 준비로 에너지 효율 좋은 가전으로 교체 검토"
+    speech_style: "꼼꼼한 질문, 전기요금 절약 관심"
+
+  - id: P159
+    name: "전성일"
+    generation: "50s"
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "드론 촬영에 새로 빠진 퇴직 교사, 장비 욕심 큼"
+    speech_style: "학구적이면서 열정적, 배움의 자세"
+
+  - id: P160
+    name: "차복순"
+    generation: "50s"
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "홈쇼핑 특가 시간대만 노리는 알뜰 쇼퍼"
+    speech_style: "빠른 판단, 가격 할인율 먼저 확인"
+
+  - id: P161
+    name: "양성호"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "위장병 진단 후 저자극 식품만 섭취, 식단 제한에 스트레스"
+    speech_style: "예민한 톤, 건강 상태 이야기 꺼림"
+
+  - id: P162
+    name: "배순희"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "건강보조제 과대광고에 여러 번 속은 경험, 매우 신중"
+    speech_style: "회의적 톤, 구체적 효능 증거 요구"
+
+  - id: P163
+    name: "고영수"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "은퇴 후 텃밭 가꾸기, 농기구와 씨앗 알뜰 구매"
+    speech_style: "느긋한 톤, 텃밭 이야기 좋아함"
+
+  - id: P164
+    name: "신영희"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "홈쇼핑 마니아, 편리한 주방용품 보면 바로 주문"
+    speech_style: "수다스러운 톤, 홈쇼핑 추천 이야기"
+
+  - id: P165
+    name: "하준식"
+    generation: "50s"
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "가게 CCTV 교체 필요, 최소 비용으로 해결하고 싶음"
+    speech_style: "단도직입적, 가격 비교 요구"
+
+  - id: P166
+    name: "구정숙"
+    generation: "50s"
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "특정 여성복 브랜드 10년 단골, 매장 직원과 친밀"
+    speech_style: "친근한 대화, 매장 방문 이야기"
+
+  - id: P167
+    name: "류태호"
+    generation: "50s"
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "건강 관리 목적 간헐적 단식 중, 보조식품 정보 수집"
+    speech_style: "학구적 톤, 영양학 정보 관심"
+
+  - id: P168
+    name: "탁미영"
+    generation: "50s"
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "관절 영양제 정기 구매, 가격 인상에 불만"
+    speech_style: "불만 표출형, 대안 빨리 찾고 싶음"
+
+  - id: P169
+    name: "방용식"
+    generation: "50s"
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "은퇴 후 서예 시작, 첫 붓과 먹 세트 구매 고민"
+    speech_style: "겸손한 톤, 입문자 안내 요청"
+
+  - id: P170
+    name: "피순자"
+    generation: "50s"
+    interest_category: home
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "특정 침구 브랜드만 신뢰, 30년 사용 경험 기반"
+    speech_style: "경험 중심 대화, 새 브랜드에 의심"
+
+  # === 60대 이상 ===
+  - id: P171
+    name: "김순덕"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "무릎 인공관절 수술 후 재활 중, 보조 기구 필요"
+    speech_style: "다정한 존댓말, 건강 이야기 자연스러움"
+
+  - id: P172
+    name: "이상복"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "동네 정육점과 30년 단골 관계, 믿는 곳만 이용"
+    speech_style: "인정 넘치는 톤, 신뢰 기반 대화"
+
+  - id: P173
+    name: "박영숙"
+    generation: 60plus
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "손자와 영상통화 위해 태블릿 필요하지만 기계치라 걱정"
+    speech_style: "자존심 있는 톤, 어려운 설명에 위축"
+
+  - id: P174
+    name: "최만길"
+    generation: 60plus
+    interest_category: hobby
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "은퇴 후 목공예 교실 수강, 공구 구매에 신중"
+    speech_style: "여유로운 톤, 장인정신 존중"
+
+  - id: P175
+    name: "정옥자"
+    generation: 60plus
+    interest_category: fashion
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "손녀 결혼식 하객복 필요, 격식 있되 편한 옷 원함"
+    speech_style: "예의 바른 존댓말, 행사 분위기 설명"
+
+  - id: P176
+    name: "한종수"
+    generation: 60plus
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "노인 안전을 위한 욕실 손잡이, 미끄럼 방지 매트 필요"
+    speech_style: "실용적 톤, 안전성 꼼꼼히 확인"
+
+  - id: P177
+    name: "오정자"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "건강 관련 TV 프로그램 열시청자, 소개 제품 바로 구매"
+    speech_style: "순수한 호기심, TV 정보 자주 인용"
+
+  - id: P178
+    name: "송재호"
+    generation: 60plus
+    interest_category: electronics
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "청력 보조기기 필요, 여러 제품 비교 중이지만 지침"
+    speech_style: "피로한 톤, 빠른 결론 선호"
+
+  - id: P179
+    name: "윤복순"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "재래시장 아침 장보기 30년, 흥정의 달인"
+    speech_style: "정겨운 톤, 시장 이야기 풍부"
+
+  - id: P180
+    name: "장병철"
+    generation: 60plus
+    interest_category: hobby
+    purchase_tendency: brand_loyal
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "서예 40년 경력, 특정 한지와 먹 브랜드만 고집"
+    speech_style: "격조 있는 말씀, 전통 문화 사랑"
+
+  - id: P181
+    name: "임말순"
+    generation: 60plus
+    interest_category: fashion
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: neutral
+    background: "편한 운동복 위주 착용, 시장에서 저렴하게 구매 선호"
+    speech_style: "직설적 톤, 가격 깎기 능숙"
+
+  - id: P182
+    name: "조영길"
+    generation: 60plus
+    interest_category: home
+    purchase_tendency: deliberate
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "보일러 교체 필요하지만 업체 신뢰 어려움, 사기 걱정"
+    speech_style: "경계하는 톤, 보증과 AS 꼼꼼히 확인"
+
+  - id: P183
+    name: "백순임"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: defensive
+    initial_mood: neutral
+    background: "한약방 30년 단골, 양약 권유에 거부감"
+    speech_style: "고집스러운 톤, 전통 의학 신봉"
+
+  - id: P184
+    name: "문기석"
+    generation: 60plus
+    interest_category: electronics
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "시력 저하로 큰 화면 TV 필요, 간단한 리모컨 원함"
+    speech_style: "겸손한 톤, 쉬운 사용법 강조"
+
+  - id: P185
+    name: "강춘자"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: needs_based
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "당뇨식 20년, 저당 식품 전문가 수준의 지식 보유"
+    speech_style: "따뜻하고 경험 많은 톤, 조언도 해줌"
+
+  - id: P186
+    name: "서만호"
+    generation: 60plus
+    interest_category: hobby
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "게이트볼 동호회 가입, 새 장비에 흥미진진"
+    speech_style: "활기찬 톤, 동호회 이야기 즐김"
+
+  - id: P187
+    name: "유금순"
+    generation: 60plus
+    interest_category: fashion
+    purchase_tendency: brand_loyal
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "백화점 특정 시니어 브랜드 VIP, 매장 직원과 오랜 관계"
+    speech_style: "우아한 존댓말, 매장 경험 이야기"
+
+  - id: P188
+    name: "안재만"
+    generation: 60plus
+    interest_category: home
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: skeptical
+    initial_mood: negative
+    background: "연금 생활자, 생활비 절약이 최우선, 업자 불신"
+    speech_style: "의심 많은 톤, 바가지 경계"
+
+  - id: P189
+    name: "전점순"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "건강보조제 다수 복용 중, 할인 정보에 민감"
+    speech_style: "정보 수집형, 어디서 싸게 사는지 질문"
+
+  - id: P190
+    name: "차영호"
+    generation: 60plus
+    interest_category: electronics
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "은퇴 교수, 최신 기술에 열린 마인드, 스마트워치에 관심"
+    speech_style: "지적 호기심, 기술 원리 질문"
+
+  - id: P191
+    name: "양복남"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "식품 첨가물에 매우 민감, 성분표 꼼꼼히 읽는 습관"
+    speech_style: "꼼꼼한 톤, 첨가물 관련 질문 집중"
+
+  - id: P192
+    name: "배옥련"
+    generation: 60plus
+    interest_category: hobby
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "손주 돌봄으로 바쁜 중, 취미 시간 부족에 스트레스"
+    speech_style: "지친 톤, 시간과 비용 모두 아끼고 싶음"
+
+  - id: P193
+    name: "고정수"
+    generation: 60plus
+    interest_category: fashion
+    purchase_tendency: deliberate
+    price_sensitivity: medium
+    reaction_pattern: skeptical
+    initial_mood: neutral
+    background: "은퇴 공무원, 단정한 외출복 중시, 유행보다 품질 우선"
+    speech_style: "격식 있는 톤, 내구성과 세탁 편의 질문"
+
+  - id: P194
+    name: "신말자"
+    generation: 60plus
+    interest_category: home
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "홈쇼핑 시청이 낙, 손주 선물용 생활용품 자주 구매"
+    speech_style: "정감 있는 톤, 손주 이야기 곁들임"
+
+  - id: P195
+    name: "하봉수"
+    generation: 60plus
+    interest_category: health
+    purchase_tendency: deliberate
+    price_sensitivity: low
+    reaction_pattern: curious
+    initial_mood: neutral
+    background: "건강 관리에 적극 투자하는 은퇴 의사, 최신 연구 관심"
+    speech_style: "학술적 톤, 근거 기반 대화 선호"
+
+  - id: P196
+    name: "구영자"
+    generation: 60plus
+    interest_category: electronics
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: impatient
+    initial_mood: negative
+    background: "손자가 추천한 공기청정기 사고 싶지만 비싸서 망설임"
+    speech_style: "조급한 톤, 최저가 정보만 원함"
+
+  - id: P197
+    name: "류순옥"
+    generation: 60plus
+    interest_category: food
+    purchase_tendency: impulse
+    price_sensitivity: low
+    reaction_pattern: friendly
+    initial_mood: positive
+    background: "자녀에게 좋은 먹거리 보내주는 것이 기쁨, 아낌없이 구매"
+    speech_style: "넉넉한 인심, 자녀 이야기 많음"
+
+  - id: P198
+    name: "탁원식"
+    generation: 60plus
+    interest_category: hobby
+    purchase_tendency: bargain_hunter
+    price_sensitivity: high
+    reaction_pattern: friendly
+    initial_mood: neutral
+    background: "공원 배드민턴 동호회, 라켓과 셔틀콕 저렴하게 대량 구매"
+    speech_style: "소탈한 톤, 동네 이야기 좋아함"
+
+  - id: P199
+    name: "방옥자"
+    generation: 60plus
+    interest_category: fashion
+    purchase_tendency: impulse
+    price_sensitivity: medium
+    reaction_pattern: curious
+    initial_mood: positive
+    background: "시니어 모델에 도전 중, 새로운 스타일에 개방적"
+    speech_style: "젊은 감각의 톤, 도전적 질문"
+
+  - id: P200
+    name: "민기철"
+    generation: 60plus
+    interest_category: home
+    purchase_tendency: needs_based
+    price_sensitivity: high
+    reaction_pattern: defensive
+    initial_mood: negative
+    background: "독거노인, 고장난 가전 수리비 부담, 사기 피해 경험 있음"
+    speech_style: "경계 강한 톤, 신뢰 확보 후에야 대화 열림"

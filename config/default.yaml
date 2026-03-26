@@ -31,7 +31,3 @@ evaluation:
     - name: final_outcome
       description: "최종 행동 결과 (구매, 정보교환, 거절)"
       weight: 0.2
-
-voice:
-  tts_provider: "openai"
-  stt_provider: "whisper"
