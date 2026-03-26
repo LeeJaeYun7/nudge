@@ -113,7 +113,7 @@ body { font-family: 'Segoe UI', -apple-system, sans-serif; background:var(--bg);
 .promo-deadline { font-size:10px; color:var(--orange); margin-top:6px; }
 
 /* --- CENTER: Conversation --- */
-.conv-center { display:flex; flex-direction:column; border-right:1px solid var(--border); }
+.conv-center { display:flex; flex-direction:column; border-right:1px solid var(--border); overflow:hidden; }
 
 /* Scene Banner */
 .scene-banner {
@@ -367,47 +367,47 @@ details[open] summary::before { content:'▼ '; font-size:8px; }
 
       <!-- 상품 정보 (접힘 가능) -->
       <details style="margin-top:16px;" open>
-        <summary style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600;cursor:pointer;padding:8px 0;user-select:none;">🎧 상품 정보</summary>
+        <summary style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600;cursor:pointer;padding:8px 0;user-select:none;">💊 상품 정보</summary>
         <div class="product-card" style="margin-top:8px;">
-          <div class="product-img" style="height:100px;font-size:48px;">🎧</div>
+          <div class="product-img" style="height:100px;font-size:48px;">💊</div>
           <div class="product-body" style="padding:12px;">
-            <div class="product-brand">SoundForest · SF-Pro Max</div>
-            <div class="product-name">프리미엄 무선 노이즈캔슬링 이어폰</div>
+            <div class="product-brand">VitaForest · 올인원 데일리</div>
+            <div class="product-name">프리미엄 종합 멀티비타민</div>
             <div class="product-price-row">
-              <div class="product-price" style="font-size:20px;">₩199,000</div>
-              <div class="product-price-original">₩249,000</div>
+              <div class="product-price" style="font-size:20px;">₩49,900</div>
+              <div class="product-price-original">₩65,000</div>
             </div>
             <div class="spec-grid">
-              <div class="spec-item"><div class="spec-value">30h</div><div class="spec-label">배터리</div></div>
-              <div class="spec-item"><div class="spec-value">ANC</div><div class="spec-label">노이즈캔슬링</div></div>
-              <div class="spec-item"><div class="spec-value">IPX5</div><div class="spec-label">방수등급</div></div>
-              <div class="spec-item"><div class="spec-value">Hi-Res</div><div class="spec-label">오디오</div></div>
+              <div class="spec-item"><div class="spec-value">22종</div><div class="spec-label">비타민+미네랄</div></div>
+              <div class="spec-item"><div class="spec-value">유산균</div><div class="spec-label">프로바이오틱스</div></div>
+              <div class="spec-item"><div class="spec-value">루테인</div><div class="spec-label">눈 건강</div></div>
+              <div class="spec-item"><div class="spec-value">오메가3</div><div class="spec-label">혈행 개선</div></div>
             </div>
           </div>
         </div>
 
         <div class="promo-card" style="margin-top:10px;">
           <div class="promo-title">🎁 온라인 한정 혜택</div>
-          <div class="promo-desc">첫 구매 15% 쿠폰 + 무료배송<br>앱 결제 시 5% 추가 적립 · 카드사 7% 즉시할인</div>
+          <div class="promo-desc">첫 구매 15% 쿠폰 + 무료배송<br>앱 결제 시 5% 추가 적립 · 3+1 정기배송 할인</div>
           <div class="promo-deadline">⏰ 3/28(금) 자정까지</div>
         </div>
 
         <div class="competitor-section" style="margin-top:10px;">
           <div class="section-label">경쟁 제품 비교</div>
           <div class="competitor-row">
-            <span style="font-size:16px">🍎</span>
-            <div class="comp-name">AirPods Pro 2</div>
-            <div class="comp-price">₩329,000</div>
+            <span style="font-size:16px">💚</span>
+            <div class="comp-name">센트룸 멀티비타민</div>
+            <div class="comp-price">₩38,000</div>
           </div>
           <div class="competitor-row">
-            <span style="font-size:16px">🎵</span>
-            <div class="comp-name">Sony WF-1000XM5</div>
-            <div class="comp-price">₩279,000</div>
+            <span style="font-size:16px">🔵</span>
+            <div class="comp-name">종근당 올인원</div>
+            <div class="comp-price">₩55,000</div>
           </div>
           <div class="competitor-row">
-            <span style="font-size:16px">🔊</span>
-            <div class="comp-name">Galaxy Buds3 Pro</div>
-            <div class="comp-price">₩259,000</div>
+            <span style="font-size:16px">🟡</span>
+            <div class="comp-name">솔가 멀티비타민</div>
+            <div class="comp-price">₩72,000</div>
             <div class="comp-badge">최다 비교</div>
           </div>
         </div>
@@ -793,82 +793,13 @@ const personas = [
   {id:"P200",name:"구재민",gen:"40대",cat:"뷰티",tendency:"충동구매",sensitivity:"낮음",reaction:"회의적",mood:"중립",avatar:"👨",color:"#06b6d4",desc:"중간관리자, 온라인 구매 실패 경험, AS 중시"}
 ];
 
-// 시나리오: 온라인 쇼핑 상황 기반
-const scenarios = {
-  friendly: {
-    stages:["enter","approach","intro","trial","negotiate","close"],
-    msgs:[
-      {s:"system",text:"고객이 상품 페이지에 접속했습니다. 체류 시간 30초 경과."},
-      {s:"sales",text:"안녕하세요! SF-Pro Max 이어폰에 관심 있으신가요? 궁금한 점 도와드릴게요 😊",stage:"approach",mood:"neutral"},
-      {s:"customer",text:"네 ㅎㅎ 이어폰 좀 바꾸려고 찾아보는 중이에요.",mood:"positive"},
-      {s:"sales",text:"어떤 이어폰 쓰고 계세요? 어떤 점이 아쉬우셨어요?",stage:"approach"},
-      {s:"customer",text:"유선 쓰는데 줄이 자꾸 엉켜서... 무선으로 바꿀까 해서 검색 중이에요.",mood:"positive"},
-      {s:"sales",text:"그러시면 이 제품 딱이에요! 저희 몰 베스트셀러인데, 노이즈캔슬링이 정말 좋다고 리뷰가 많아요.",stage:"intro"},
-      {s:"customer",text:"오 디자인 괜찮다. 노캔은 어느 정도예요?",mood:"positive"},
-      {s:"sales",text:"카페에서 써도 옆 테이블 대화가 거의 안 들린다는 후기가 많아요. 구매자 리뷰 4.7점이에요! 리뷰 확인해보시겠어요?",action:"리뷰 섹션 안내",stage:"trial"},
-      {s:"customer",text:"리뷰 좀 볼게요. 오 진짜 후기 좋네요.",mood:"positive"},
-      {s:"system",text:"고객이 리뷰 섹션을 스크롤하며 상세 후기를 읽고 있습니다."},
-      {s:"customer",text:"음질 좋다는 리뷰가 많네요...! 배터리도 오래간다고?",mood:"positive"},
-      {s:"sales",text:"네! Hi-Res 오디오라서 음질이 깨끗하고, 배터리 30시간이라 충전 스트레스 없어요. IPX5 방수라 운동할 때도 OK!",stage:"intro"},
-      {s:"customer",text:"30시간이면 넉넉하다... 근데 가격이 좀 고민되네요.",mood:"neutral"},
-      {s:"sales",text:"지금 정가 249,000원에서 199,000원으로 할인 중이에요. 첫 구매 쿠폰 쓰시면 15% 추가 할인돼요!",stage:"negotiate"},
-      {s:"customer",text:"첫 구매 쿠폰이요? 그러면 얼마까지 되는 거예요?",mood:"positive"},
-      {s:"sales",text:"쿠폰 적용하면 169,150원이에요! 카드사 즉시할인까지 합치면 더 내려가고, 무료배송에 케이스도 같이 보내드려요.",stage:"negotiate"},
-      {s:"customer",text:"오 17만원이면 괜찮네! 장바구니 담을게요.",mood:"positive"},
-      {s:"sales",text:"장바구니에 담겼어요! 지금 결제하시면 내일 도착이에요. 이니셜 각인 서비스도 무료로 신청 가능해요 🎁",stage:"close"},
-      {s:"customer",text:"바로 결제할게요 ㅋㅋ 각인도 넣어주세요!",mood:"positive"},
-      {s:"system",text:"✅ 결제 완료 — 고객이 온라인 결제를 진행합니다. 내일 배송 예정."},
-    ]
-  },
-  skeptical: {
-    stages:["enter","approach","intro","negotiate","close"],
-    msgs:[
-      {s:"system",text:"고객이 상품 페이지에 접속 후 스펙 비교 탭을 빠르게 훑어보고 있습니다."},
-      {s:"sales",text:"안녕하세요~ 이어폰 찾고 계시나요? 도움이 필요하시면 말씀해주세요!",stage:"approach",mood:"neutral"},
-      {s:"customer",text:"그냥 보는 거예요. 에어팟 쓰는데 굳이 바꿀 생각은 없어요.",mood:"neutral"},
-      {s:"sales",text:"아 에어팟 좋죠! 혹시 배터리 때문에 불편하신 적은 없으세요?",stage:"approach"},
-      {s:"customer",text:"뭐... 가끔 외출할 때 배터리 떨어지긴 하는데.",mood:"neutral"},
-      {s:"sales",text:"이 제품이 배터리가 30시간이라 그런 걱정이 확실히 없거든요. 출장이나 여행 때 특히 편해요.",stage:"intro"},
-      {s:"customer",text:"30시간은 좀 많은 것 같긴 한데... 노캔은 에어팟 프로도 되잖아요.",mood:"neutral"},
-      {s:"sales",text:"맞아요, 다만 이쪽이 Hi-Res 오디오 지원이라 음질 차이가 있어요. 비교 리뷰 영상 링크 보내드릴까요?",stage:"intro",action:"비교 리뷰 안내"},
-      {s:"customer",text:"음... 근데 얼만데요?",mood:"neutral"},
-      {s:"sales",text:"199,000원이에요. 에어팟 프로보다 13만원 저렴한데, 스펙은 오히려 좋아요. 첫 구매 쿠폰도 있고요.",stage:"negotiate"},
-      {s:"customer",text:"흠... 20만원이면 고민되네. 에어팟도 쓸만하긴 한데.",mood:"neutral"},
-      {s:"sales",text:"급하지 않으시면 위시리스트에 담아두세요! 가격 변동 알림 보내드릴게요. 이번 주까지 케이스 증정 이벤트도 하고 있어요.",stage:"close"},
-      {s:"customer",text:"네 일단 찜해둘게요. 좀 더 생각해볼게요.",mood:"neutral"},
-      {s:"system",text:"⏸ 이탈 — 고객이 위시리스트에 상품을 담고 페이지를 떠났습니다. 재방문 가능성 있음."},
-    ]
-  },
-  defensive: {
-    stages:["enter","approach","intro","close"],
-    msgs:[
-      {s:"system",text:"고객이 검색을 통해 상품 페이지에 접속했습니다. 빠르게 스크롤 중."},
-      {s:"sales",text:"안녕하세요~ 궁금한 점 있으시면 편하게 물어보세요!",stage:"approach",mood:"neutral"},
-      {s:"customer",text:"...",mood:"negative"},
-      {s:"system",text:"고객이 가격 정보만 확인하고 있습니다."},
-      {s:"sales",text:"혹시 도움이 필요하시면 채팅 남겨주세요~",stage:"approach"},
-      {s:"customer",text:"이거 최저가 맞아요? 다른 데 더 싼 거 같은데.",mood:"negative"},
-      {s:"sales",text:"현재 199,000원으로 공식몰 최저가예요. 노이즈캔슬링이랑 배터리 30시간에...",stage:"intro"},
-      {s:"customer",text:"20만원이요? 비싸네. 쿠팡에 3만원짜리도 충분하던데.",mood:"negative"},
-      {s:"sales",text:"가격대가 있죠. 다만 노캔이랑 30시간 배터리, 방수까지 합치면 가성비가...",stage:"intro"},
-      {s:"customer",text:"됐어요. 그냥 나갈게요.",mood:"negative"},
-      {s:"system",text:"❌ 즉시 이탈 — 고객이 페이지를 닫았습니다."},
-    ]
-  }
-};
-
 // ===== STATE =====
 let selected = null;
 let running = false;
 let paused = false;
-let msgIdx = 0;
-let currentScenario = null;
-let timer = null;
 let turnCount = 0;
 let startTime = null;
 let elapsedTimer = null;
-
-// Eval state
 let evalScores = {interest:0,cont:0,emotion:0,intent:0,outcome:0};
 
 // ===== INIT =====
@@ -953,61 +884,144 @@ function selectPersona(id) {
   resetSim();
 }
 
-// ===== SIMULATION =====
-function startSim() {
+// ===== SIMULATION (API-driven) =====
+let simEventSource = null;
+
+async function startSim() {
   if(!selected){alert('고객을 선택하세요');return;}
-  if(paused){paused=false;document.getElementById('btnPause').textContent='⏸';playNext();return;}
 
-  // Pick scenario
-  if(selected.reaction==='방어적') currentScenario=scenarios.defensive;
-  else if(selected.reaction==='회의적'||selected.reaction==='급한성격') currentScenario=scenarios.skeptical;
-  else currentScenario=scenarios.friendly;
-
-  running=true; paused=false; msgIdx=0; turnCount=0;
+  running=true; paused=false; turnCount=0;
   evalScores={interest:0,cont:0,emotion:0,intent:0,outcome:0};
   document.getElementById('chatArea').innerHTML='';
   document.getElementById('btnStart').disabled=true;
-  document.getElementById('btnPause').disabled=false;
+  document.getElementById('btnPause').disabled=true;
   document.getElementById('liveDot').className='scene-dot live';
-  document.getElementById('sceneText').textContent='대화 진행 중';
+  document.getElementById('sceneText').textContent='서버 연결 중...';
   document.getElementById('globalStatus').innerHTML='<span style="color:var(--blue)">● Running</span>';
   startTime=Date.now();
   elapsedTimer=setInterval(updateElapsed,1000);
   resetStages();
   resetEvalMeters();
-  playNext();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/sim/start`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        persona: {id:selected.id, name:selected.name, gen:selected.gen, cat:selected.cat, tendency:selected.tendency, sensitivity:selected.sensitivity, reaction:selected.reaction, mood:selected.mood, desc:selected.desc}
+      }),
+    });
+
+    if (!res.ok) {
+      alert('서버 오류: ' + res.status);
+      resetSim();
+      return;
+    }
+
+    document.getElementById('sceneText').textContent='대화 진행 중';
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = JSON.parse(line.slice(6));
+        handleSimEvent(data);
+      }
+    }
+  } catch(e) {
+    alert('서버 연결 실패. 서버가 실행 중인지 확인하세요.\n\npy -m uvicorn src.api.main:app --reload');
+    resetSim();
+  }
 }
 
-function playNext() {
-  if(!running||paused) return;
-  if(msgIdx>=currentScenario.msgs.length){endSim();return;}
-
-  const m = currentScenario.msgs[msgIdx];
-
-  if(m.s==='system'){
-    appendSystem(m.text);
-    msgIdx++;
-    setTimeout(playNext, 600);
-    return;
-  }
-
-  // Show typing
-  showTyping(m.s);
-  const delay = 800 + Math.random()*1400;
-
-  timer = setTimeout(()=>{
-    removeTyping();
-    appendMsg(m);
-    if(m.stage) setStage(m.stage);
+function handleSimEvent(data) {
+  if (data.type === 'turn') {
     turnCount++;
-    document.getElementById('turnNum').textContent=turnCount;
+    document.getElementById('turnNum').textContent = turnCount;
+    appendMsg({s: data.speaker, text: data.content});
 
-    // Update eval progressively
-    updateLiveEval(msgIdx, currentScenario.msgs.length);
+    // Update stage progressively
+    const stages = ['enter','approach','intro','trial','negotiate','close'];
+    const stageIdx = Math.min(Math.floor((turnCount-1) / 3), stages.length - 1);
+    setStage(stages[stageIdx]);
+  }
+  else if (data.type === 'eval_start') {
+    document.getElementById('sceneText').textContent = '평가 중...';
+    appendSystem('대화 종료 — AI 평가 진행 중...');
+  }
+  else if (data.type === 'eval_result') {
+    const r = data;
+    setMeter('Interest', r.interest_level.score);
+    setMeter('Cont', r.conversation_continuation.score);
+    setMeter('Emotion', r.emotional_change.score);
+    setMeter('Intent', r.purchase_intent.score);
+    setMeter('Outcome', r.final_outcome.score);
+    document.getElementById('totalScore').textContent = r.weighted_score.toFixed(1);
 
-    msgIdx++;
-    setTimeout(playNext, 400+Math.random()*600);
-  }, delay);
+    document.getElementById('noteInterest').textContent = r.interest_level.reasoning;
+    document.getElementById('noteCont').textContent = r.conversation_continuation.reasoning;
+    document.getElementById('noteEmotion').textContent = r.emotional_change.reasoning;
+    document.getElementById('noteIntent').textContent = r.purchase_intent.reasoning;
+    document.getElementById('noteOutcome').textContent = r.final_outcome.reasoning;
+
+    // Insights
+    document.getElementById('insightsArea').innerHTML = `
+      <div class="insight-card">
+        <div class="insight-title">📊 AI 종합 평가</div>
+        <div class="insight-text">${r.overall_summary}</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-title">🎯 종료 사유</div>
+        <div class="insight-text">${r.termination_reason === 'purchase' ? '구매 완료' : r.termination_reason === 'customer_exit' ? '고객 이탈' : r.termination_reason === 'wishlist' ? '찜/보류' : '최대 턴 도달'}</div>
+      </div>`;
+
+    finishSim(r.termination_reason);
+  }
+  else if (data.type === 'eval_error') {
+    appendSystem('평가 실패: ' + data.message);
+    finishSim(data.termination_reason);
+  }
+  else if (data.type === 'done') {
+    // Stream ended
+  }
+}
+
+function finishSim(reason) {
+  running = false;
+  clearInterval(elapsedTimer);
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('liveDot').className = 'scene-dot idle';
+
+  if (reason === 'purchase') {
+    document.getElementById('sceneText').textContent = '결제 완료';
+    document.getElementById('scenePhase').textContent = '구매 성공';
+    document.getElementById('scenePhase').className = 'scene-phase active';
+    document.getElementById('globalStatus').innerHTML = '<span style="color:var(--green)">● 구매 완료</span>';
+  } else if (reason === 'customer_exit') {
+    document.getElementById('sceneText').textContent = '고객 이탈';
+    document.getElementById('scenePhase').textContent = '이탈';
+    document.getElementById('scenePhase').className = 'scene-phase';
+    document.getElementById('globalStatus').innerHTML = '<span style="color:var(--red)">● 이탈</span>';
+  } else if (reason === 'wishlist') {
+    document.getElementById('sceneText').textContent = '찜/보류';
+    document.getElementById('scenePhase').textContent = '보류';
+    document.getElementById('scenePhase').className = 'scene-phase';
+    document.getElementById('globalStatus').innerHTML = '<span style="color:var(--orange)">● 보류</span>';
+  } else {
+    document.getElementById('sceneText').textContent = '대화 종료';
+    document.getElementById('scenePhase').textContent = '종료';
+    document.getElementById('globalStatus').innerHTML = '<span style="color:var(--text2)">● 종료</span>';
+  }
 }
 
 function appendMsg(m) {
@@ -1059,46 +1073,11 @@ function showTyping(speaker) {
 }
 function removeTyping(){const e=document.getElementById('typingEl');if(e)e.remove();}
 
-function togglePause() {
-  if(!running)return;
-  paused=!paused;
-  document.getElementById('btnPause').textContent=paused?'▶':'⏸';
-  document.getElementById('btnStart').disabled=!paused;
-  if(paused){clearTimeout(timer);document.getElementById('sceneText').textContent='일시정지';}
-  else{document.getElementById('sceneText').textContent='대화 진행 중';playNext();}
-}
 
-function endSim() {
-  running=false;
-  clearInterval(elapsedTimer);
-  document.getElementById('btnStart').disabled=false;
-  document.getElementById('btnPause').disabled=true;
-  document.getElementById('liveDot').className='scene-dot idle';
-  document.getElementById('globalStatus').innerHTML='<span style="color:var(--green)">● Complete</span>';
-
-  // Determine outcome
-  const lastReal = [...currentScenario.msgs].reverse().find(m=>m.s==='customer');
-  const purchased = lastReal && (lastReal.text.includes('결제할게요')||lastReal.text.includes('할게요')||lastReal.text.includes('살게요'));
-  const exited = lastReal && (lastReal.text.includes('찜해')||lastReal.text.includes('생각해볼')||lastReal.text.includes('나갈게요'));
-
-  if(purchased){
-    document.getElementById('sceneText').textContent='결제 완료';
-    document.getElementById('scenePhase').textContent='✅ 성공';
-    document.getElementById('scenePhase').className='scene-phase active';
-  } else if(exited) {
-    document.getElementById('sceneText').textContent='페이지 이탈';
-    document.getElementById('scenePhase').textContent='이탈';
-  } else {
-    document.getElementById('sceneText').textContent='대화 종료';
-    document.getElementById('scenePhase').textContent='종료';
-  }
-
-  showFinalEval(purchased, exited);
-}
 
 function resetSim() {
-  running=false;paused=false;msgIdx=0;turnCount=0;
-  clearTimeout(timer);clearInterval(elapsedTimer);
+  running=false;paused=false;turnCount=0;
+  clearInterval(elapsedTimer);
   document.getElementById('chatArea').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--text3);font-size:13px;text-align:center;line-height:1.8;">왼쪽에서 고객 페르소나를 선택하고<br>▶ 시뮬레이션 시작을 눌러주세요</div>`;
   document.getElementById('turnNum').textContent='0';
   document.getElementById('elapsed').textContent='0:00';
@@ -1145,41 +1124,6 @@ function resetEvalMeters(){
   document.getElementById('totalScore').textContent='-';
 }
 
-function updateLiveEval(idx,total){
-  const progress=idx/total;
-  const isPositive = currentScenario===scenarios.friendly;
-  const isNeg = currentScenario===scenarios.defensive;
-
-  // Simulate progressive eval
-  if(isPositive){
-    evalScores.interest = Math.min(10, 3 + progress*7);
-    evalScores.cont = Math.min(10, 3 + progress*6);
-    evalScores.emotion = Math.min(10, 4 + progress*5);
-    evalScores.intent = Math.min(10, 2 + progress*8);
-    evalScores.outcome = Math.min(10, 2 + progress*8);
-  } else if(isNeg){
-    evalScores.interest = Math.min(10, 2 + progress*2);
-    evalScores.cont = Math.min(10, 3 - progress*1);
-    evalScores.emotion = Math.min(10, 2);
-    evalScores.intent = Math.min(10, 1 + progress*1);
-    evalScores.outcome = Math.min(10, 1 + progress*2);
-  } else {
-    evalScores.interest = Math.min(10, 3 + progress*3);
-    evalScores.cont = Math.min(10, 4 + progress*2);
-    evalScores.emotion = Math.min(10, 3 + progress*2);
-    evalScores.intent = Math.min(10, 2 + progress*3);
-    evalScores.outcome = Math.min(10, 3 + progress*2);
-  }
-
-  setMeter('Interest',evalScores.interest);
-  setMeter('Cont',evalScores.cont);
-  setMeter('Emotion',evalScores.emotion);
-  setMeter('Intent',evalScores.intent);
-  setMeter('Outcome',evalScores.outcome);
-
-  const w = (evalScores.interest*.2+evalScores.cont*.15+evalScores.emotion*.2+evalScores.intent*.25+evalScores.outcome*.2).toFixed(1);
-  document.getElementById('totalScore').textContent=w;
-}
 
 function setMeter(key,val){
   const v = val.toFixed(1);
@@ -1187,59 +1131,6 @@ function setMeter(key,val){
   document.getElementById('bar'+key).style.width=(val*10)+'%';
 }
 
-function showFinalEval(purchased,exited){
-  let notes;
-  if(purchased){
-    notes={
-      interest:"적극적 질문과 리뷰 확인으로 높은 관심도",
-      cont:"자연스러운 채팅 흐름, 고객 주도 질문 다수",
-      emotion:"호기심 → 리뷰 신뢰 → 구매 결정으로 긍정 흐름",
-      intent:"'바로 결제할게요' — 명확한 구매 의사",
-      outcome:"온라인 결제 완료. 쿠폰+할인 조합 효과적"
-    };
-  } else if(exited){
-    notes={
-      interest:"배터리에 일부 관심, 그러나 기존 제품 만족도 높음",
-      cont:"12턴 유지했으나 대부분 소극적 반응",
-      emotion:"큰 감정 변화 없음. 중립 유지",
-      intent:"'찜해둘게요' — 위시리스트 저장 후 이탈",
-      outcome:"재방문 가능성 있으나 전환 불확실"
-    };
-  } else {
-    notes={
-      interest:"가격만 확인. 제품 자체에 관심 미미",
-      cont:"조기 이탈. 채팅 지속 의지 없음",
-      emotion:"부정 → 부정. 감정 전환 실패",
-      intent:"즉시 거절. 페이지 이탈",
-      outcome:"즉시 이탈. 재방문 가능성 매우 낮음"
-    };
-  }
-
-  document.getElementById('noteInterest').textContent=notes.interest;
-  document.getElementById('noteCont').textContent=notes.cont;
-  document.getElementById('noteEmotion').textContent=notes.emotion;
-  document.getElementById('noteIntent').textContent=notes.intent;
-  document.getElementById('noteOutcome').textContent=notes.outcome;
-
-  // Insights
-  const insights = purchased ? [
-    {title:'✅ 핵심 성공 요인',text:'리뷰 신뢰 확보 + 쿠폰 할인 조합으로 가격 저항 해소. 즉시배송 안내가 결제 전환에 효과적.'},
-    {title:'💡 전략 인사이트',text:'니즈 파악 → 리뷰 유도 → 쿠폰 안내 → 배송 정보 순서가 효과적.'},
-  ] : exited ? [
-    {title:'⚠️ 이탈 원인',text:'기존 에어팟 만족도가 높아 교체 동기 부족. 온라인 비교 리뷰 활용 부족.'},
-    {title:'💡 개선 제안',text:'에어팟과의 비교 리뷰 콘텐츠를 선제적으로 안내했다면 전환 가능성 높았을 것.'},
-  ] : [
-    {title:'❌ 실패 분석',text:'초기 신뢰 구축 실패. 가격 비교만 하는 고객에게 바로 제품 소개로 진입.'},
-    {title:'💡 개선 제안',text:'방어적 고객에게는 한정 할인/타임세일 긴급성 대신, 사용 후기 기반 공감 접근 필요.'},
-  ];
-
-  document.getElementById('insightsArea').innerHTML = insights.map(i=>`
-    <div class="insight-card">
-      <div class="insight-title">${i.title}</div>
-      <div class="insight-text">${i.text}</div>
-    </div>
-  `).join('');
-}
 
 // ===== RALPH =====
 // ===== RALPH LOOP API =====

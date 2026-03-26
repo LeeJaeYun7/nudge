@@ -4,9 +4,11 @@ import asyncio
 import json
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config.settings import get_settings
@@ -15,6 +17,12 @@ from src.personas.schema import (
     Generation, InitialMood, InterestCategory, Persona,
     PriceSensitivity, PurchaseTendency, ReactionPattern,
 )
+from src.agents.rule_customer import RuleCustomerAgent
+from src.agents.sales_agent import SalesAgent
+from src.conversation.engine import ConversationEngine
+from src.conversation.rules import check_termination
+from src.conversation.turn import Turn
+from src.evaluation.evaluator import Evaluator
 from src.ralph.loop import RALPHLoop
 
 
@@ -90,6 +98,10 @@ def frontend_persona_to_backend(p: dict) -> Persona:
 
 
 # === API Models ===
+class SimRequest(BaseModel):
+    persona: dict
+
+
 class LoopRequest(BaseModel):
     personas: list[dict]
     n_iterations: int = 5
@@ -112,6 +124,69 @@ async def get_status():
         "total_iterations": loop_state["total_iterations"],
         "results": loop_state["results"],
     }
+
+
+@app.post("/api/sim/start")
+async def start_sim(req: SimRequest):
+    """단일 대화 시뮬레이션 — SSE로 턴마다 실시간 스트리밍"""
+    settings = get_settings()
+    client = create_client(settings.openrouter_api_key)
+    persona = frontend_persona_to_backend(req.persona)
+
+    async def event_generator():
+        sales = SalesAgent(
+            client=client,
+            model=settings.model_cheap,
+            product_name="VitaForest 올인원 데일리 멀티비타민",
+            product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포, 4.7점 리뷰",
+            product_price="₩49,900 (정가 ₩65,000, 30일분)",
+        )
+        customer = RuleCustomerAgent(persona=persona)
+        turns: list[Turn] = []
+        termination_reason = "max_turns"
+        max_turns = settings.max_turns
+
+        for turn_num in range(max_turns):
+            if turn_num % 2 == 0:
+                speaker = "sales"
+                response = await sales.respond(turns)
+            else:
+                speaker = "customer"
+                response = await customer.respond(turns)
+
+            turn = Turn(speaker=speaker, content=response, turn_number=turn_num + 1)
+            turns.append(turn)
+
+            yield f"data: {json.dumps({'type': 'turn', 'speaker': speaker, 'content': response, 'turn_number': turn_num + 1}, ensure_ascii=False)}\n\n"
+
+            if speaker == "customer":
+                term = check_termination(response)
+                if term is not None:
+                    termination_reason = term
+                    break
+
+        # 대화 끝 — 평가 시작
+        yield f"data: {json.dumps({'type': 'eval_start'}, ensure_ascii=False)}\n\n"
+
+        try:
+            from src.conversation.turn import ConversationSession
+            import uuid
+            session = ConversationSession(
+                session_id=str(uuid.uuid4()),
+                persona_id=persona.id,
+                product_name="SoundForest SF-Pro Max",
+                turns=turns,
+                termination_reason=termination_reason,
+            )
+            evaluator = Evaluator(client=client, model=settings.model_expensive)
+            result = await evaluator.evaluate(session)
+            yield f"data: {json.dumps({'type': 'eval_result', 'termination_reason': termination_reason, 'interest_level': {'score': result.interest_level.score, 'reasoning': result.interest_level.reasoning}, 'conversation_continuation': {'score': result.conversation_continuation.score, 'reasoning': result.conversation_continuation.reasoning}, 'emotional_change': {'score': result.emotional_change.score, 'reasoning': result.emotional_change.reasoning}, 'purchase_intent': {'score': result.purchase_intent.score, 'reasoning': result.purchase_intent.reasoning}, 'final_outcome': {'score': result.final_outcome.score, 'reasoning': result.final_outcome.reasoning}, 'weighted_score': result.weighted_score, 'overall_summary': result.overall_summary}, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'eval_error', 'message': str(e), 'termination_reason': termination_reason}, ensure_ascii=False)}\n\n"
+
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @app.post("/api/loop/start")
@@ -173,9 +248,9 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             client=client,
             model_cheap=settings.model_cheap,
             model_expensive=settings.model_expensive,
-            product_name="SoundForest SF-Pro Max 프리미엄 무선 노이즈캔슬링 이어폰",
-            product_description="ANC, 30시간 배터리, IPX5 방수, Hi-Res 오디오, 4.7점 리뷰",
-            product_price="₩199,000 (정가 ₩249,000)",
+            product_name="VitaForest 올인원 데일리 멀티비타민",
+            product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포, 4.7점 리뷰",
+            product_price="₩49,900 (정가 ₩65,000, 30일분)",
             max_turns=settings.max_turns,
             concurrency=settings.concurrent_conversations,
         )
@@ -220,3 +295,12 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
 
 def _push_event(event: dict):
     loop_state["events"].append(event)
+
+
+# === Frontend serving ===
+FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+
+
+@app.get("/")
+async def serve_frontend():
+    return FileResponse(FRONTEND_DIR / "index.html")

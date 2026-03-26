@@ -28,7 +28,8 @@ def build_sales_system_prompt(
 - 제품명: {product_name}
 - 설명: {product_description}
 - 가격: {product_price}
-- 프로모션: 첫 구매 15% 쿠폰, 무료배송, 앱 결제 시 5% 추가 적립, 카드사 7% 즉시할인
+- 프로모션: 첫 구매 15% 쿠폰, 무료배송, 앱 결제 시 5% 추가 적립, 3+1 정기배송 할인
+- 인증: GMP 인증, 식약처 기능성 인증
 - 리뷰 평점: 4.7/5.0 (1,200+ 리뷰)
 {strategy_section}
 ## 행동 지침

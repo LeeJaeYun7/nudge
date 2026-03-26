@@ -25,33 +25,33 @@ GREETINGS_NEGATIVE = [
 
 INTEREST_QUESTIONS = [
     "오 그래요? 좀 더 설명해주세요.",
-    "리뷰는 어때요?",
-    "배터리 실사용 시간이 어떻게 돼요?",
-    "다른 색상도 있어요?",
-    "음질은 어느 정도예요?",
-    "노이즈캔슬링 성능이 좀 궁금한데요.",
-    "실제 사용 후기가 궁금해요.",
-    "방수는 진짜 되는 거예요?",
-    "무게감은 어때요? 오래 끼면 아프지 않아요?",
+    "후기는 어때요?",
+    "하루에 몇 포 먹어야 돼요?",
+    "어떤 성분이 들어가 있어요?",
+    "효과 체감하려면 얼마나 먹어야 해요?",
+    "부작용 같은 건 없어요?",
+    "실제 먹어본 사람 후기가 궁금해요.",
+    "GMP 인증은 어디서 받은 거예요?",
+    "다른 영양제랑 같이 먹어도 돼요?",
 ]
 
 PRICE_REACTIONS_POSITIVE = [
     "오 그 가격이면 괜찮네요!",
     "할인까지 하면 꽤 괜찮은데요?",
     "가성비 좋네요!",
-    "에어팟보다 저렴하면서 스펙은 더 좋네요.",
+    "약국 영양제보다 저렴하면서 성분은 더 좋네요.",
 ]
 PRICE_REACTIONS_NEUTRAL = [
     "음... 좀 고민되네요.",
     "가격이 조금 부담되긴 하는데...",
-    "에어팟이랑 비교하면 어때요?",
+    "약국에서 파는 거랑 비교하면 어때요?",
     "할인이나 쿠폰 있어요?",
 ]
 PRICE_REACTIONS_NEGATIVE = [
     "너무 비싸네요.",
     "이 가격은 좀...",
     "쿠팡에 더 싼 거 많던데.",
-    "20만원은 좀 많다...",
+    "5만원은 좀 많다...",
 ]
 
 REVIEW_REACTIONS = [
@@ -62,12 +62,12 @@ REVIEW_REACTIONS = [
 ]
 
 OBJECTION_BRAND = [
-    "에어팟 쓰고 있는데 굳이 바꿀 필요가 있을까요?",
-    "소니가 더 좋지 않아요?",
+    "센트룸 먹고 있는데 굳이 바꿀 필요가 있을까요?",
+    "종근당이 더 믿을 만하지 않아요?",
     "브랜드가 좀 생소한데...",
 ]
 OBJECTION_NEED = [
-    "지금 쓰는 것도 괜찮은데...",
+    "지금 먹는 것도 괜찮은데...",
     "꼭 필요한 건 아닌 것 같아요.",
     "좀 더 생각해볼게요.",
 ]
@@ -158,15 +158,14 @@ class RuleCustomerAgent:
 
     def _analyze_sales_message(self, msg: str) -> dict:
         """판매 메시지에서 키워드를 분석합니다."""
-        msg_lower = msg.lower()
         return {
             "mentions_price": any(w in msg for w in ["원", "할인", "가격", "쿠폰", "세일", "프로모션"]),
             "mentions_review": any(w in msg for w in ["리뷰", "후기", "평점", "별점", "평가"]),
-            "mentions_spec": any(w in msg for w in ["배터리", "노이즈", "방수", "음질", "Hi-Res", "ANC"]),
-            "mentions_benefit": any(w in msg for w in ["무료배송", "증정", "적립", "혜택", "이벤트"]),
+            "mentions_spec": any(w in msg for w in ["비타민", "미네랄", "프로바이오틱스", "루테인", "오메가", "GMP", "성분", "함량"]),
+            "mentions_benefit": any(w in msg for w in ["무료배송", "증정", "적립", "혜택", "이벤트", "면역", "피로", "에너지", "활력"]),
             "mentions_coupon": any(w in msg for w in ["쿠폰", "할인코드", "첫 구매"]),
             "mentions_shipping": any(w in msg for w in ["배송", "도착", "출발", "당일", "내일"]),
-            "mentions_compare": any(w in msg for w in ["에어팟", "소니", "갤럭시", "경쟁", "비교"]),
+            "mentions_compare": any(w in msg for w in ["센트룸", "종근당", "솔가", "약국", "비교"]),
             "is_question": "?" in msg or "요?" in msg or "세요" in msg,
             "is_empathetic": any(w in msg for w in ["그렇죠", "맞아요", "이해", "공감", "고민"]),
             "is_pushy": any(w in msg for w in ["지금 바로", "서두르", "놓치", "마지막"]),

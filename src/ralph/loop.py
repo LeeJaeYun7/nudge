@@ -14,7 +14,7 @@ from src.ralph.strategy import Strategy, StrategyResult
 
 console = Console()
 
-PRODUCT_PRICE_KRW = 199000  # 기본 판매가
+PRODUCT_PRICE_KRW = 49900  # 기본 판매가
 
 
 class RALPHLoop:

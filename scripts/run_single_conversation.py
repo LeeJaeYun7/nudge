@@ -30,9 +30,9 @@ async def main():
     sales = SalesAgent(
         client=client,
         model=settings.model_cheap,
-        product_name="프리미엄 무선 이어폰",
-        product_description="노이즈캔슬링, 30시간 배터리, IPX5 방수, Hi-Res 오디오 지원",
-        product_price="199,000원",
+        product_name="VitaForest 올인원 데일리 멀티비타민",
+        product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포",
+        product_price="49,900원 (정가 65,000원, 30일분)",
     )
 
     customer = CustomerAgent(
@@ -49,7 +49,7 @@ async def main():
         sales_agent=sales,
         customer_agent=customer,
         persona_id=persona.id,
-        product_name="프리미엄 무선 이어폰",
+        product_name="VitaForest 올인원 데일리 멀티비타민",
     )
 
     # 대화 출력
