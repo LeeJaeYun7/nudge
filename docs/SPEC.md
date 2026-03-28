@@ -1,840 +1,546 @@
-# Nudge - Full Product Specification
+# Nudge - 제품/기능 사양서
 
-> 이 문서만으로 전체 프로젝트를 재현할 수 있도록 작성된 상세 스펙 문서입니다.
+## 한 줄 정의
 
-## 1. 프로젝트 개요
+AI가 수백 개의 영업 전략을 스스로 생성하고, 실제 고객 시뮬레이션을 통해 **가장 전환율 높은 전략을 찾아내는 영업 최적화 시스템**
 
-**Nudge**는 AI 영업 에이전트가 200개 고객 페르소나와 반복 대화하면서, 어떤 설득 전략이 가장 효과적인지 스스로 실험하고 최적화하는 시스템입니다.
+---
+
+## 1. 문제 정의 (Problem)
+
+### 기존 세일즈의 구조적 한계
+
+- 영업 성과는 **개인의 감각과 경험에 의존**
+- 어떤 말투/타이밍/혜택이 효과적인지 **데이터 기반 검증 어려움**
+- A/B 테스트는 제한적이며 **실제 고객 대상으로 실험 비용 큼**
+
+### 핵심 문제
+
+> "어떤 영업 방식이 가장 잘 팔리는지"를
+> 빠르게, 대량으로, 안전하게 실험할 수 없다
+
+---
+
+## 2. 해결 방식 (Solution)
+
+### 핵심 컨셉
+
+> **AI가 스스로 영업 전략을 생성하고, 고객을 시뮬레이션하며, 성과 기반으로 최적화한다**
+
+### 접근 방법
+
+Nudge는 200개의 가상 고객 페르소나와 반복적으로 대화하면서 RALPH Loop를 통해 영업 전략을 **자동으로 생성, 실험, 평가, 학습, 최적화**한다.
 
 ```
 추천을 잘하는 AI ❌
 설득 전략을 스스로 학습하는 AI ✅
 ```
 
-### 핵심 메커니즘: RALPH Loop
+### 핵심 가치
 
-```
-┌─────────────────────────────────────────────────┐
-│                  RALPH LOOP                      │
-│                                                  │
-│  HYPOTHESIZE ──→ PLAN ──→ ACT ──→ EVALUATE      │
-│       ↑                              │           │
-│       └──── LEARN ←── REASON ←───────┘           │
-└─────────────────────────────────────────────────┘
-```
-
-매 반복마다:
-1. **HYPOTHESIZE** — 이전 학습 기반으로 새 영업 전략 가설 생성 (Sonnet)
-2. **PLAN** — 실험할 페르소나 200명 선택
-3. **ACT** — Sales Agent ↔ Customer Agent 200개 대화 병렬 실행 (Gemini Flash)
-4. **EVALUATE** — 30개 샘플을 5차원 평가 (Sonnet, LLM-as-Judge)
-5. **REASON** — 성공/실패 패턴 분석 (Sonnet)
-6. **LEARN** — 재사용 가능한 학습 포인트 추출 (Sonnet)
-
-학습 결과가 다음 반복의 HYPOTHESIZE에 피드백되어 전략이 진화합니다.
-
-### 판매 제품
-
-**VitaForest 올인원 데일리 멀티비타민** (₩49,900)
-- 22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3
-- GMP 인증, 식약처 기능성 인증
-- 프로모션: 첫 구매 15% 쿠폰, 무료배송, 3+1 정기배송 할인
-- 리뷰 평점: 4.7/5.0 (1,200+ 리뷰)
-- 경쟁: 센트룸(₩38,000), 종근당(₩55,000), 솔가(₩72,000)
+- **자동화**: 전략 설계부터 평가까지 사람 개입 없이 동작
+- **데이터 기반**: LLM-as-Judge 패턴으로 대화 품질을 정량 평가
+- **비용 효율**: 대화 생성은 저비용 모델, 분석/평가는 고비용 모델로 분리
+- **반복 학습**: 이전 실험의 성공/실패 패턴을 다음 전략에 반영
 
 ---
 
-## 2. 기술 스택
+## 2. 핵심 컨셉: RALPH Loop
 
-| 분류 | 기술 |
+RALPH Loop는 Nudge의 핵심 최적화 엔진이다. 6단계의 순환 루프를 통해 영업 전략을 점진적으로 개선한다.
+
+```
+HYPOTHESIZE --> PLAN --> ACT --> EVALUATE --> REASON --> LEARN
+     ^                                                    |
+     +----------------------------------------------------+
+```
+
+| 단계 | 역할 | 사용 모델 |
+|------|------|-----------|
+| **H**ypothesize | 이전 학습 기반으로 새 영업 전략 가설 생성 | Expensive (Claude Sonnet) |
+| **P**lan | 실험할 페르소나 선택 및 실행 계획 수립 | 규칙 기반 (LLM 미사용) |
+| **A**ct | Sales Agent와 Customer Agent 간 대화 배치 실행 | Cheap (Gemini Flash) |
+| **E**valuate | 5차원 지표로 대화 평가 (샘플 30개) | Expensive (Claude Sonnet) |
+| **R**eason | 상위/하위 대화 비교, 성공/실패 패턴 분석 | Expensive (Claude Sonnet) |
+| **L**earn | 재사용 가능한 학습 포인트 추출 | Expensive (Claude Sonnet) |
+
+### 반복 과정
+
+1. 첫 번째 반복: 기본 전략 가설 생성 (사전 학습 없음)
+2. 두 번째 반복부터: 이전 결과와 축적된 학습을 참고하여 개선된 전략 생성
+3. 수렴 감지: 점수 변화가 5% 미만인 상태가 2회 연속 발생하면 탐색 전략 주입 또는 조기 종료
+
+---
+
+## 3. 판매 제품
+
+### VitaForest 올인원 데일리 멀티비타민
+
+| 항목 | 내용 |
 |------|------|
-| LLM | OpenRouter (Gemini Flash + Claude Sonnet) |
-| Backend | Python 3.11+, FastAPI, Uvicorn |
-| Frontend | Vanilla JS, SSE 실시간 스트리밍, 단일 HTML |
-| Data | Pydantic, SQLModel, SQLite |
-| 통계 | scipy, numpy (t-test, chi-square, 신뢰구간) |
+| 제품명 | VitaForest 올인원 데일리 멀티비타민 |
+| 가격 | 49,900원 (정가 65,000원, 30일분) |
+| 주요 성분 | 22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3 |
+| 인증 | GMP 인증, 식약처 기능성 인증 |
+| 리뷰 | 4.7/5.0 (1,200+ 리뷰) |
+| 프로모션 | 첫 구매 15% 쿠폰, 무료배송, 앱 결제 시 5% 추가 적립, 3+1 정기배송 할인 |
+| 경쟁 제품 | 센트룸, 종근당, 솔가 |
 
-### 모델 분리 (비용 최적화)
-
-| 용도 | 모델 | 가격 |
-|------|------|------|
-| 대화 생성 (ACT) | `google/gemini-2.0-flash-001` | $0.1/M input, $0.4/M output |
-| 평가/전략/분석 | `anthropic/claude-sonnet-4` | $3/M input, $15/M output |
-| 고객 응답 (RuleCustomer) | 규칙 기반 | **$0 (LLM 미사용)** |
+> 제품 정보는 Sales Agent의 시스템 프롬프트에 주입되어, 대화 중 자연스럽게 소개된다.
 
 ---
 
-## 3. 프로젝트 구조
+## 4. 페르소나 시스템
 
-```
-nudge/
-├── config/
-│   ├── settings.py         # 환경 설정 (Pydantic Settings)
-│   ├── default.yaml        # 기본 설정값 (대화, 평가 가중치)
-│   └── personas.yaml       # 고객 페르소나 200개
-│
-├── src/
-│   ├── llm.py              # OpenRouter 클라이언트 + chat() 공통 함수
-│   │
-│   ├── agents/
-│   │   ├── base.py         # BaseAgent (추상 클래스)
-│   │   ├── sales_agent.py  # Sales Agent (LLM 기반)
-│   │   ├── customer_agent.py  # Customer Agent (LLM 기반, 디버그용)
-│   │   ├── rule_customer.py   # Customer Agent (규칙 기반, 비용 0)
-│   │   └── prompts/
-│   │       ├── sales_system.py    # Sales 시스템 프롬프트 빌더
-│   │       └── customer_system.py # Customer 시스템 프롬프트 빌더
-│   │
-│   ├── personas/
-│   │   ├── schema.py       # Persona 모델 + Enum 정의
-│   │   ├── loader.py       # YAML 로더
-│   │   └── selector.py     # AI 기반 페르소나 자동 선택
-│   │
-│   ├── conversation/
-│   │   ├── turn.py         # Turn, ConversationSession 모델
-│   │   ├── engine.py       # 턴 기반 대화 오케스트레이션
-│   │   └── rules.py        # 종료 키워드 감지
-│   │
-│   ├── evaluation/
-│   │   ├── schema.py       # DimensionScore, EvaluationResult 모델
-│   │   ├── dimensions.py   # 5차원 평가 루브릭 + 프롬프트
-│   │   ├── evaluator.py    # LLM-as-Judge 평가기
-│   │   ├── aggregator.py   # 결과 통계 집계
-│   │   └── statistics.py   # t-test, chi-square, 수렴 감지
-│   │
-│   ├── ralph/
-│   │   ├── strategy.py     # Strategy, StrategyResult 모델
-│   │   ├── loop.py         # RALPHLoop (핵심 루프)
-│   │   ├── hypothesize.py  # 전략 가설 생성
-│   │   ├── plan.py         # 페르소나 선택
-│   │   ├── act.py          # 전략 실행 (대화 배치)
-│   │   ├── reason.py       # 패턴 분석
-│   │   ├── learn.py        # 학습 포인트 추출
-│   │   └── persistent_loop.py # DB 저장 + 수렴 감지 확장
-│   │
-│   ├── storage/
-│   │   ├── database.py     # SQLite 엔진 + 테이블 생성
-│   │   ├── models.py       # DB 테이블 정의 (SQLModel)
-│   │   └── repository.py   # CRUD 레이어
-│   │
-│   └── api/
-│       └── main.py         # FastAPI 서버 + SSE 스트리밍
-│
-├── frontend/
-│   └── index.html          # 웹 대시보드 (단일 대화 + RALPH Loop)
-│
-├── scripts/
-│   ├── run_server.py       # UTF-8 서버 시작
-│   ├── run_simulation.py   # RALPH Loop CLI 실행
-│   └── run_single_conversation.py  # 단일 대화 디버그
-│
-├── .env.example            # 환경변수 템플릿
-├── pyproject.toml          # 의존성
-└── README.md
-```
+### 개요
+
+200개의 고객 페르소나가 `config/personas.yaml`에 정의되어 있다. 각 페르소나는 6가지 속성으로 구성되며, 이 속성 조합에 따라 대화 반응이 결정된다.
+
+### 6가지 속성
+
+| 속성 | 값 | 설명 |
+|------|-----|------|
+| **generation** (세대) | teen, 20s, 30s, 40s, 50s, 60plus | 연령대 |
+| **interest_category** (관심 분야) | fashion, electronics, food, health, hobby, home | 주 관심 카테고리 |
+| **purchase_tendency** (구매 성향) | impulse, deliberate, bargain_hunter, brand_loyal, needs_based | 구매 결정 패턴 |
+| **price_sensitivity** (가격 민감도) | low, medium, high | 가격에 대한 반응 정도 |
+| **reaction_pattern** (반응 패턴) | friendly, skeptical, impatient, curious, defensive | 대화 시 기본 태도 |
+| **initial_mood** (초기 기분) | positive, neutral, negative | 대화 시작 시 감정 상태 |
+
+추가로 각 페르소나는 `background` (배경 설명)과 `speech_style` (말투 특성)을 가진다.
+
+### 자동 선별 로직 (`personas/selector.py`)
+
+상품에 맞는 최적의 페르소나 조합을 자동으로 선별한다.
+
+**선별 비율:**
+- **60% 주요 매칭**: 상품 카테고리와 관심 분야가 일치하거나 관련된 페르소나
+- **20% 도전자**: 회의적(skeptical), 방어적(defensive), 가격 민감도 높은 페르소나 (전략 스트레스 테스트용)
+- **20% 다양성 확보**: 세대 다양성을 보장하는 라운드 로빈 방식 랜덤 선택
+
+**카테고리 매칭:**
+- 직접 매칭: 상품 카테고리 키워드 -> InterestCategory 매핑 (예: "비타민" -> HEALTH)
+- 관련 카테고리: HEALTH와 관련된 FOOD, HOBBY 등도 2차 매칭 대상
+- 가격/설명 기반 추론: 가격대와 설명 키워드로 적합한 purchase_tendency 추론
+
+### RALPH Loop 내 페르소나 선택 (`ralph/plan.py`)
+
+RALPH Loop 실행 시에는 더 단순한 로직을 사용한다:
+- 전략의 `target_personas` 유형을 우선 포함
+- 나머지는 랜덤으로 채움
+- 전략이 특정 유형에 약하다면, 해당 유형을 집중 테스트할 수 있음
 
 ---
 
-## 4. 설정 (Configuration)
+## 5. 에이전트 시스템
 
-### 4.1 환경변수 (.env)
+### 5.1 Sales Agent (LLM 기반)
 
-```
-OPENROUTER_API_KEY=sk-or-...
-MODEL_CHEAP=google/gemini-2.0-flash-001
-MODEL_EXPENSIVE=anthropic/claude-sonnet-4
-DATABASE_URL=sqlite+aiosqlite:///data/db/nudge.db
-```
+**역할**: 온라인 쇼핑몰의 AI 채팅 상담원으로서 고객과 대화하며 제품 구매를 유도한다.
 
-### 4.2 Settings 클래스 (`config/settings.py`)
+**구현**: `SalesAgent` 클래스는 `BaseAgent`를 상속하며, LLM을 통해 응답을 생성한다.
 
-```python
-class Settings(BaseSettings):
-    openrouter_api_key: str
-    model_cheap: str = "google/gemini-2.0-flash-001"
-    model_expensive: str = "anthropic/claude-sonnet-4"
-    database_url: str = "sqlite+aiosqlite:///data/db/nudge.db"
-    max_turns: int = 16
-    conversation_timeout_sec: int = 120
-    ralph_iterations: int = 5
-    personas_per_iteration: int = 200
-    concurrent_conversations: int = 50
-```
+#### 소비자 구매 퍼널 기반 설계
 
-### 4.3 시뮬레이션 기본값
-
-| 항목 | 값 |
-|------|-----|
-| 페르소나 풀 | 200개 |
-| 루프당 대화 수 | 200명 |
-| 반복 횟수 | 5회 |
-| 동시 실행 수 | 10 |
-| 최대 턴/대화 | 16턴 |
-| 평가 샘플/루프 | 30개 |
-| 수렴 임계값 | 5% |
-| 수렴 인내값 | 2회 연속 |
-
----
-
-## 5. 페르소나 시스템
-
-### 5.1 페르소나 스키마 (`src/personas/schema.py`)
-
-각 페르소나는 7개 차원으로 정의됩니다:
-
-| 필드 | 타입 | 값 |
-|------|------|-----|
-| `generation` | Enum | teen, 20s, 30s, 40s, 50s, 60plus |
-| `interest_category` | Enum | fashion, electronics, food, health, hobby, home |
-| `purchase_tendency` | Enum | impulse, deliberate, bargain_hunter, brand_loyal, needs_based |
-| `price_sensitivity` | Enum | low, medium, high |
-| `reaction_pattern` | Enum | friendly, skeptical, impatient, curious, defensive |
-| `initial_mood` | Enum | positive, neutral, negative |
-| `speech_style` | str | "반말 위주, 줄임말 사용" 등 |
-
-추가 필드: `id` (P001~P200), `name`, `background`
-
-### 5.2 페르소나 예시 (personas.yaml)
-
-```yaml
-- id: P001
-  name: "김하은"
-  generation: teen
-  interest_category: fashion
-  purchase_tendency: impulse
-  price_sensitivity: high
-  reaction_pattern: curious
-  initial_mood: positive
-  background: "고등학생, SNS 트렌드에 민감, 용돈으로 쇼핑"
-  speech_style: "반말 위주, 줄임말 사용, 리액션 큼"
-```
-
-200개 페르소나가 6개 세대에 걸쳐 균등 분포됩니다.
-
-### 5.3 AI 페르소나 선택기 (`src/personas/selector.py`)
-
-상품 카테고리에 따라 관련 페르소나를 자동 선택합니다:
-
-- **60% 매칭**: 상품 카테고리와 일치하는 `interest_category`
-- **20% 챌린저**: skeptical, defensive, impatient + 가격 민감도 높은 페르소나
-- **20% 다양성**: 세대별 라운드로빈으로 채움
-
-```python
-# 사용 예
-selected = recommend_personas_for_product(
-    personas, product_name="VitaForest", product_category="건강", product_price=49900
-)
-# → health 60% + challenger 20% + diverse 20%
-```
-
-키워드 매핑: "비타민"→HEALTH, "전자기기"→ELECTRONICS, "패션"→FASHION 등
-
----
-
-## 6. 에이전트 시스템
-
-### 6.1 LLM 클라이언트 (`src/llm.py`)
-
-```python
-def create_client(api_key: str) -> AsyncOpenAI:
-    """OpenRouter 호환 클라이언트 생성"""
-    return AsyncOpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
-
-async def chat(client, model, messages, max_tokens=1024, system=None) -> str:
-    """공통 LLM 호출. system prompt를 messages에 주입."""
-```
-
-### 6.2 BaseAgent (`src/agents/base.py`)
-
-```python
-class BaseAgent(ABC):
-    def __init__(self, client: AsyncOpenAI, model: str, system_prompt: str = "")
-
-    @abstractmethod
-    def build_system_prompt(self) -> str: ...
-
-    async def respond(self, conversation_history: list[Turn]) -> str:
-        """대화 이력 기반 응답 생성. chat() 호출."""
-
-    def _build_messages(self, history: list[Turn]) -> list[dict]:
-        """Turn → OpenAI 메시지 포맷 변환. 자신=assistant, 상대=user"""
-
-    @property
-    @abstractmethod
-    def role(self) -> str: ...  # "sales" | "customer"
-```
-
-### 6.3 SalesAgent (`src/agents/sales_agent.py`)
-
-```python
-class SalesAgent(BaseAgent):
-    def __init__(self, client, model, product_name, product_description, product_price, strategy=None)
-    role = "sales"
-```
-
-시스템 프롬프트에 전략이 주입됩니다:
+Sales Agent는 소비자가 물건을 구매할 때 거치는 **의사결정 퍼널(AISAS)**을 따른다. 각 단계에서 Sales Agent의 역할이 다르다:
 
 ```
-당신은 온라인 쇼핑몰의 AI 채팅 상담원입니다.
-
-## 판매 제품 정보
-- 제품명: {product_name}
-- 설명: {product_description}
-- 가격: {product_price}
-- 프로모션: 첫 구매 15% 쿠폰, 무료배송, ...
-- 인증: GMP 인증, 식약처 기능성 인증
-- 리뷰 평점: 4.7/5.0
-
-## 현재 적용할 영업 전략    ← RALPH가 생성한 전략
-- 전략명: {strategy.name}
-- 접근 방식: {strategy.approach}
-- 오프닝 스타일: {strategy.opening_style}
-- 설득 기법: {strategy.persuasion_tactics}
-- 반론 대응 방식: {strategy.objection_handling}
-
-## 행동 지침
-1. 친근하고 전문적인 톤
-2. 고객 반응에 맞게 대응
-3. 한 번에 2-3문장 이내
-...
+Attention(인지) → Interest(관심) → Search(탐색) → Action(행동) → Share(공유)
 ```
 
-### 6.4 RuleCustomerAgent (`src/agents/rule_customer.py`)
+| 퍼널 단계 | 소비자 상태 | Sales Agent 역할 |
+|-----------|------------|-----------------|
+| **Attention** | 상품 페이지 방문, 아직 관심 없음 | 눈에 띄는 오프닝으로 주의 끌기 |
+| **Interest** | 제품에 관심을 보이기 시작 | 핵심 혜택/차별점 제시, 공감 형성 |
+| **Search** | 가격/리뷰/경쟁사 비교 중 | 구체적 정보 제공, 비교 우위 강조, 반론 대응 |
+| **Action** | 구매 결정 직전 | 쿠폰/무료배송 제안, 리스크 제거 (무료 체험, 환불 보장) |
+| **Share** | 구매 완료 | 만족도 확인, 후기 유도 |
 
-**LLM 미사용, 비용 $0의 규칙 기반 고객 에이전트.**
+이 퍼널 모델은 Sales Agent의 전략 설계에 반영된다:
+- **Hypothesize 단계**에서 전략을 생성할 때, 각 퍼널 단계에 적합한 설득 기법을 배치
+- **Evaluate 단계**에서 "어느 퍼널 단계에서 이탈했는가"를 분석
 
-내부 상태 머신:
+#### 카테고리별 전략 구사
 
-```python
-class RuleCustomerAgent:
-    interest: float  # 0~10, 초기값: reaction_pattern 기반
-    mood: float      # -5~+5, 초기값: initial_mood 기반
-    turn_count: int
-    heard_price, heard_review, heard_coupon, heard_shipping: bool  # 중복 방지 플래그
-```
+20개 페르소나 카테고리(세대 × 반응 패턴)가 존재하며, **같은 카테고리의 고객에게는 동일한 전략을 적용**한다:
 
-**초기값 테이블:**
+- 카테고리 예: `20대-호기심형`, `40대-회의적형`, `60대-방어적형` 등
+- RALPH Loop의 Hypothesize에서 생성된 전략은 `target_personas`로 특정 카테고리를 지정
+- 동일 카테고리 내 페르소나들은 같은 전략 하에서 대화를 수행
+- 카테고리별 성과를 비교하여 "어떤 유형의 고객에게 어떤 전략이 효과적인지" 학습
 
-| reaction_pattern | 초기 interest |
-|-----------------|---------------|
-| curious | 5 |
-| friendly | 4 |
-| skeptical | 3 |
-| impatient | 3 |
-| defensive | 2 |
+**시스템 프롬프트 구성:**
+- 판매 제품 정보 (제품명, 설명, 가격, 프로모션, 인증, 리뷰)
+- 현재 적용할 영업 전략 (RALPH Loop에서 생성된 전략 주입)
+  - 전략명, 접근 방식, 오프닝 스타일, 설득 기법, 반론 대응 방식
+- 퍼널 단계별 행동 지침
+- 행동 지침 (친근하고 전문적인 톤, 강압적이지 않게, 2-3문장 이내)
 
-| initial_mood | 초기 mood |
-|-------------|-----------|
-| positive | +2 |
-| neutral | 0 |
-| negative | -2 |
+**전략 주입 메커니즘**: RALPH Loop의 Hypothesize 단계에서 생성된 `Strategy` 객체가 Sales Agent의 시스템 프롬프트에 포함된다. 전략에는 다음 요소가 포함된다:
+- `name`: 전략명
+- `approach`: 전반적 접근 방식
+- `opening_style`: 첫 인사/오프닝 스타일
+- `persuasion_tactics`: 설득 기법 목록
+- `objection_handling`: 반론 대응 방식
+- `target_personas`: 효과적일 페르소나 유형 (카테고리 단위)
 
-**구매 임계값** (`purchase_tendency` + `price_sensitivity`):
+### 5.2 Customer Agent
 
-| purchase_tendency | 기본 임계값 | high 가격민감 | low 가격민감 |
-|------------------|------------|--------------|-------------|
-| impulse | 6.0 | 7.0 | 5.0 |
-| deliberate | 8.0 | 9.0 | 7.0 |
-| bargain_hunter | 7.0 | 8.0 | 6.0 |
-| brand_loyal | 8.5 | 9.5 | 7.5 |
-| needs_based | 7.5 | 8.5 | 6.5 |
+두 가지 구현이 존재한다:
 
-**키워드 분석** (`_analyze_sales_message`):
+#### 규칙 기반 고객 에이전트 (`RuleCustomerAgent`) - 기본 사용
 
-| 분석 항목 | 감지 키워드 |
-|----------|-----------|
-| mentions_price | 원, 할인, 가격, 쿠폰, 세일, 프로모션 |
-| mentions_review | 리뷰, 후기, 평점, 별점, 평가 |
-| mentions_spec | 비타민, 미네랄, 프로바이오틱스, 루테인, 오메가, GMP, 성분, 함량 |
-| mentions_benefit | 무료배송, 증정, 적립, 혜택, 이벤트, 면역, 피로, 에너지, 활력 |
-| mentions_coupon | 쿠폰, 할인코드, 첫 구매 |
-| mentions_shipping | 배송, 도착, 출발, 당일, 내일 |
-| mentions_compare | 센트룸, 종근당, 솔가, 약국, 비교 |
-| is_empathetic | 그렇죠, 맞아요, 이해, 공감, 고민 |
-| is_pushy | 지금 바로, 서두르, 놓치, 마지막 |
+**특징:**
+- LLM 호출 없이 동작 (비용 0, 지연 시간 거의 없음)
+- 페르소나 속성 기반 상태 머신
+- 한국어 응답 템플릿 풀에서 상황에 맞는 응답을 선택
 
-**상태 업데이트 규칙** (`_update_state`):
+**내부 상태:**
+- `interest` (관심도, 0~10): 페르소나의 `reaction_pattern`에 따라 초기값 설정
+- `mood` (감정, -5~+5): 페르소나의 `initial_mood`에 따라 초기값 설정
+- `turn_count`: 현재 턴 수
+- 플래그: `heard_price`, `heard_review`, `heard_coupon`, `heard_shipping`
 
-| 트리거 | interest 변화 | mood 변화 |
-|--------|-------------|-----------|
-| 스펙 언급 | +0.3~0.8 | - |
-| 리뷰 언급 (최초) | +0.5~1.2 | - |
-| 쿠폰 언급 (최초) | +0.5~1.0 | - |
-| 배송 언급 (최초) | +0.2~0.5 | - |
-| 비교 언급 | +0.2~0.6 | - |
-| 공감 표현 | +0.1~0.3 | +0.3~0.8 |
-| 강압적 표현 | - | -0.3~1.0 |
-| 강압 + defensive | -0.5~1.5 | -0.3~1.0 |
-| 가격 + high민감 (최초) | -0.3~0.8 | - |
-| 가격 + low민감 (최초) | +0.1~0.5 | - |
-| 턴 > 6 | -0~0.3 (자연감소) | - |
+**상태 업데이트 로직:**
+- 판매 메시지의 키워드를 분석 (가격, 리뷰, 성분, 혜택, 쿠폰, 배송, 비교, 공감, 압박 등)
+- 키워드에 따라 관심도와 감정 값을 조정
+- 공감 표현은 관심도/감정 상승, 압박 표현은 감정 하락 (특히 defensive 유형)
+- 6턴 이후부터 자연적 관심 감소
+
+**구매 결정 임계값:**
+- `impulse`: 6.0, `deliberate`: 8.0, `bargain_hunter`: 7.0, `brand_loyal`: 8.5, `needs_based`: 7.5
+- 가격 민감도 `high`이면 임계값 +1.0, `low`이면 -1.0
 
 **응답 결정 흐름:**
+1. 첫 턴: 감정에 따른 인사 반응
+2. 방어적 고객 + 낮은 관심 (3턴 이상): 빠른 이탈
+3. 급한 성격 + 낮은 관심 (4턴 이상): 빠른 이탈
+4. 쿠폰/배송/리뷰 관련 반응
+5. 가격 반응 (가격 민감도에 따라 긍정/중립/부정)
+6. 구매 결정 (관심도 >= 임계값, 4턴 이상)
+7. 질문 (관심도 > 4)
+8. 브랜드 충성/필요 기반 반론
+9. 7턴 이상: 최종 결정 압박
+10. 관심도에 따른 일반 반응
 
-```
-1. 첫 턴 → mood 기반 인사 (positive/neutral/negative)
-2. defensive + interest<3 + turn>=3 → EXIT
-3. impatient + interest<4 + turn>=4 → EXIT
-4. 쿠폰 감지 → 쿠폰 반응
-5. 배송 감지 + interest>5 → 배송 반응
-6. 리뷰 감지 + interest>4 → 리뷰 반응
-7. 가격 감지 → 가격민감도별 반응
-8. interest >= 임계값 + turn>=4 → 구매/보류
-9. interest>4 + 질문형 → 관심 질문
-10. brand_loyal + turn<=4 → 브랜드 비교 질문
-11. needs_based + interest<6 → 필요성 의문
-12. turn>=7 → 구매 압박 (임계값-1 이상이면 구매)
-13. interest별 일반 반응 (>5: 질문, >3: 고민, <=3: 이탈)
-```
+#### LLM 기반 고객 에이전트 (`CustomerAgent`) - 옵션
 
-**응답 템플릿 풀** (각 3~9개):
+**특징:**
+- LLM을 사용하여 더 자연스러운 응답 생성
+- 페르소나의 전체 프로필을 시스템 프롬프트에 주입
+- 비용이 발생하므로 기본적으로 사용하지 않음
 
-| 카테고리 | 예시 |
-|---------|------|
-| GREETINGS_POSITIVE | "네 안녕하세요~", "안녕하세요 ㅎㅎ" |
-| INTEREST_QUESTIONS | "하루에 몇 포 먹어야 돼요?", "부작용 같은 건 없어요?" |
-| PRICE_REACTIONS_NEGATIVE | "너무 비싸네요.", "5만원은 좀 많다..." |
-| PURCHASE_POSITIVE | "좋아요, 장바구니 담을게요!", "바로 결제할게요!" |
-| OBJECTION_BRAND | "센트룸 먹고 있는데 굳이 바꿀 필요가 있을까요?" |
-| EXIT_LINES | "됐어요. 필요 없어요.", "안 살게요." |
+### 5.3 모델 분리 전략 (비용 최적화)
 
----
+| 용도 | 모델 | 기본값 | 이유 |
+|------|------|--------|------|
+| 대화 생성 (ACT) | MODEL_CHEAP | Gemini 2.0 Flash | 대량 대화를 저비용으로 생성 |
+| 전략 생성 (HYPOTHESIZE) | MODEL_EXPENSIVE | Claude Sonnet | 복잡한 전략 설계에 높은 추론 능력 필요 |
+| 대화 평가 (EVALUATE) | MODEL_EXPENSIVE | Claude Sonnet | 정확한 다차원 평가 필요 |
+| 패턴 분석 (REASON) | MODEL_EXPENSIVE | Claude Sonnet | 성공/실패 패턴 심층 분석 |
+| 학습 추출 (LEARN) | MODEL_EXPENSIVE | Claude Sonnet | 재사용 가능한 인사이트 추출 |
 
-## 7. 대화 엔진
-
-### 7.1 데이터 모델 (`src/conversation/turn.py`)
-
-```python
-class Turn(BaseModel):
-    speaker: str       # "sales" | "customer"
-    content: str       # 발화 내용
-    turn_number: int
-    timestamp: datetime
-
-class ConversationSession(BaseModel):
-    session_id: str                    # UUID
-    persona_id: str
-    strategy_id: str = ""
-    product_name: str
-    turns: list[Turn]
-    started_at: datetime
-    ended_at: datetime | None
-    termination_reason: str            # "max_turns" | "customer_exit" | "purchase" | "wishlist"
-
-    @property
-    def total_turns(self) -> int
-
-    @property
-    def transcript(self) -> str        # "[판매원] ...\n[고객] ..."
-```
-
-### 7.2 대화 오케스트레이션 (`src/conversation/engine.py`)
-
-```python
-class ConversationEngine:
-    def __init__(self, max_turns: int = 16)
-
-    async def run(self, sales_agent, customer_agent, ...) -> ConversationSession:
-        for turn_num in range(max_turns):
-            if turn_num % 2 == 0:  # 짝수 = Sales
-                response = await sales_agent.respond(turns)
-            else:                   # 홀수 = Customer
-                response = await customer_agent.respond(turns)
-
-            turns.append(Turn(speaker, response, turn_num+1))
-
-            if speaker == "customer":
-                term = check_termination(response)
-                if term is not None:
-                    break
-```
-
-### 7.3 종료 규칙 (`src/conversation/rules.py`)
-
-| 결과 | 키워드 |
-|------|--------|
-| **purchase** | 결제할게요, 구매할게요, 살게요, 장바구니 담을게요, 바로 결제 |
-| **customer_exit** | 안 살게요, 됐어요, 필요 없어요, 나갈게요, 그만하세요 |
-| **wishlist** | 찜해둘게요, 위시리스트, 다시 올게요, 나중에, 생각해볼게요 |
+모든 LLM 호출은 OpenRouter API를 통해 이루어진다 (`AsyncOpenAI` 클라이언트, base_url: `https://openrouter.ai/api/v1`).
 
 ---
 
-## 8. 평가 시스템
+## 6. 대화 엔진
 
-### 8.1 5차원 평가 지표
+### 턴 기반 오케스트레이션
 
-| 차원 | 가중치 | 1-2점 | 5-6점 | 9-10점 |
-|------|--------|-------|-------|--------|
-| **관심도** | 20% | 무관심 | 보통 관심 | 구체적 사용 시나리오까지 상상 |
-| **대화 지속도** | 15% | 1-2턴 이탈 | 보통 참여 | 매우 적극적, 주제 주도 |
-| **감정 변화** | 20% | 악화 | 중립/소폭 개선 | 큰 폭 긍정 전환 |
-| **구매 의향** | 25% | 명확한 거절 | 고민 중 | 구매 결정/확정 |
-| **최종 결과** | 20% | 즉시 이탈 | 거절 but 정보 교환 | 구매 완료 |
+`ConversationEngine` 클래스가 Sales Agent와 Customer Agent 간의 대화를 관리한다.
 
-### 8.2 평가기 (`src/evaluation/evaluator.py`)
+**대화 흐름:**
+1. Sales Agent가 먼저 발화 (짝수 턴: 0, 2, 4, ...)
+2. Customer Agent가 응답 (홀수 턴: 1, 3, 5, ...)
+3. 고객 발화 후 종료 조건 확인
+4. 종료 조건 충족 또는 최대 턴 도달 시 대화 종료
 
-```python
-class Evaluator:
-    def __init__(self, client: AsyncOpenAI, model: str = "anthropic/claude-sonnet-4")
+**데이터 모델:**
+- `Turn`: 발화 한 건 (speaker, content, turn_number, timestamp)
+- `ConversationSession`: 완료된 대화 세션 (session_id, persona_id, strategy_id, turns, termination_reason 등)
 
-    async def evaluate(self, session: ConversationSession) -> EvaluationResult:
-        prompt = get_evaluation_prompt(session.transcript)
-        raw = await chat(self.client, self.model, [{"role": "user", "content": prompt}])
-        # JSON 파싱 → EvaluationResult (5차원 점수 + 종합)
-```
+### 종료 조건
 
-종합 점수: `weighted_score = interest*0.2 + continuation*0.15 + emotion*0.2 + intent*0.25 + outcome*0.2`
+고객 발화에 특정 키워드가 포함되면 대화가 종료된다:
 
-### 8.3 통계 분석 (`src/evaluation/statistics.py`)
-
-루프 완료 후 통계적 유의성을 검증합니다:
-
-```python
-class RalphAnalysis(BaseModel):
-    iterations: list[IterationStats]           # 반복별 통계
-    comparison: StatisticalComparison          # 초반 vs 후반 비교
-    per_persona: list[PerPersonaStats]         # 페르소나별 성과
-    moving_average_scores: list[float]         # 이동평균
-    convergence_detected: bool                 # 수렴 감지 여부
-    convergence_iteration: int | None          # 수렴 시점
-```
-
-**StatisticalComparison:**
-- t-test: 초반 2회 vs 후반 2회 평균 점수 차이 검정
-- chi-square: 초반 vs 후반 구매율 차이 검정
-- 95% 신뢰구간 (Wald CI)
-- `is_significant`: p < 0.05
+| 종료 유형 | 키워드 예시 |
+|-----------|------------|
+| **purchase** (구매) | "결제할게요", "구매할게요", "살게요", "장바구니 담을게요" |
+| **customer_exit** (거절/이탈) | "안 살게요", "됐어요", "필요 없어요", "나갈게요" |
+| **wishlist** (보류/찜) | "찜해둘게요", "위시리스트", "다시 올게요", "생각해볼게요" |
+| **max_turns** (최대 턴 도달) | 기본 16턴 |
 
 ---
 
-## 9. RALPH Loop 상세
+## 7. 5차원 평가 시스템
 
-### 9.1 전략 모델 (`src/ralph/strategy.py`)
+### LLM-as-Judge 패턴
 
-```python
-class Strategy(BaseModel):
-    id: str                        # "S001", "S002", ...
-    name: str                      # "신뢰 구축 중심 전략"
-    approach: str                  # 전반적 접근 방식
-    opening_style: str             # 첫 인사 스타일
-    persuasion_tactics: list[str]  # ["리뷰 강조", "가격 비교", ...]
-    objection_handling: str        # 반론 대응 방식
-    target_personas: list[str]     # 타겟 페르소나 유형
-    iteration: int                 # RALPH 반복 회차
+대화 품질을 정량화하기 위해 LLM(Claude Sonnet)이 평가자 역할을 수행한다. 완료된 대화 전문(transcript)을 입력으로 받아 5개 차원에서 1~10점을 매긴다.
 
-class StrategyResult(BaseModel):
-    strategy_id: str
-    iteration: int
-    avg_weighted_score: float
-    conversation_count: int
-    purchase_count, wishlist_count, exit_count: int
-    purchase_rate: float
-    total_revenue: float
-    best_persona_types: list[str]
-    key_insights: list[str]
+### 5가지 평가 차원
+
+| 차원 | 설명 | 가중치 | 1-2점 | 5-6점 | 9-10점 |
+|------|------|--------|-------|-------|--------|
+| **관심도** (interest_level) | 고객이 제품에 관심을 보인 정도 | 20% | 전혀 관심 없음 | 보통 수준, 일부 질문 | 매우 높은 관심, 비교 질문 |
+| **대화 지속도** (conversation_continuation) | 고객이 대화에 참여하고 지속한 정도 | 15% | 1-2턴 내 종료, 단답 | 적당한 길이, 일부 능동적 | 매우 활발, 새 토픽 제시 |
+| **감정 변화** (emotional_change) | 대화 중 감정이 긍정적으로 변화한 정도 | 20% | 감정 악화, 짜증 | 중립 유지, 미세 변화 | 큰 감정 전환, 매우 즐거움 |
+| **구매 의향** (purchase_intent) | 구매 의향을 표현한 정도 | 25% | 명확한 거절 | 고민 중 | 구매 결정/거의 확정 |
+| **최종 행동 결과** (final_outcome) | 대화의 최종 결과 | 20% | 즉시 이탈 | 거절이나 정보 교환 | 구매 완료/즉석 결제 |
+
+### 가중 종합 점수
+
+```
+weighted_score = interest_level * 0.20
+              + conversation_continuation * 0.15
+              + emotional_change * 0.20
+              + purchase_intent * 0.25
+              + final_outcome * 0.20
 ```
 
-### 9.2 HYPOTHESIZE (`src/ralph/hypothesize.py`)
+구매 의향(purchase_intent)이 가장 높은 가중치(25%)를 가진다.
 
-```python
-async def generate_hypothesis(client, model, iteration, prior_results=None, learnings=None) -> Strategy
-```
+### 평가 프로세스
 
-**프롬프트 구조:**
-```
-당신은 온라인 쇼핑몰 세일즈 전략 설계 전문가입니다.
+1. 대화 전문(transcript)을 평가 프롬프트에 삽입
+2. 각 차원별 루브릭(rubric)을 프롬프트에 포함
+3. LLM이 JSON 형식으로 5차원 점수와 근거(reasoning), 종합 평가 요약을 반환
+4. 비용 절감을 위해 전체 대화가 아닌 **샘플 30개만** 평가
 
-이번은 {iteration}번째 반복입니다.
+### 집계
 
-## 이전 전략 결과 (최근 5개)
-- 전략 S001: 평균 6.2점, 구매율: 35%, 매출: ₩3,493,000
-  인사이트: ["리뷰 강조가 효과적", "가격 민감 고객 대응 부족"]
+`Aggregator` 클래스가 여러 대화의 평가 결과를 집계한다:
+- 각 차원별 평균(mean), 표준편차(stdev), 최소/최대값
+- 가중 종합 점수의 통계
 
-## 축적된 학습 내용 (최근 10개)
-- 50대 이상은 GMP 인증 언급 시 신뢰도가 크게 올라감
-- 가격 민감 고객에게 쿠폰 먼저 안내하면 이탈률 감소
-...
+---
 
-## 응답 형식 (JSON)
-{"name": "전략명", "approach": "...", "opening_style": "...",
- "persuasion_tactics": [...], "objection_handling": "...", "target_personas": [...]}
-```
+## 8. 통계 분석
 
-### 9.3 PLAN (`src/ralph/plan.py`)
+### 이터레이션별 통계 (`IterationStats`)
 
-```python
-def select_personas(all_personas, count=20, focus_types=None) -> list[Persona]
-```
+각 RALPH Loop 이터레이션에 대해 다음을 계산한다:
+- 평균 가중 점수 (avg_weighted_score)
+- 구매율 (purchase_rate)
+- 각 차원별 평균 (관심도, 지속도, 감정, 의향, 결과)
+- 대화 수, 평가된 대화 수
 
-`focus_types`는 `strategy.target_personas`에서 옵니다. 매칭되는 페르소나 우선 선택, 나머지 랜덤 채움.
+### 초기 vs 후기 비교 (`StatisticalComparison`)
 
-### 9.4 ACT (`src/ralph/act.py`)
+초기 이터레이션과 후기 이터레이션을 통계적으로 비교한다:
 
-```python
-async def execute_strategy(client, model, strategy, personas, ..., concurrency=50) -> list[ConversationSession]
-```
+- **Welch's t-test**: 평균 가중 점수의 유의미한 차이 검증 (p < 0.05)
+- **Chi-square test**: 구매율 차이의 통계적 유의미성 검증 (2x2 분할표)
+- **95% Wald 신뢰구간**: 구매율 차이의 신뢰구간
 
-- `asyncio.Semaphore(concurrency)`로 동시 실행 제어
-- Sales Agent에 전략 주입
-- Customer는 **RuleCustomerAgent** (비용 0)
-- `asyncio.gather()`로 병렬 실행
+### 페르소나별 분석 (`PerPersonaStats`)
 
-### 9.5 EVALUATE (loop.py 내부)
+각 페르소나에 대해 전체 이터레이션에 걸친 통계를 계산한다:
+- 평균 점수, 구매율
+- 이터레이션별 점수 트렌드 (score_trend)
+- 세대, 반응 패턴 정보 포함
 
-```python
-# 비용 절감: 200개 대화 중 30개만 샘플링
-sample_size = min(30, len(sessions))
-sample_sessions = random.sample(sessions, sample_size)
+### 수렴 감지
 
-for session in sample_sessions:
-    ev = await self.evaluator.evaluate(session)  # Sonnet 호출
-```
+이동 평균(window=2)을 계산하고, 연속된 이터레이션 간 점수 변화가 임계값(0.1) 미만인 상태가 patience(2)회 이상 지속되면 수렴으로 판단한다.
 
-나머지 170개는 구매/이탈 결과만 집계합니다.
+### 전체 분석 결과 (`RalphAnalysis`)
 
-### 9.6 REASON (`src/ralph/reason.py`)
+- 이터레이션별 통계 리스트
+- 초기 vs 후기 통계 비교
+- 페르소나별 통계 리스트
+- 이동 평균 점수
+- 수렴 감지 여부 및 수렴 이터레이션
 
-```python
-async def analyze_results(client, model, sessions, evaluations) -> dict
-```
+---
 
-상위 3개 + 하위 3개 대화 전문을 LLM에 전달하여 패턴 분석:
+## 9. 데이터 저장
 
+### SQLite + SQLModel
+
+Nudge는 SQLModel(SQLAlchemy 기반)을 사용하여 SQLite 데이터베이스에 실험 데이터를 저장한다.
+
+기본 DB 경로: `data/db/nudge.db`
+
+### 5테이블 구조
+
+| 테이블 | 설명 | 주요 컬럼 |
+|--------|------|-----------|
+| **experiments** | 실험 메타데이터 | experiment_id, product_name, total_iterations, config_snapshot, started_at, ended_at |
+| **conversations** | 대화 기록 | session_id, experiment_id, iteration, strategy_id, persona_id, total_turns, termination_reason, transcript |
+| **evaluations** | 대화 평가 결과 | session_id, experiment_id, 5차원 점수, weighted_score, overall_summary |
+| **strategies** | 전략 기록 | strategy_id, experiment_id, iteration, name, approach, opening_style, persuasion_tactics, objection_handling, avg_score |
+| **learnings** | 학습 기록 | experiment_id, iteration, content |
+
+### 저장 시점
+
+`PersistentRALPHLoop`에서 각 이터레이션이 끝날 때마다:
+1. 전략 저장
+2. 평가 결과 저장 (샘플)
+3. 학습 포인트 저장
+4. 대화 기록 저장 (샘플)
+5. 실험 종료 시 종료 시각 업데이트
+
+---
+
+## 10. API 엔드포인트
+
+### 서버 구성
+
+- **프레임워크**: FastAPI
+- **실행**: `uvicorn src.api.main:app --reload`
+- **기본 포트**: 8000
+- **CORS**: 모든 오리진 허용
+
+### 엔드포인트 목록
+
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| `GET` | `/` | 프론트엔드 HTML 서빙 |
+| `GET` | `/api/status` | RALPH Loop 실행 상태 조회 |
+| `POST` | `/api/sim/start` | 단일 대화 시뮬레이션 시작 (SSE 스트리밍) |
+| `POST` | `/api/loop/start` | RALPH Loop 시작 (백그라운드 실행) |
+| `GET` | `/api/loop/stream` | RALPH Loop 진행 상황 SSE 스트리밍 |
+| `POST` | `/api/loop/stop` | RALPH Loop 중지 |
+| `GET` | `/api/loop/analysis` | 최근 완료된 Loop의 통계 분석 결과 조회 |
+
+### 요청/응답 형식
+
+#### POST `/api/sim/start`
+
+**요청:**
 ```json
 {
-  "success_patterns": ["리뷰 기반 신뢰 구축이 효과적"],
-  "failure_patterns": ["가격 먼저 안내 시 이탈 증가"],
-  "persona_insights": ["50대: GMP 인증에 민감"],
-  "tactical_observations": ["쿠폰 타이밍이 중요"],
-  "improvement_suggestions": ["가격 민감 고객에 맞춤 오프닝 필요"]
+  "persona": {
+    "id": "P001",
+    "name": "김지원",
+    "gen": "20대",
+    "cat": "건강",
+    "tendency": "충동구매",
+    "sensitivity": "중간",
+    "reaction": "호기심",
+    "mood": "긍정",
+    "desc": "건강에 관심 많은 대학생"
+  }
 }
 ```
 
-### 9.7 LEARN (`src/ralph/learn.py`)
-
-```python
-async def extract_learnings(client, model, analysis, prior_learnings=None) -> list[str]
-```
-
-분석 결과에서 5~10개 학습 포인트를 추출합니다. 기존 학습과 중복되지 않는 새로운 인사이트를 우선합니다.
-
-### 9.8 Persistent Loop (`src/ralph/persistent_loop.py`)
-
-RALPHLoop을 상속하여 DB 저장 + 수렴 감지를 추가합니다:
-
-```python
-class PersistentRALPHLoop(RALPHLoop):
-    # 수렴 감지: score 변화 < 5%가 2회 연속 → 수렴
-    CONVERGENCE_THRESHOLD = 0.05
-    CONVERGENCE_PATIENCE = 2
-
-    # 수렴 시 탐색 주입: 반대 방향 학습 추가
-    def _inject_exploration(self): ...
-```
-
----
-
-## 10. 데이터 저장소
-
-### 10.1 DB 테이블 (`src/storage/models.py`)
-
-| 테이블 | 주요 필드 |
-|--------|----------|
-| **ExperimentRecord** | experiment_id, product_name, total_iterations, config_snapshot |
-| **ConversationRecord** | session_id, experiment_id, iteration, persona_id, transcript, termination_reason |
-| **EvaluationRecord** | session_id, experiment_id, 5차원 점수, weighted_score, overall_summary |
-| **StrategyRecord** | strategy_id, experiment_id, iteration, name, approach, persuasion_tactics(JSON) |
-| **LearningRecord** | experiment_id, iteration, content |
-
-### 10.2 Repository (`src/storage/repository.py`)
-
-```python
-class Repository:
-    def save_experiment(experiment) -> None
-    def save_conversation(session, experiment_id, iteration) -> None
-    def save_evaluation(ev, experiment_id) -> None
-    def save_strategy(strategy, experiment_id, avg_score) -> None
-    def save_learnings(learnings, experiment_id, iteration) -> None
-    def get_evaluations_by_experiment(experiment_id) -> list
-    def get_strategies_by_experiment(experiment_id) -> list
-```
-
----
-
-## 11. API 엔드포인트
-
-### 11.1 라우트 목록
-
-| Method | Path | 설명 |
-|--------|------|------|
-| GET | `/` | 프론트엔드 HTML 서빙 |
-| GET | `/api/status` | 루프 실행 상태 |
-| POST | `/api/sim/start` | 단일 대화 시뮬레이션 (SSE) |
-| POST | `/api/loop/start` | RALPH Loop 시작 |
-| GET | `/api/loop/stream` | 루프 진행 SSE 스트리밍 |
-| POST | `/api/loop/stop` | 루프 중지 |
-| GET | `/api/loop/analysis` | 통계 분석 결과 |
-
-### 11.2 단일 대화 API (`POST /api/sim/start`)
-
-**Request:**
-```json
-{"persona": {"id": "P001", "name": "손예나", "gen": "50대", "cat": "전자기기", ...}}
-```
-
-**SSE Events:**
+**응답 (SSE 스트림):**
 ```
 data: {"type": "turn", "speaker": "sales", "content": "안녕하세요!", "turn_number": 1}
-data: {"type": "turn", "speaker": "customer", "content": "네...", "turn_number": 2}
+data: {"type": "turn", "speaker": "customer", "content": "네 안녕하세요~", "turn_number": 2}
 ...
 data: {"type": "eval_start"}
-data: {"type": "eval_result", "interest_level": {"score": 7.5, "reasoning": "..."}, ..., "weighted_score": 6.8}
+data: {"type": "eval_result", "termination_reason": "purchase", "interest_level": {"score": 8, "reasoning": "..."}, ...}
 data: {"type": "done"}
 ```
 
-### 11.3 RALPH Loop API (`POST /api/loop/start`)
+#### POST `/api/loop/start`
 
-**Request:**
+**요청:**
 ```json
 {
+  "personas": [],
   "product_name": "VitaForest 올인원 데일리 멀티비타민",
   "product_category": "건강",
   "product_price": 49900,
   "product_description": "22종 비타민+미네랄...",
   "n_iterations": 5,
-  "personas_count": 200
+  "personas_count": 20
 }
 ```
 
-**SSE Events (GET /api/loop/stream):**
+**응답:**
+```json
+{
+  "status": "started",
+  "total_personas": 20,
+  "iterations": 5
+}
+```
+
+#### GET `/api/loop/stream` (SSE)
+
 ```
 data: {"type": "iteration_start", "iteration": 1, "total": 5}
-data: {"type": "iteration_end", "iteration": 1, "strategy_name": "신뢰 우선 접근",
-       "strategy_approach": "...", "strategy_opening": "...",
-       "strategy_tactics": [...], "strategy_objection": "...",
-       "purchase_count": 45, "conversation_count": 200, "purchase_rate": 0.225,
-       "total_revenue": 2245500, "learnings": [...], "analysis": {...}}
+data: {"type": "iteration_end", "iteration": 1, "strategy_name": "...", "avg_score": 5.2, "purchase_rate": 0.25, ...}
 ...
 data: {"type": "done"}
 ```
 
----
+#### GET `/api/loop/analysis`
 
-## 12. 프론트엔드
-
-### 12.1 구조
-
-단일 HTML 파일 (`frontend/index.html`), vanilla JS, CSS 변수 기반 다크 테마.
-
-**2개 탭:**
-
-1. **쇼핑 시뮬레이션** — 단일 대화 테스트
-   - 좌측: 페르소나 목록 + 상품 정보
-   - 중앙: 채팅 UI (SSE 실시간)
-   - 우측: 5차원 평가 + 인사이트
-
-2. **RALPH Loop** — 전체 시뮬레이션
-   - 통계 카드 (점수, 구매율, 매출, 전략명)
-   - 차트 (구매 전환 스택바 + 누적 매출)
-   - 반복 히스토리 (펼침식: 전략 상세, 분석 결과, 학습 포인트)
-
-### 12.2 API 연결
-
-```javascript
-const API_BASE = window.location.origin;  // 서버와 같은 origin
-
-// 단일 대화
-const res = await fetch(`${API_BASE}/api/sim/start`, {method:'POST', body: ...});
-const reader = res.body.getReader();  // SSE 스트리밍
-
-// RALPH Loop
-await fetch(`${API_BASE}/api/loop/start`, {method:'POST', body: ...});
-eventSource = new EventSource(`${API_BASE}/api/loop/stream`);
-```
+`RalphAnalysis` 모델의 전체 JSON을 반환한다. 이터레이션별 통계, 초기/후기 비교, 페르소나별 분석, 수렴 정보 등을 포함한다.
 
 ---
 
-## 13. 실행 방법
+## 11. 프론트엔드
 
-### 13.1 설치
+### 구성
 
-```bash
-pip install -e .
-cp .env.example .env
-# .env에 OPENROUTER_API_KEY 설정
-```
+단일 HTML 파일 (`frontend/index.html`)로 구성된 경량 웹 대시보드이다. vanilla JavaScript와 SSE를 사용한다.
 
-### 13.2 웹 대시보드
+### 기능
 
-```bash
-PYTHONUTF8=1 python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-# 또는
-python scripts/run_server.py
-```
+#### 쇼핑 시뮬레이션
+- 페르소나를 선택/생성하여 단일 대화를 실시간으로 시뮬레이션
+- SSE를 통해 턴마다 실시간 채팅 인터페이스 업데이트
+- 대화 종료 후 5차원 평가 결과 표시
 
-http://localhost:8000 접속
+#### RALPH Loop 대시보드
+- 상품 정보와 페르소나를 설정하여 RALPH Loop 실행
+- SSE를 통해 이터레이션별 진행 상황 실시간 표시
+- 각 이터레이션의 전략, 구매율, 매출, 학습 내용 표시
+- Loop 완료 후 통계 분석 결과 표시
 
-### 13.3 CLI 실행
+### 서빙 방식
 
-```bash
-# 단일 대화 테스트
-python scripts/run_single_conversation.py
-
-# RALPH Loop (5회 x 200명)
-python scripts/run_simulation.py
-```
+FastAPI의 `FileResponse`로 `frontend/index.html`을 `/` 경로에서 서빙한다.
 
 ---
 
-## 14. 비용 추정
+## 12. 비용 구조
+
+### 모델별 비용 (OpenRouter 기준 추정)
 
 | 시나리오 | 비용 |
 |----------|------|
 | 단일 대화 테스트 | ~50원 |
-| RALPH Loop 1회 (200명) | ~450원 |
-| RALPH Loop 5회 (200명/회) | ~2,500원 |
-| RALPH Loop 10회 (200명/회) | ~5,000원 |
+| RALPH Loop 1회 (100명) | ~450원 |
+| RALPH Loop 5회 (100명/회) | ~2,200원 |
 
-비용의 75%는 EVALUATE 단계(Sonnet 30회/루프)에서 발생합니다.
+### 비용 절감 전략
+
+1. **모델 분리**: 대화 생성(대량)은 저비용 Gemini Flash, 분석/평가는 고비용 Claude Sonnet
+2. **규칙 기반 고객**: Customer Agent를 LLM 대신 규칙 기반으로 동작시켜 비용 절반 절감
+3. **샘플 평가**: 전체 대화가 아닌 이터레이션당 30개 샘플만 평가
+4. **이터레이션당 비용 구조**:
+   - ACT (대화 생성): Sales Agent만 LLM 호출 * 대화 수 * 턴 수
+   - EVALUATE: 샘플 30개 * 평가 프롬프트 1회
+   - HYPOTHESIZE + REASON + LEARN: 각 1회 LLM 호출
 
 ---
 
-## 15. 데이터 흐름 요약
+## 13. 향후 계획
 
-```
-[시작] .env에서 API키 + 모델 설정 로드
-  │
-  ▼
-[HYPOTHESIZE] Sonnet에게 전략 생성 요청
-  │            이전 결과 + 학습 내용 컨텍스트 제공
-  │            → Strategy 객체 (name, approach, tactics, ...)
-  │
-  ▼
-[PLAN] 200개 페르소나 풀에서 선택
-  │    strategy.target_personas 우선, 나머지 랜덤
-  │
-  ▼
-[ACT] 200개 대화 병렬 실행 (concurrency=10)
-  │   Sales Agent (Gemini Flash + 전략 프롬프트)
-  │   ↕ 턴 교대 (최대 16턴)
-  │   Rule Customer (규칙 기반, $0)
-  │   → 200개 ConversationSession
-  │
-  ▼
-[EVALUATE] 30개 샘플 추출 → Sonnet으로 5차원 평가
-  │         나머지 170개는 구매/이탈 결과만 집계
-  │         → 30개 EvaluationResult + 전체 구매율/매출
-  │
-  ▼
-[REASON] 상위 3 + 하위 3 대화 → Sonnet 패턴 분석
-  │       → success_patterns, failure_patterns, improvements
-  │
-  ▼
-[LEARN] 분석 결과 → Sonnet 학습 추출 (5~10개)
-  │     기존 학습과 중복 제거
-  │     → all_learnings에 추가
-  │
-  ▼
-[다음 반복] all_learnings가 HYPOTHESIZE에 피드백
-           → 전략이 점진적으로 개선됨
-```
+### Customer Agent LLM 하이브리드화
+
+현재 규칙 기반 고객 에이전트는 비용 효율적이지만, 응답의 자연스러움에 한계가 있다. 향후에는:
+- 규칙 기반으로 응답 방향을 결정하되, LLM으로 자연스러운 문장을 생성하는 하이브리드 방식
+- 핵심 페르소나(상위/하위 10%)에 대해서만 LLM 고객을 사용하는 선택적 활용
+
+### 실제 고객 데이터 활용
+
+- 실제 쇼핑몰 채팅 로그를 학습 데이터로 활용
+- 실제 구매 전환 데이터와 RALPH Loop 평가 점수 간 상관관계 검증
+- 페르소나를 실제 고객 세그먼트 기반으로 재설계
+
+### 추가 개선 방향
+
+- **다중 상품 지원**: 현재 VitaForest 하드코딩된 부분을 상품 설정 파일로 분리
+- **A/B 테스트 프레임워크**: 동일 페르소나에 두 전략을 동시 실행하여 직접 비교
+- **멀티턴 전략**: 단일 대화 내 전략 전환 (예: 초반 공감 -> 중반 정보 제공 -> 후반 클로징)
+- **평가 차원 확장**: 브랜드 인식 변화, 재방문 의향 등 추가 차원
+- **DB 분석 대시보드**: 실험 간 비교, 장기 트렌드 분석 기능
+- **수렴 이후 탐색 고도화**: 현재 단순 contrarian 학습 주입에서 더 체계적인 exploration-exploitation 전략으로
