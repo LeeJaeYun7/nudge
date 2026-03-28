@@ -1,68 +1,65 @@
+"""RALPH Loop - 전기차 충전 쿠폰 최적화"""
+
+from collections import defaultdict
+
 from openai import AsyncOpenAI
 from rich.console import Console
 
-from src.evaluation.aggregator import Aggregator
-from src.evaluation.evaluator import Evaluator
-from src.evaluation.schema import EvaluationResult
-from src.personas.schema import Persona
-from src.ralph.act import execute_strategy
+from src.personas.schema import EVPersona
+from src.ralph.act import execute_coupon_strategy
 from src.ralph.hypothesize import generate_hypothesis
 from src.ralph.learn import extract_learnings
-from src.ralph.plan import select_personas
 from src.ralph.reason import analyze_results
-from src.ralph.strategy import Strategy, StrategyResult
+from src.ralph.strategy import (
+    CouponStrategy,
+    CouponStrategyResult,
+    PersonaJudgment,
+    TypeResult,
+)
 
 console = Console()
 
-PRODUCT_PRICE_KRW = 49900  # 기본 판매가
-
 
 class RALPHLoop:
-    """Reason -> Act -> Learn -> Plan -> Hypothesize 자기 개선 루프"""
+    """Hypothesize → Act → Aggregate → Reason → Learn 자가 개선 루프"""
 
     def __init__(
         self,
         client: AsyncOpenAI,
         model_cheap: str = "google/gemini-2.0-flash-001",
         model_expensive: str = "anthropic/claude-sonnet-4",
-        product_name: str = "",
-        product_description: str = "",
-        product_price: str = "",
-        max_turns: int = 16,
+        baseline_revenue: float = 0.0,
         concurrency: int = 50,
     ):
         self.client = client
         self.model_cheap = model_cheap
         self.model_expensive = model_expensive
-        self.product_name = product_name
-        self.product_description = product_description
-        self.product_price = product_price
-        self.max_turns = max_turns
+        self.baseline_revenue = baseline_revenue
         self.concurrency = concurrency
-        self.evaluator = Evaluator(client=client, model=model_expensive)
 
         # 상태 추적
-        self.strategy_history: list[Strategy] = []
-        self.result_history: list[StrategyResult] = []
+        self.strategy_history: list[CouponStrategy] = []
+        self.result_history: list[CouponStrategyResult] = []
         self.all_learnings: list[str] = []
 
         # 진행 콜백
         self.on_iteration_start = None
-        self.on_conversation_progress = None
-        self.on_evaluation_progress = None
+        self.on_act_progress = None
         self.on_iteration_end = None
 
     async def run(
         self,
-        personas: list[Persona],
-        n_iterations: int = 5,
-        personas_per_iteration: int = 200,
-    ) -> list[StrategyResult]:
+        personas: list[EVPersona],
+        n_iterations: int = 3,
+    ) -> list[CouponStrategyResult]:
         """RALPH 루프를 n회 반복 실행합니다."""
 
-        console.print(f"\n[bold green]RALPH Loop 시작[/] - {n_iterations}회 반복, {personas_per_iteration}명/회")
-        console.print(f"  대화 모델: [cyan]{self.model_cheap}[/]")
-        console.print(f"  분석 모델: [cyan]{self.model_expensive}[/]\n")
+        console.print(
+            f"\n[bold green]RALPH Loop 시작[/] - {n_iterations}회 반복, {len(personas)}명"
+        )
+        console.print(f"  판단 모델: [cyan]{self.model_cheap}[/]")
+        console.print(f"  분석 모델: [cyan]{self.model_expensive}[/]")
+        console.print(f"  기준선 매출: [yellow]₩{self.baseline_revenue:,.0f}[/]\n")
 
         for iteration in range(1, n_iterations + 1):
             console.print(f"\n[bold cyan]=== Iteration {iteration}/{n_iterations} ===[/]")
@@ -70,128 +67,150 @@ class RALPHLoop:
             if self.on_iteration_start:
                 await self.on_iteration_start(iteration, n_iterations)
 
-            # 1. HYPOTHESIZE (expensive)
-            console.print("[yellow]Hypothesize:[/] 전략 생성 중...")
-            strategy = await generate_hypothesis(
-                client=self.client,
-                model=self.model_expensive,
-                iteration=iteration,
-                prior_results=self.result_history,
-                learnings=self.all_learnings,
-            )
-            self.strategy_history.append(strategy)
-            console.print(f"   전략: [bold]{strategy.name}[/] -{strategy.approach}")
+            try:
+                # 1. HYPOTHESIZE
+                console.print("[yellow]Hypothesize:[/] 쿠폰 전략 생성 중...")
+                console.print(f"   [dim]prior_results={len(self.result_history)}개, learnings={len(self.all_learnings)}개[/]")
+                strategy = await generate_hypothesis(
+                    client=self.client,
+                    model=self.model_expensive,
+                    iteration=iteration,
+                    prior_results=self.result_history,
+                    learnings=self.all_learnings,
+                )
+                self.strategy_history.append(strategy)
+                console.print(f"   전략: [bold]{strategy.id}[/] - {strategy.rationale[:80]}")
+                console.print(f"   [dim]conditions={len(strategy.conditions)}개[/]")
+            except Exception as e:
+                console.print(f"   [bold red]Hypothesize 에러: {e}[/]")
+                import traceback; traceback.print_exc()
+                continue
 
-            # 2. PLAN
-            console.print("[yellow]Plan:[/] 페르소나 선택 중...")
-            focus = strategy.target_personas if strategy.target_personas else None
-            selected = select_personas(personas, personas_per_iteration, focus)
-            console.print(f"   선택: {len(selected)}명")
+            try:
+                # 2. ACT - 확률 모델 기반 판단
+                console.print(f"[yellow]Act:[/] {len(personas)}명 확률 모델 판단 중...")
+                judgments = await execute_coupon_strategy(
+                    strategy=strategy,
+                    personas=personas,
+                )
+                console.print(f"   [dim]judgments={len(judgments)}개[/]")
+            except Exception as e:
+                console.print(f"   [bold red]Act 에러: {e}[/]")
+                import traceback; traceback.print_exc()
+                continue
 
-            # 3. ACT (cheap) -규칙 기반 고객으로 대화 실행
-            console.print(f"[yellow]Act:[/] {len(selected)}개 대화 실행 중...")
+            # 3. AGGREGATE - 유형별 집계
+            type_results = self._aggregate(judgments, strategy)
+            total_coupon_users = sum(t.coupon_users for t in type_results)
+            total_net = sum(t.net_revenue for t in type_results)
+            usage_rate = total_coupon_users / len(personas) if personas else 0
 
-            def on_progress(done, total):
-                if self.on_conversation_progress:
-                    import asyncio
-                    asyncio.get_event_loop().call_soon(
-                        lambda: None  # SSE에서 처리
-                    )
-
-            sessions = await execute_strategy(
-                client=self.client,
-                model=self.model_cheap,
-                strategy=strategy,
-                personas=selected,
-                product_name=self.product_name,
-                product_description=self.product_description,
-                product_price=self.product_price,
-                max_turns=self.max_turns,
-                concurrency=self.concurrency,
-                on_progress=on_progress,
-            )
-
-            # 결과 집계
-            purchase_count = sum(1 for s in sessions if s.termination_reason == "purchase")
-            wishlist_count = sum(1 for s in sessions if s.termination_reason == "wishlist")
-            exit_count = sum(1 for s in sessions if s.termination_reason in ("customer_exit", "max_turns"))
-            purchase_rate = purchase_count / len(sessions) if sessions else 0
-            total_revenue = purchase_count * PRODUCT_PRICE_KRW
-
-            console.print(f"   구매: [green]{purchase_count}명[/] ({purchase_rate:.0%}) | "
-                          f"찜: {wishlist_count}명 | 이탈: {exit_count}명")
-            console.print(f"   매출: [bold]₩{total_revenue:,.0f}[/]")
-
-            # 4. EVALUATE (expensive)
-            console.print("[yellow]Evaluate:[/] 대화 평가 중...")
-            evaluations: list[EvaluationResult] = []
-            # 비용 절감: 전체 대신 샘플 30개만 평가
-            sample_size = min(30, len(sessions))
-            import random
-            sample_sessions = random.sample(sessions, sample_size)
-
-            for i, session in enumerate(sample_sessions):
-                try:
-                    ev = await self.evaluator.evaluate(session)
-                    evaluations.append(ev)
-                except Exception as e:
-                    console.print(f"   [red]평가 실패: {e}[/]")
-
-            if evaluations:
-                stats = Aggregator.aggregate(evaluations)
-                avg_score = stats["weighted_total"]["mean"]
-            else:
-                avg_score = 0.0
-            console.print(f"   평균 점수: [bold]{avg_score:.1f}[/] (샘플 {len(evaluations)}개)")
-
-            # 5. REASON (expensive)
-            console.print("[yellow]Reason:[/] 패턴 분석 중...")
-            analysis = await analyze_results(
-                client=self.client,
-                model=self.model_expensive,
-                sessions=sample_sessions,
-                evaluations=evaluations,
+            console.print(
+                f"   쿠폰 사용: [green]{total_coupon_users}명[/] ({usage_rate:.1%}) | "
+                f"순이익: [bold]₩{total_net:,.0f}[/]"
             )
 
-            # 6. LEARN (expensive)
-            console.print("[yellow]Learn:[/] 학습 추출 중...")
-            new_learnings = await extract_learnings(
-                client=self.client,
-                model=self.model_expensive,
-                analysis=analysis,
-                prior_learnings=self.all_learnings,
-            )
-            self.all_learnings.extend(new_learnings)
-            console.print(f"   새 학습: {len(new_learnings)}개 (누적: {len(self.all_learnings)}개)")
+            try:
+                # 4. REASON
+                console.print("[yellow]Reason:[/] 패턴 분석 중...")
+                analysis = await analyze_results(
+                    client=self.client,
+                    model=self.model_expensive,
+                    type_results=type_results,
+                    judgments=judgments,
+                )
+                console.print(f"   [dim]analysis keys={list(analysis.keys()) if isinstance(analysis, dict) else 'N/A'}[/]")
+            except Exception as e:
+                console.print(f"   [bold red]Reason 에러: {e}[/]")
+                import traceback; traceback.print_exc()
+                analysis = {}
+
+            try:
+                # 5. LEARN
+                console.print("[yellow]Learn:[/] 학습 추출 중...")
+                new_learnings = await extract_learnings(
+                    client=self.client,
+                    model=self.model_expensive,
+                    analysis=analysis,
+                    prior_learnings=self.all_learnings,
+                )
+                self.all_learnings.extend(new_learnings)
+                console.print(f"   새 학습: {len(new_learnings)}개 (누적: {len(self.all_learnings)}개)")
+            except Exception as e:
+                console.print(f"   [bold red]Learn 에러: {e}[/]")
+                import traceback; traceback.print_exc()
+                new_learnings = []
 
             # 결과 기록
-            result = StrategyResult(
+            result = CouponStrategyResult(
                 strategy_id=strategy.id,
                 iteration=iteration,
-                avg_weighted_score=avg_score,
-                conversation_count=len(sessions),
-                purchase_count=purchase_count,
-                wishlist_count=wishlist_count,
-                exit_count=exit_count,
-                purchase_rate=purchase_rate,
-                total_revenue=total_revenue,
-                best_persona_types=analysis.get("persona_insights", [])[:3],
-                worst_persona_types=[],
-                key_insights=new_learnings[:3],
+                total_personas=len(personas),
+                coupon_users=total_coupon_users,
+                coupon_usage_rate=usage_rate,
+                gross_revenue=sum(t.gross_revenue for t in type_results),
+                discount_cost=sum(t.discount_cost for t in type_results),
+                net_revenue=total_net,
+                baseline_revenue=self.baseline_revenue,
+                per_type_results=type_results,
+                key_insights=new_learnings,
             )
             self.result_history.append(result)
 
             if self.on_iteration_end:
                 await self.on_iteration_end(result, strategy, analysis)
 
-            console.print(f"[bold green]Iteration {iteration} 완료[/] -"
-                          f"점수: {avg_score:.1f}, 구매율: {purchase_rate:.0%}, 매출: ₩{total_revenue:,.0f}")
+            console.print(
+                f"[bold green]Iteration {iteration} 완료[/] - "
+                f"사용률: {usage_rate:.1%}, 순이익: ₩{total_net:,.0f}"
+            )
 
         # 최종 요약
         console.print("\n[bold green]=== RALPH Loop 완료 ===[/]")
-        total_revenue_all = sum(r.total_revenue for r in self.result_history)
-        console.print(f"총 매출: ₩{total_revenue_all:,.0f}")
-        console.print(f"첫 구매율: {self.result_history[0].purchase_rate:.0%} → "
-                      f"최종 구매율: {self.result_history[-1].purchase_rate:.0%}")
+        console.print(f"기준선 매출: ₩{self.baseline_revenue:,.0f}")
+        for r in self.result_history:
+            total_with_coupon = self.baseline_revenue + r.net_revenue
+            change_pct = (r.net_revenue / self.baseline_revenue * 100) if self.baseline_revenue else 0
+            console.print(
+                f"  {r.iteration}회차: ₩{total_with_coupon:,.0f} "
+                f"(+₩{r.net_revenue:,.0f}, +{change_pct:.1f}%)"
+            )
 
         return self.result_history
+
+    def _aggregate(
+        self,
+        judgments: list[PersonaJudgment],
+        strategy: CouponStrategy,
+    ) -> list[TypeResult]:
+        """유형별 집계 및 매출 계산"""
+        groups: dict[str, list[PersonaJudgment]] = defaultdict(list)
+        for j in judgments:
+            groups[j.type_key].append(j)
+
+        results = []
+        for type_key, group in sorted(groups.items()):
+            condition = strategy.get_condition(type_key)
+            total = len(group)
+            coupon_users = sum(1 for j in group if j.will_use_coupon)
+            usage_rate = coupon_users / total if total else 0
+
+            avg_charge = sum(j.avg_charge_amount for j in group) / total if total else 0
+            gross = avg_charge * coupon_users
+            discount_cost = avg_charge * condition.discount_rate * coupon_users
+            net = gross - discount_cost
+
+            results.append(TypeResult(
+                type_key=type_key,
+                total=total,
+                coupon_users=coupon_users,
+                usage_rate=usage_rate,
+                discount_rate=condition.discount_rate,
+                validity_days=condition.validity_days,
+                avg_charge_amount=avg_charge,
+                gross_revenue=gross,
+                discount_cost=discount_cost,
+                net_revenue=net,
+            ))
+
+        return results

@@ -10,14 +10,17 @@ class Settings(BaseSettings):
         "sqlite+aiosqlite:///data/db/nudge.db", alias="DATABASE_URL"
     )
 
-    # Conversation defaults
-    max_turns: int = 16
-    conversation_timeout_sec: int = 120
+    # CSMS DB (정보계)
+    csms_db_host: str = Field("192.168.50.243", alias="CSMS_DB_HOST")
+    csms_db_port: int = Field(3306, alias="CSMS_DB_PORT")
+    csms_db_name: str = Field("CSMS", alias="CSMS_DB_NAME")
+    csms_db_user: str = Field("infoadmin", alias="CSMS_DB_USER")
+    csms_db_password: str = Field("", alias="CSMS_DB_PASSWORD")
 
     # RALPH loop defaults
     ralph_iterations: int = 5
-    personas_per_iteration: int = 200
-    concurrent_conversations: int = 50
+    personas_count: int = 2000
+    concurrent_calls: int = 50
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

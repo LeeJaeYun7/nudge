@@ -1,12 +1,21 @@
-"""RALPH Loop 전체 시뮬레이션을 실행하는 메인 스크립트"""
+"""EV 충전 쿠폰 넛지 RALPH Loop 시뮬레이션"""
 
 import asyncio
+import os
+import sys
+
+# 프로젝트 루트를 sys.path에 추가
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
+os.chdir(PROJECT_ROOT)
+os.environ["PYTHONIOENCODING"] = "utf-8"
 
 from rich.console import Console
 
 from config.settings import get_settings
+from src.csms.revenue import calculate_baseline_revenue
 from src.llm import create_client
-from src.personas.loader import load_personas
+from src.personas.loader import generate_personas_from_db
 from src.ralph.loop import RALPHLoop
 
 console = Console()
@@ -16,37 +25,41 @@ async def main():
     settings = get_settings()
     client = create_client(settings.openrouter_api_key)
 
-    # 페르소나 로드
-    personas = load_personas()
-    console.print(f"[bold]로드된 페르소나: {len(personas)}명[/]\n")
+    # 기준선 매출
+    console.print("[bold]기준선 매출 조회 중...[/]")
+    baseline = calculate_baseline_revenue()
+    baseline_monthly = float(baseline["monthly_revenue"])
+    console.print(f"  월 매출: ₩{baseline_monthly:,.0f}\n")
 
-    # RALPH Loop 설정
+    # 페르소나 생성
+    console.print("[bold]DB에서 페르소나 생성 중...[/]")
+    personas = generate_personas_from_db(settings.personas_count)
+    console.print(f"  생성: {len(personas)}명\n")
+
+    # RALPH Loop 실행
     loop = RALPHLoop(
         client=client,
         model_cheap=settings.model_cheap,
         model_expensive=settings.model_expensive,
-        product_name="VitaForest 올인원 데일리 멀티비타민",
-        product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포",
-        product_price="49,900원 (정가 65,000원, 30일분)",
-        max_turns=16,
-        concurrency=10,
+        baseline_revenue=baseline_monthly,
+        concurrency=settings.concurrent_calls,
     )
 
-    # 실행
     results = await loop.run(
         personas=personas,
-        n_iterations=5,
-        personas_per_iteration=200,
+        n_iterations=settings.ralph_iterations,
     )
 
-    # 결과 요약
+    # 최종 요약
     console.print("\n[bold]═══ 최종 결과 요약 ═══[/]\n")
+    console.print(f"  기준선 매출: ₩{baseline_monthly:,.0f}")
     for r in results:
+        total = baseline_monthly + r.net_revenue
+        pct = r.net_revenue / baseline_monthly * 100 if baseline_monthly else 0
         console.print(
-            f"  Iteration {r.iteration}: "
-            f"전략={r.strategy_id}, "
-            f"점수={r.avg_weighted_score:.2f}, "
-            f"대화={r.conversation_count}개"
+            f"  {r.iteration}회차: ₩{total:,.0f} "
+            f"(+₩{r.net_revenue:,.0f}, +{pct:.1f}%) "
+            f"사용률: {r.coupon_usage_rate:.1%}"
         )
 
     console.print(f"\n  [bold green]총 학습 포인트: {len(loop.all_learnings)}개[/]")

@@ -71,3 +71,39 @@ class LearningRecord(SQLModel, table=True):
     iteration: int
     content: str
     created_at: datetime = Field(default_factory=datetime.now)
+
+
+# === 쿠폰 넛지 루프 결과 ===
+
+class CouponLoopRun(SQLModel, table=True):
+    """랄프 루프 실행 단위"""
+    __tablename__ = "coupon_loop_runs"
+
+    id: int | None = Field(default=None, primary_key=True)
+    n_iterations: int
+    personas_count: int
+    baseline_revenue: float
+    started_at: datetime = Field(default_factory=datetime.now)
+    ended_at: datetime | None = None
+
+
+class CouponIterationResult(SQLModel, table=True):
+    """루프 내 이터레이션별 결과"""
+    __tablename__ = "coupon_iteration_results"
+
+    id: int | None = Field(default=None, primary_key=True)
+    run_id: int = Field(index=True)
+    iteration: int
+    strategy_id: str
+    strategy_rationale: str = ""
+    conditions_json: str = Field(default="", description="JSON: 25개 유형별 조건")
+    coupon_users: int
+    coupon_usage_rate: float
+    gross_revenue: float
+    discount_cost: float
+    net_revenue: float
+    baseline_revenue: float
+    per_type_results_json: str = Field(default="", description="JSON: 유형별 결과")
+    learnings_json: str = Field(default="", description="JSON: 학습 인사이트")
+    analysis_json: str = Field(default="", description="JSON: 분석 결과")
+    created_at: datetime = Field(default_factory=datetime.now)

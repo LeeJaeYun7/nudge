@@ -1,70 +1,129 @@
+"""Hypothesize 단계: 쿠폰 전략 가설 생성"""
+
 import json
 
 from openai import AsyncOpenAI
 
 from src.llm import chat
-from src.ralph.strategy import Strategy, StrategyResult
+from src.ralph.strategy import CouponCondition, CouponStrategy, CouponStrategyResult
+
+
+ALL_TYPE_KEYS = [
+    f"{age}_{freq}"
+    for age in ["20대", "30대", "40대", "50대", "60대+"]
+    for freq in ["월1회미만", "월1~2회", "월3~4회", "월5~9회", "월10회+"]
+]
 
 
 async def generate_hypothesis(
     client: AsyncOpenAI,
     model: str,
     iteration: int,
-    prior_results: list[StrategyResult] | None = None,
+    prior_results: list[CouponStrategyResult] | None = None,
     learnings: list[str] | None = None,
-) -> Strategy:
-    """과거 학습을 기반으로 새로운 영업 전략 가설을 생성합니다."""
+) -> CouponStrategy:
+    """쿠폰 조건 가설을 생성합니다.
+
+    1회차: 전체 동일 조건 (baseline)
+    2회차~: 유형별 개별 최적화
+    """
+
+    if iteration == 1:
+        return _generate_baseline(iteration)
+
+    return await _generate_optimized(client, model, iteration, prior_results, learnings)
+
+
+def _generate_baseline(iteration: int) -> CouponStrategy:
+    """1회차: 전체 동일 조건 (할인 20%, 유효 7일)"""
+    condition = CouponCondition(type_key="ALL", discount_rate=0.20, validity_days=7)
+    return CouponStrategy(
+        id=f"S{iteration:03d}",
+        iteration=iteration,
+        conditions=[condition],
+        rationale="기준선 측정: 전체 동일 조건 (20% 할인, 7일 유효)",
+    )
+
+
+async def _generate_optimized(
+    client: AsyncOpenAI,
+    model: str,
+    iteration: int,
+    prior_results: list[CouponStrategyResult] | None,
+    learnings: list[str] | None,
+) -> CouponStrategy:
+    """2회차~: 이전 결과 기반 유형별 최적화"""
 
     context = ""
     if prior_results:
-        context += "\n## 이전 전략 결과\n"
-        for r in prior_results[-5:]:
-            context += f"- 전략 {r.strategy_id}: 평균 {r.avg_weighted_score}점, "
-            context += f"구매율: {r.purchase_rate:.0%}, 매출: ₩{r.total_revenue:,.0f}, "
-            context += f"인사이트: {r.key_insights}\n"
+        context += "\n## 이전 이터레이션 결과\n"
+        for r in prior_results:
+            context += f"\n### 이터레이션 {r.iteration} (순이익: ₩{r.net_revenue:,.0f})\n"
+            for tr in r.per_type_results:
+                context += (
+                    f"- {tr.type_key}: 할인 {tr.discount_rate:.0%}/{tr.validity_days}일 → "
+                    f"사용률 {tr.usage_rate:.0%}, 순이익 ₩{tr.net_revenue:,.0f}\n"
+                )
 
     if learnings:
-        context += "\n## 축적된 학습 내용\n"
-        for l in learnings[-10:]:
+        context += "\n## 축적된 학습\n"
+        for l in learnings:
             context += f"- {l}\n"
 
-    prompt = f"""당신은 온라인 쇼핑몰 세일즈 전략 설계 전문가입니다.
-다양한 고객 페르소나에게 효과적으로 제품을 판매하기 위한 AI 채팅 상담원의 새로운 전략 가설을 생성하세요.
+    prompt = f"""당신은 전기차 충전 쿠폰 최적화 전문가입니다.
+이전 결과를 분석하고, 25개 유형별로 최적의 쿠폰 조건을 설계하세요.
 
-이번은 {iteration}번째 반복입니다.
+이번은 {iteration}번째 이터레이션입니다.
 {context}
 
-## 배경
-- 온라인 쇼핑몰 상품 페이지의 AI 채팅 상담원
-- 고객이 상품 페이지에 접속하여 채팅으로 상담
-- 무기: 리뷰/후기, 쿠폰, 무료배송, 카드할인, 즉시배송 등
+## 목표
+- 순이익(추가 매출 - 할인 비용)을 최대화하는 유형별 쿠폰 조건 설계
+- 쿠폰이 없어도 어차피 충전할 유저에게 과도한 할인을 주지 않기
+- 사용률이 낮은 유형은 조건을 매력적으로, 이미 높은 유형은 할인을 줄여 비용 절감
 
-## 요구사항
-- 이전 결과를 분석하고, 더 효과적일 수 있는 새로운 접근을 시도하세요.
-- 구체적이고 실행 가능한 전략을 설계하세요.
-- 기존에 효과가 낮았던 부분을 개선하세요.
+## 제약 조건
+- 할인율: 5% ~ 30% (정수 단위)
+- 유효기간: 1일 ~ 30일 (정수)
+
+## 25개 유형 키
+{json.dumps(ALL_TYPE_KEYS, ensure_ascii=False)}
 
 ## 응답 형식 (JSON만 출력)
 {{
-  "name": "전략명",
-  "approach": "전반적 접근 방식 설명",
-  "opening_style": "첫 인사/오프닝 스타일",
-  "persuasion_tactics": ["기법1", "기법2", "기법3"],
-  "objection_handling": "고객 반론 시 대응 방식",
-  "target_personas": ["효과적일 페르소나 유형"]
+  "rationale": "전체 전략 방향 설명",
+  "conditions": [
+    {{"type_key": "20대_월1회미만", "discount_rate": 0.25, "validity_days": 14}},
+    ...25개 전부
+  ]
 }}
 """
 
-    raw = await chat(client, model, [{"role": "user", "content": prompt}], max_tokens=1024)
+    raw = await chat(client, model, [{"role": "user", "content": prompt}], max_tokens=4096)
     raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1]
-        raw = raw.rsplit("```", 1)[0]
+    if "```" in raw:
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        raw = raw[start:end]
 
     data = json.loads(raw)
+    conditions = []
+    for c in data["conditions"]:
+        dr = c["discount_rate"]
+        # LLM이 정수(18)로 반환하면 소수(0.18)로 변환
+        if dr > 1:
+            dr = dr / 100
+        # 5%~30% 범위로 클램핑
+        dr = max(0.05, min(0.30, dr))
+        vd = max(1, min(30, int(c["validity_days"])))
+        conditions.append(CouponCondition(
+            type_key=c["type_key"],
+            discount_rate=round(dr, 2),
+            validity_days=vd,
+        ))
 
-    return Strategy(
+    return CouponStrategy(
         id=f"S{iteration:03d}",
         iteration=iteration,
-        **data,
+        conditions=conditions,
+        rationale=data.get("rationale", ""),
     )

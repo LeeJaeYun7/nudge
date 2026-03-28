@@ -2,70 +2,39 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class Generation(str, Enum):
-    TEEN = "teen"
-    TWENTIES = "20s"
-    THIRTIES = "30s"
-    FORTIES = "40s"
-    FIFTIES = "50s"
-    SIXTIES_PLUS = "60plus"
+class AgeGroup(str, Enum):
+    TWENTIES = "20대"
+    THIRTIES = "30대"
+    FORTIES = "40대"
+    FIFTIES = "50대"
+    SIXTIES_PLUS = "60대+"
 
 
-class InterestCategory(str, Enum):
-    FASHION = "fashion"
-    ELECTRONICS = "electronics"
-    FOOD = "food"
-    HEALTH = "health"
-    HOBBY = "hobby"
-    HOME = "home"
+class ChargingFrequency(str, Enum):
+    LESS_THAN_1 = "월1회미만"
+    ONE_TO_TWO = "월1~2회"
+    THREE_TO_FOUR = "월3~4회"
+    FIVE_TO_NINE = "월5~9회"
+    TEN_PLUS = "월10회+"
 
 
-class PurchaseTendency(str, Enum):
-    IMPULSE = "impulse"
-    DELIBERATE = "deliberate"
-    BARGAIN_HUNTER = "bargain_hunter"
-    BRAND_LOYAL = "brand_loyal"
-    NEEDS_BASED = "needs_based"
+class EVPersona(BaseModel):
+    """전기차 충전 유저 페르소나"""
 
-
-class PriceSensitivity(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-
-
-class ReactionPattern(str, Enum):
-    FRIENDLY = "friendly"
-    SKEPTICAL = "skeptical"
-    IMPATIENT = "impatient"
-    CURIOUS = "curious"
-    DEFENSIVE = "defensive"
-
-
-class InitialMood(str, Enum):
-    POSITIVE = "positive"
-    NEUTRAL = "neutral"
-    NEGATIVE = "negative"
-
-
-class Persona(BaseModel):
-    """고객 페르소나 정의"""
-
-    id: str = Field(..., description="고유 식별자 (예: P001)")
-    name: str = Field(..., description="페르소나 이름")
-    generation: Generation
-    interest_category: InterestCategory
-    purchase_tendency: PurchaseTendency
-    price_sensitivity: PriceSensitivity
-    reaction_pattern: ReactionPattern
-    initial_mood: InitialMood
-    background: str = Field("", description="페르소나 배경 설명")
-    speech_style: str = Field("", description="말투 특성 (예: 반말, 존댓말, 짧은 문장)")
+    id: str = Field(..., description="고유 식별자 (CUT_ID)")
+    age_group: AgeGroup
+    charging_frequency: ChargingFrequency
+    type_key: str = Field(..., description="유형 키 (예: 30대_월3~4회)")
+    avg_charge_amount: float = Field(..., description="평균 1회 충전금액 (원)")
+    avg_monthly_sessions: float = Field(..., description="월평균 충전 횟수")
+    car_name: str = Field("", description="차량명")
+    gender: str = Field("", description="성별 (M/F)")
 
     @property
     def summary(self) -> str:
         return (
-            f"{self.name} ({self.generation.value}, {self.interest_category.value}) - "
-            f"{self.purchase_tendency.value}, 가격민감도:{self.price_sensitivity.value}, "
-            f"{self.reaction_pattern.value}, 기분:{self.initial_mood.value}"
+            f"{self.type_key} | "
+            f"평균 ₩{self.avg_charge_amount:,.0f}/회 | "
+            f"월 {self.avg_monthly_sessions:.1f}회 | "
+            f"{self.car_name or '차종미상'}"
         )

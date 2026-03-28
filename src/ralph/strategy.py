@@ -1,36 +1,67 @@
-from datetime import datetime
+"""쿠폰 전략 및 결과 데이터 모델"""
 
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-class Strategy(BaseModel):
-    """영업 전략 정의"""
+class CouponCondition(BaseModel):
+    """특정 유형에 적용할 쿠폰 조건"""
+    type_key: str  # "30대_월3~4회"
+    discount_rate: float  # 0.05 ~ 0.30
+    validity_days: int  # 1 ~ 30
 
-    id: str = Field(..., description="전략 고유 ID")
-    name: str = Field(..., description="전략명")
-    approach: str = Field(..., description="전반적 접근 방식")
-    opening_style: str = Field(..., description="오프닝 스타일")
-    persuasion_tactics: list[str] = Field(default_factory=list, description="설득 기법 목록")
-    objection_handling: str = Field(default="", description="반론 대응 방식")
-    target_personas: list[str] = Field(
-        default_factory=list, description="특히 효과적일 페르소나 유형"
-    )
+
+class CouponStrategy(BaseModel):
+    """RALPH가 생성한 쿠폰 전략 (이터레이션당 1개)"""
+    id: str
+    iteration: int
+    conditions: list[CouponCondition]  # 1회차: 1개(전체 동일), 2회차~: 25개(유형별)
+    rationale: str = ""
     created_at: datetime = Field(default_factory=datetime.now)
-    iteration: int = Field(default=0, description="RALPH 반복 회차")
+
+    def get_condition(self, type_key: str) -> CouponCondition:
+        """유형 키로 해당 조건을 반환합니다. 없으면 첫 번째(전체 동일) 조건을 반환."""
+        for c in self.conditions:
+            if c.type_key == type_key:
+                return c
+        return self.conditions[0]
 
 
-class StrategyResult(BaseModel):
-    """전략 실행 결과 요약"""
+class PersonaJudgment(BaseModel):
+    """개별 페르소나의 쿠폰 사용 판단 결과"""
+    persona_id: str
+    type_key: str
+    will_use_coupon: bool
+    reasoning: str
+    discount_rate: float
+    validity_days: int
+    avg_charge_amount: float
 
+
+class TypeResult(BaseModel):
+    """유형별 집계 결과"""
+    type_key: str
+    total: int
+    coupon_users: int
+    usage_rate: float
+    discount_rate: float
+    validity_days: int
+    avg_charge_amount: float
+    gross_revenue: float  # 추가 매출
+    discount_cost: float  # 할인 비용
+    net_revenue: float  # 순이익
+
+
+class CouponStrategyResult(BaseModel):
+    """이터레이션 결과"""
     strategy_id: str
     iteration: int
-    avg_weighted_score: float
-    conversation_count: int
-    purchase_count: int = 0
-    wishlist_count: int = 0
-    exit_count: int = 0
-    purchase_rate: float = 0.0
-    total_revenue: float = 0.0
-    best_persona_types: list[str] = Field(default_factory=list)
-    worst_persona_types: list[str] = Field(default_factory=list)
-    key_insights: list[str] = Field(default_factory=list)
+    total_personas: int
+    coupon_users: int
+    coupon_usage_rate: float
+    gross_revenue: float
+    discount_cost: float
+    net_revenue: float
+    baseline_revenue: float
+    per_type_results: list[TypeResult]
+    key_insights: list[str] = []
