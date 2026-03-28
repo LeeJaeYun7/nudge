@@ -89,3 +89,9 @@ class Repository:
             EvaluationRecord.experiment_id == experiment_id
         )
         return list(self.session.exec(stmt).all())
+
+    def get_strategies_by_experiment(self, experiment_id: str) -> list[StrategyRecord]:
+        stmt = select(StrategyRecord).where(
+            StrategyRecord.experiment_id == experiment_id
+        )
+        return list(self.session.exec(stmt).all())

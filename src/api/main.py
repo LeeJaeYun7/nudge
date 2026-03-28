@@ -8,7 +8,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from config.settings import get_settings
 from src.llm import create_client
@@ -22,6 +22,7 @@ from src.conversation.engine import ConversationEngine
 from src.conversation.rules import check_termination
 from src.conversation.turn import Turn
 from src.evaluation.evaluator import Evaluator
+from src.evaluation.statistics import analyze_ralph_results, RalphAnalysis
 from src.ralph.loop import RALPHLoop
 
 
@@ -32,6 +33,9 @@ loop_state = {
     "current_iteration": 0,
     "total_iterations": 0,
     "events": [],  # SSE events queue
+    "iteration_data": [],  # list of {"iteration", "sessions", "evaluations"} per iteration
+    "analysis": None,  # RalphAnalysis after loop completes
+    "personas": [],  # personas used in the loop
 }
 
 
@@ -102,8 +106,13 @@ class SimRequest(BaseModel):
 
 
 class LoopRequest(BaseModel):
-    personas: list[dict]
+    personas: list[dict] = Field(default_factory=list)
+    product_name: str = "VitaForest 올인원 데일리 멀티비타민"
+    product_category: str = ""
+    product_price: int = 49900
+    product_description: str = "22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포, 4.7점 리뷰"
     n_iterations: int = 5
+    personas_count: int = 20
 
 
 class LoopStatus(BaseModel):
@@ -193,8 +202,37 @@ async def start_loop(req: LoopRequest):
     if loop_state["running"]:
         return {"error": "Loop already running"}
 
-    # Convert personas
-    backend_personas = [frontend_persona_to_backend(p) for p in req.personas]
+    # Convert personas from frontend format or select by category
+    if req.personas:
+        backend_personas = [frontend_persona_to_backend(p) for p in req.personas]
+    elif req.product_category:
+        # Use persona selector if category is provided
+        from src.personas.loader import load_personas
+        all_personas = load_personas()
+        # Filter personas by matching interest category
+        cat_enum = CAT_MAP.get(req.product_category)
+        if cat_enum:
+            matched = [p for p in all_personas if p.interest_category == cat_enum]
+            # If not enough matched, supplement with others
+            if len(matched) < req.personas_count:
+                remaining = [p for p in all_personas if p not in matched]
+                import random
+                matched.extend(random.sample(remaining, min(req.personas_count - len(matched), len(remaining))))
+            elif len(matched) > req.personas_count:
+                import random
+                matched = random.sample(matched, req.personas_count)
+            backend_personas = matched
+        else:
+            import random
+            backend_personas = random.sample(all_personas, min(req.personas_count, len(all_personas)))
+    else:
+        from src.personas.loader import load_personas
+        all_personas = load_personas()
+        import random
+        backend_personas = random.sample(all_personas, min(req.personas_count, len(all_personas)))
+
+    # Format product price string
+    product_price_str = f"₩{req.product_price:,}"
 
     # Reset state
     loop_state["running"] = True
@@ -202,9 +240,18 @@ async def start_loop(req: LoopRequest):
     loop_state["current_iteration"] = 0
     loop_state["total_iterations"] = req.n_iterations
     loop_state["events"] = []
+    loop_state["iteration_data"] = []
+    loop_state["analysis"] = None
+    loop_state["personas"] = backend_personas
 
     # Run in background
-    asyncio.create_task(_run_loop(backend_personas, req.n_iterations))
+    asyncio.create_task(_run_loop(
+        backend_personas,
+        req.n_iterations,
+        product_name=req.product_name,
+        product_description=req.product_description,
+        product_price=product_price_str,
+    ))
 
     return {"status": "started", "total_personas": len(backend_personas), "iterations": req.n_iterations}
 
@@ -236,9 +283,24 @@ async def stop_loop():
     return {"status": "stopped"}
 
 
+@app.get("/api/loop/analysis")
+async def get_loop_analysis():
+    """Return RalphAnalysis for the most recent completed loop."""
+    analysis = loop_state.get("analysis")
+    if analysis is None:
+        return {"error": "No analysis available. Run a loop first."}
+    return analysis.model_dump()
+
+
 # === Background Loop Runner ===
 
-async def _run_loop(personas: list[Persona], n_iterations: int):
+async def _run_loop(
+    personas: list[Persona],
+    n_iterations: int,
+    product_name: str = "VitaForest 올인원 데일리 멀티비타민",
+    product_description: str = "22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포, 4.7점 리뷰",
+    product_price: str = "₩49,900 (정가 ₩65,000, 30일분)",
+):
     try:
         settings = get_settings()
         client = create_client(settings.openrouter_api_key)
@@ -247,9 +309,9 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             client=client,
             model_cheap=settings.model_cheap,
             model_expensive=settings.model_expensive,
-            product_name="VitaForest 올인원 데일리 멀티비타민",
-            product_description="22종 비타민+미네랄, 프로바이오틱스, 루테인, 오메가3, GMP 인증, 하루 1포, 4.7점 리뷰",
-            product_price="₩49,900 (정가 ₩65,000, 30일분)",
+            product_name=product_name,
+            product_description=product_description,
+            product_price=product_price,
             max_turns=settings.max_turns,
             concurrency=settings.concurrent_conversations,
         )
@@ -259,7 +321,7 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             loop_state["current_iteration"] = iteration
             _push_event({"type": "iteration_start", "iteration": iteration, "total": total})
 
-        async def on_iter_end(result, strategy, analysis=None):
+        async def on_iter_end(result, strategy, analysis=None, sessions=None, evaluations=None):
             result_data = {
                 "iteration": result.iteration,
                 "strategy_name": strategy.name,
@@ -281,6 +343,14 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             loop_state["results"].append(result_data)
             _push_event({"type": "iteration_end", **result_data})
 
+            # Store raw data for statistical analysis
+            if sessions is not None and evaluations is not None:
+                loop_state["iteration_data"].append({
+                    "iteration": result.iteration,
+                    "sessions": sessions,
+                    "evaluations": evaluations,
+                })
+
         ralph.on_iteration_start = on_iter_start
         ralph.on_iteration_end = on_iter_end
 
@@ -289,6 +359,17 @@ async def _run_loop(personas: list[Persona], n_iterations: int):
             n_iterations=n_iterations,
             personas_per_iteration=len(personas),
         )
+
+        # Compute statistical analysis after loop completes
+        if loop_state["iteration_data"]:
+            try:
+                analysis = analyze_ralph_results(
+                    iteration_results=loop_state["iteration_data"],
+                    personas=personas,
+                )
+                loop_state["analysis"] = analysis
+            except Exception as e:
+                _push_event({"type": "analysis_error", "message": str(e)})
 
     except Exception as e:
         _push_event({"type": "error", "message": str(e)})
