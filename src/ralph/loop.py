@@ -182,7 +182,10 @@ class RALPHLoop:
             self.result_history.append(result)
 
             if self.on_iteration_end:
-                await self.on_iteration_end(result, strategy, analysis)
+                await self.on_iteration_end(
+                    result, strategy, analysis,
+                    sessions=sessions, evaluations=evaluations,
+                )
 
             console.print(f"[bold green]Iteration {iteration} 완료[/] -"
                           f"점수: {avg_score:.1f}, 구매율: {purchase_rate:.0%}, 매출: ₩{total_revenue:,.0f}")
